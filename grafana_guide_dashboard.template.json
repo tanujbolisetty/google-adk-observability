@@ -1,0 +1,83 @@
+{
+  "title": "Agent Intelligence Guide",
+  "uid": "agent-guide",
+  "tags": [
+    "agent",
+    "adk",
+    "help"
+  ],
+  "editable": true,
+  "schemaVersion": 39,
+  "timezone": "browser",
+  "links": [],
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n  <a href=\"/d/agent-finops\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n  <a href=\"/d/agent-transcript\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n  <a href=\"/d/agent-diagnostics\" style=\"text-decoration: none;\">\u2699\ufe0f Diagnostics</a>\n  <a href=\"/d/agent-guide\" style=\"text-decoration: none;\">\u2753 Help</a>\n</div>",
+        "mode": "html"
+      },
+      "transparent": true
+    },
+    {
+      "type": "text",
+      "title": "\ud83d\uddfa\ufe0f Navigation & Architecture",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 2
+      },
+      "options": {
+        "content": "### Dashboard Architecture\nThe analytical interface is designed as a multi-page **Dashboard Application**. \n\n1. **\ud83c\udfe0 Home (Landing Page)**: Executive summary of all orchestration. Provides trends on sessions, total token usage, and cumulative cost.\n2. **\ud83d\udcb0 FinOps (Costs)**: Granular financial deep-dive. Track precisely how much each user turn and session is costing in USD.\n3. **\u2699\ufe0f Diagnostics (Health)**: Technical troubleshooting. Monitor TTFT spikes, tool execution latency, and error rates.\n4. **\ud83d\udcac Transcripts (Replay)**: Operational auditing. Reconstruct the full back-and-forth conversation for any specific session.\n\n### Navigation Tips\n- **Drill-Downs**: Click on Session IDs in tables to jump between dashboards while keeping your filters.\n- **Control Bar**: Use the variables at the top to switch between BigQuery Datasets or Table versions without changing code.\n- **Time Filters**: Changing the time in the top right carries over across all dashboards automatically.",
+        "mode": "markdown"
+      }
+    },
+    {
+      "type": "text",
+      "title": "\ud83d\udcd9 Technical Metric: TTFT Understanding",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "options": {
+        "content": "### What is TTFT (Time To First Token)?\n\n**TTFT** measures the latency (in milliseconds) for the LLM to return the very first character of its response for **every individual LLM interaction** in a session. \n\n> [!IMPORTANT]\n> **TTFT vs Total Latency**\n> - **TTFT** shows when the first word appeared.\n> - **Total MS** shows when the last word appeared.\n> \n> If the `run()` method is used, the difference between these two values is negligible (0-1ms) because the backend waits for the entire response before sending it. Otherwise, using streaming methods like `run_stream()` will result in a distinct difference between these metrics.\n\n### Where is it measured?\nTTFT is measured for *every* LLM call made by the agent. This includes:\n1. **Initial Prompts**: The first greeting issued when a user session starts.\n2. **Orchestration Steps**: When the agent is reasoning about which tool to use.\n3. **Final Synthesis**: After a tool has returned data and the agent is forming the final answer to the user.",
+        "mode": "markdown"
+      }
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "BigQuery",
+          "value": "BigQuery"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "grafana-bigquery-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  }
+}

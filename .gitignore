@@ -1,0 +1,20 @@
+# Local configured dashboards (contain real IDs)
+configured/
+
+# Historical backups
+backups/
+
+# Environment secrets
+.env
+
+# Python artifacts
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS metadata
+.DS_Store
+
+# Local documentation (not synced)
+git_guide.md
+

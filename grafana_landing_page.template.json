@@ -1,0 +1,256 @@
+{
+  "title": "Agent Home (Landing Page)",
+  "uid": "agent-landing",
+  "tags": [
+    "agent",
+    "adk",
+    "landing"
+  ],
+  "editable": true,
+  "schemaVersion": 39,
+  "timezone": "browser",
+  "links": [],
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n  <a href=\"/d/agent-finops\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n  <a href=\"/d/agent-transcript\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n  <a href=\"/d/agent-diagnostics\" style=\"text-decoration: none;\">\u2699\ufe0f Diagnostics</a>\n  <a href=\"/d/agent-guide\" style=\"text-decoration: none;\">\u2753 Help</a>\n</div>",
+        "mode": "html"
+      },
+      "transparent": true,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "type": "text",
+      "title": "Welcome to Agent Analytics",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 2
+      },
+      "options": {
+        "content": "# \ud83d\udcca Agent Intelligence Dashboard\nWelcome! Use the navigation bar above to explore your agent telemetry.",
+        "mode": "markdown"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Sessions",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT count(DISTINCT session_id) as total_sessions FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start)",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "Unique count of session IDs initiated by users in the selected time range."
+    },
+    {
+      "type": "stat",
+      "title": "Total Tokens",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT sum(session_total_tokens) as tokens FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start)",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "description": "Cumulative tokens consumed (Prompt + Completion). Automatically scales (K, M, B)."
+    },
+    {
+      "type": "stat",
+      "title": "Total Cost (USD)",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT sum(session_total_cost_usd) as usd_cost FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start)",
+          "format": "table"
+        }
+      ],
+      "description": "Estimated cumulative cost in USD based on model pricing and token usage."
+    },
+    {
+      "type": "timeseries",
+      "title": "\ud83d\udcc8 Sessions Per Day",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, COUNT(DISTINCT session_id) AS value FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start) GROUP BY 1 ORDER BY 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "\ud83d\udcc8 Daily Token Consumption",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, SUM(session_total_tokens) AS value FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start) GROUP BY 1 ORDER BY 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "type": "table",
+      "title": "Recent Sessions by User",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT session_id, user_id, session_start, session_end, total_turns, session_total_tokens, session_total_cost_usd FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start) ORDER BY session_start DESC LIMIT 20",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "Latest 20 user sessions with activity and cost summaries."
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "BigQuery",
+          "value": "BigQuery"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "grafana-bigquery-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "name": "gcp_project",
+        "label": "GCP Project",
+        "type": "textbox",
+        "current": {
+          "text": "REPLACE_ME",
+          "value": "REPLACE_ME"
+        },
+        "options": [
+          {
+            "text": "REPLACE_ME",
+            "value": "REPLACE_ME"
+          }
+        ],
+        "hide": 0
+      },
+      {
+        "name": "bq_dataset",
+        "label": "BQ Dataset",
+        "type": "textbox",
+        "current": {
+          "text": "REPLACE_ME",
+          "value": "REPLACE_ME"
+        },
+        "options": [
+          {
+            "text": "REPLACE_ME",
+            "value": "REPLACE_ME"
+          }
+        ],
+        "hide": 0
+      },
+      {
+        "allValue": "%",
+        "current": {
+          "text": "REPLACE_ME",
+          "value": "REPLACE_ME"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Base Table",
+        "name": "bq_table",
+        "options": [
+          {
+            "text": "REPLACE_ME",
+            "value": "REPLACE_ME"
+          }
+        ],
+        "query": "mosa_agent_events_v2",
+        "type": "textbox"
+      }
+    ]
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "title": "Agent FinOps (Token Costs)",
+  "uid": "agent-finops",
+  "tags": [
+    "agent",
+    "adk",
+    "agent-financials"
+  ],
+  "editable": true,
+  "schemaVersion": 39,
+  "description": "Token usage and cost breakdown. [FILTERS]: User ID (Global)",
+  "timezone": "browser",
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "BigQuery",
+          "value": "BigQuery"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "grafana-bigquery-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "name": "gcp_project",
+        "label": "GCP Project",
+        "type": "textbox",
+        "current": {
+          "text": "REPLACE_ME",
+          "value": "REPLACE_ME"
+        },
+        "options": [
+          {
+            "text": "REPLACE_ME",
+            "value": "REPLACE_ME"
+          }
+        ],
+        "hide": 0
+      },
+      {
+        "name": "bq_dataset",
+        "label": "BQ Dataset",
+        "type": "textbox",
+        "current": {
+          "text": "REPLACE_ME",
+          "value": "REPLACE_ME"
+        },
+        "options": [
+          {
+            "text": "REPLACE_ME",
+            "value": "REPLACE_ME"
+          }
+        ],
+        "hide": 0
+      },
+      {
+        "allValue": "%",
+        "current": {
+          "text": "REPLACE_ME",
+          "value": "REPLACE_ME"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Base Table",
+        "name": "bq_table",
+        "options": [
+          {
+            "text": "REPLACE_ME",
+            "value": "REPLACE_ME"
+          }
+        ],
+        "query": "mosa_agent_events_v2",
+        "type": "textbox"
+      },
+      {
+        "name": "user_id",
+        "label": "User",
+        "type": "query",
+        "query": {
+          "rawSql": "SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id",
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": 1,
+          "refId": "tempvar",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": "%",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "sort": 1,
+        "datasource": {
+          "type": "grafana-bigquery-datasource",
+          "uid": "${datasource}"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n  <a href=\"/d/agent-finops\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n  <a href=\"/d/agent-transcript\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n  <a href=\"/d/agent-diagnostics\" style=\"text-decoration: none;\">\u2699\ufe0f Diagnostics</a>\n  <a href=\"/d/agent-guide\" style=\"text-decoration: none;\">\u2753 Help</a>\n</div>",
+        "mode": "html"
+      },
+      "transparent": true
+    },
+    {
+      "type": "timeseries",
+      "title": "\ud83d\udcb5 Session Cost Over Time (USD)",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 3
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "links": [
+            {
+              "title": "\ud83d\udd0d Drill into Diagnostics for this time",
+              "url": "/d/agent-diagnostics?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT session_start AS time, session_total_cost_usd AS value FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start) AND user_id LIKE '${user_id:raw}' ORDER BY time",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "\ud83d\udd22 Tokens Consumed Per Turn",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 3
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": [
+            {
+              "title": "\ud83d\udd0d Drill into Diagnostics for this turn",
+              "url": "/d/agent-diagnostics?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT turn_start AS time, tokens AS value FROM `${gcp_project}.${bq_dataset}.v_turn_summary` WHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}' ORDER BY time",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "\ud83d\udcca Token Usage by Model Version",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "vertical",
+        "showValue": "always",
+        "barWidth": 0.7
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT model, SUM(total_tokens) as total_tokens, SUM(calculated_usd_cost) as total_cost_usd FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND user_id LIKE '${user_id:raw}' GROUP BY model ORDER BY total_tokens DESC",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "\ud83d\udccb Cost Breakdown Per Session",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "session_id"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "\ud83d\udd0d Drill into Diagnostics",
+                    "url": "/d/agent-diagnostics?var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
+                  },
+                  {
+                    "title": "\ud83d\udcac View Chat Transcript",
+                    "url": "/d/agent-transcript?var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT l.session_id, l.user_id, SUM(l.calculated_usd_cost) as total_cost_usd, MIN(l.timestamp) as session_start, SUM(l.prompt_tokens) as input_tokens, SUM(l.completion_tokens) as output_tokens, SUM(l.total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_llm_calls` l WHERE $__timeFilter(l.timestamp) AND l.user_id LIKE '${user_id:raw}' GROUP BY l.session_id, l.user_id ORDER BY total_cost_usd DESC LIMIT 20",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "\ud83e\udd16 Token Usage by Agent",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "vertical",
+        "showValue": "always",
+        "barWidth": 0.7
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT agent, SUM(total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND user_id LIKE '${user_id:raw}' GROUP BY agent ORDER BY total_tokens DESC",
+          "format": "table"
+        }
+      ]
+    }
+  ],
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  }
+}
