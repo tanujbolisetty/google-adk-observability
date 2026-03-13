@@ -15,6 +15,19 @@ All dashboards in this suite are optimized for **Zero-Cost Idle States** and a u
 
 ---
 
+## 🔍 Filtering & Discovery Logic
+To ensure performance and relevance, the suite uses a **cascading hierarchy** for all filters:
+
+1.  **Global Time Range**: The primary filter. All dropdowns below only show values that exist within this window.
+2.  **User ID Filter**: Scoped to the **Time Range**. Lists everyone active in the selected window.
+3.  **Session ID Filter**: Scoped to the **User** AND **Time Range**. Shows only sessions matching both criteria.
+4.  **Agent & Tool Filters**: Scoped to the individual **Session**. Shows only the specific instruments used in that interaction.
+
+> [!TIP]
+> If a User or Session "disappears," simply expand your **Time Range** (e.g., to "Last 30 Days"). The dropdowns will instantly re-populate thanks to the **Dynamic Refresh** logic.
+
+---
+
 ## 🏠 Dashboard 1: Agent Home (Landing Page)
 **Goal:** High-level executive KPIs and usage trends across all agents.
 
