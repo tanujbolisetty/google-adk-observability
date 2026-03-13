@@ -57,7 +57,8 @@ Use these commands to manage the background service:
 ![Home](assets/Home_v2.jpg)
 
 ### FinOps & Diagnostics
-![FinOps](assets/Finops_v2.jpg)
+![FinOps 1](assets/Finops_v2.jpg)
+![FinOps 2](assets/Finops2_v2.jpg)
 ![Diagnostics 1](assets/Diagnostcis1_v2.jpg)
 ![Diagnostics 2](assets/Diagnostcis2_v2.jpg)
 ![Diagnostics 3](assets/Diagnostcis3_v2.jpg)
