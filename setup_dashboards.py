@@ -27,6 +27,7 @@ DASHBOARD_FILES = [
     "grafana_finops_dashboard.template.json",
     "grafana_chat_dashboard.template.json",
     "grafana_diagnostics_dashboard.template.json",
+    "grafana_traces_dashboard.template.json",
     "grafana_guide_dashboard.template.json",
 ]
 

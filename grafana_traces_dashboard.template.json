@@ -1,0 +1,114 @@
+{
+  "title": "Agent Technical Traces (Paypload Audit)",
+  "uid": "agent-traces",
+  "tags": [
+    "agent",
+    "adk",
+    "agent-traces"
+  ],
+  "editable": true,
+  "schemaVersion": 39,
+  "description": "Deep trace of LLM prompts and Tool payloads. [FILTERS]: User ID, Session ID (Required for Deep Dive)",
+  "timezone": "browser",
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "current": { "text": "BigQuery", "value": "BigQuery" },
+        "hide": 0,
+        "label": "Data Source",
+        "name": "datasource",
+        "query": "grafana-bigquery-datasource",
+        "refresh": 1,
+        "type": "datasource"
+      },
+      {
+        "name": "gcp_project",
+        "label": "GCP Project",
+        "type": "textbox",
+        "current": { "text": "REPLACE_ME_PROJECT", "value": "REPLACE_ME_PROJECT" },
+        "hide": 0
+      },
+      {
+        "name": "bq_dataset",
+        "label": "BQ Dataset",
+        "type": "textbox",
+        "current": { "text": "REPLACE_ME_PROJECT", "value": "REPLACE_ME_PROJECT" },
+        "hide": 0
+      },
+      {
+        "name": "bq_table",
+        "label": "Base Table",
+        "type": "textbox",
+        "current": { "text": "REPLACE_ME_TABLE", "value": "REPLACE_ME_TABLE" },
+        "hide": 0
+      },
+      {
+        "name": "user_id",
+        "label": "User",
+        "type": "query",
+        "query": {
+          "rawSql": "SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id"
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": "%",
+        "datasource": { "type": "grafana-bigquery-datasource", "uid": "${datasource}" }
+      },
+      {
+        "name": "session_id",
+        "label": "Session",
+        "type": "query",
+        "query": {
+          "rawSql": "SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND $__timeFilter(timestamp) ORDER BY session_id DESC"
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": "%",
+        "datasource": { "type": "grafana-bigquery-datasource", "uid": "${datasource}" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-transcript\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-diagnostics\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-traces\" style=\"text-decoration: none;\">🔍 Traces</a>\n  <a href=\"/d/agent-guide\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
+        "mode": "html"
+      },
+      "transparent": true
+    },
+    {
+      "type": "table",
+      "title": "🧠 Agent Reasoning Logs (LLM Traces)",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 2 },
+      "description": "Deep trace of prompts sent to the LLM and the responses received.",
+      "targets": [
+        {
+          "rawSql": "SELECT timestamp as time, agent, model, prompt_tokens as inp, completion_tokens as out, calculated_usd_cost as usd, response FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' ORDER BY time DESC",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "🛠️ Raw Tool Traces (Payloads)",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 14 },
+      "description": "Deep audit of tool arguments and execution results.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "inspect": true, "wrapText": true }
+        }
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT timestamp as time, tool_name, status, latency_ms as ms, input_args, output_result FROM `${gcp_project}.${bq_dataset}.v_tool_usage` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' ORDER BY time DESC",
+          "format": "table"
+        }
+      ]
+    }
+  ],
+  "time": { "from": "now-30d", "to": "now" }
+}

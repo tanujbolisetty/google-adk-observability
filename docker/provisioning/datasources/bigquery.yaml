@@ -1,0 +1,12 @@
+apiVersion: 1
+
+datasources:
+  - name: BigQuery
+    type: grafana-google-bigquery-datasource
+    access: proxy
+    isDefault: true
+    jsonData:
+      # 'gce' mode in the BigQuery plugin tells it to use Application Default Credentials (ADC)
+      # This handles local gcloud mounting AND native GKE/Cloud Run service accounts.
+      authenticationType: gce
+      defaultProject: ${GCP_PROJECT}

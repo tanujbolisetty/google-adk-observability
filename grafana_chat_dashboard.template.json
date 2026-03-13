@@ -328,7 +328,7 @@
           "links": [
             {
               "title": "\ud83d\udd0e Drill Down: View LLM Prompts",
-              "url": "/d/agent-diagnostics?var-session_id=${session_id}&var-user_id=${user_id}"
+              "url": "/d/agent-traces?var-session_id=${session_id}&var-user_id=${user_id}"
             }
           ]
         }

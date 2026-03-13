@@ -152,8 +152,8 @@ def create_views(project_id, dataset_id, table_name):
       status,
       error_message,
       CAST(JSON_VALUE(latency_ms, '$.total_ms') AS INT64) AS latency_ms,
-      JSON_VALUE(content, '$.args') AS input_args,
-      JSON_VALUE(content, '$.result') AS output_result
+      COALESCE(JSON_VALUE(content, '$.args'), JSON_VALUE(content, '$.arguments'), JSON_VALUE(content, '$.input')) AS input_args,
+      COALESCE(JSON_VALUE(content, '$.result'), JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.output')) AS output_result
     FROM `{dataset_ref}.{table_name}`
     WHERE event_type = 'TOOL_COMPLETED';
     """

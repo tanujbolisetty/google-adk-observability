@@ -1,0 +1,18 @@
+services:
+  grafana:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - GCP_PROJECT=${GCP_PROJECT:-your-project-id}
+      - BQ_DATASET=${BQ_DATASET:-your-dataset-id}
+      - BQ_TABLE=${BQ_TABLE:-your-table-name}
+      # Path inside the container for credentials
+      - GOOGLE_APPLICATION_CREDENTIALS=/var/run/gcloud/application_default_credentials.json
+    volumes:
+      # Mount local gcloud config to leverage host machine's 'gcloud auth application-default login'
+      - ${HOME}/.config/gcloud:/var/run/gcloud:ro
+    # Run as root to ensure access to mounted host volumes
+    user: "0"
