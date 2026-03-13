@@ -324,7 +324,13 @@
           "color": {
             "fixedColor": "#5794F2",
             "mode": "fixed"
-          }
+          },
+          "links": [
+            {
+              "title": "\ud83d\udd0e Drill Down: View LLM Prompts",
+              "url": "/d/agent-diagnostics?var-session_id=${session_id}&var-user_id=${user_id}"
+            }
+          ]
         }
       },
       "targets": [
@@ -363,7 +369,13 @@
           "color": {
             "fixedColor": "#F0A141",
             "mode": "fixed"
-          }
+          },
+          "links": [
+            {
+              "title": "\ud83d\udd0e Drill Down: View Tool Payloads",
+              "url": "/d/agent-diagnostics?var-session_id=${session_id}&var-user_id=${user_id}"
+            }
+          ]
         }
       },
       "targets": [

@@ -34,6 +34,8 @@ This document defines the **purpose and metrics** for the agent observability su
 - **📊 Turn Latency Distribution:** Histogram of complete User/Agent interaction durations. Identifies consistency and outliers.
 - **📈 Turn Latency Attribution Trend:** Stacked trend showing the balance between LLM, Tools, and Overhead over time.
 - **⏱️ Turn Latency Attribution (Avg vs P95):** Precision table comparing typical vs. worst-case latencies for the 3-tier model.
+- **🛠️ Raw Tool Traces (Payloads) [NEW]:** Detailed lookup of tool arguments and results. Essential for debugging API failures or incorrect logic.
+- **🧠 Agent Reasoning Logs (LLM Traces):** Detailed audit of raw prompts and model responses.
 - **Orchestrator Handoffs:** Distribution of requests across specialized sub-agents.
 
 ---

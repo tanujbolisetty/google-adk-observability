@@ -686,6 +686,45 @@
           "format": "table"
         }
       ]
+    },
+    {
+      "type": "table",
+      "title": "🛠️ Raw Tool Traces (Payloads)",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "description": "Deep audit of tool arguments and execution results.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "inspect": true,
+            "wrapText": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT timestamp as time, tool_name, status, latency_ms as ms, input_args, output_result FROM `${gcp_project}.${bq_dataset}.v_tool_usage` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' AND tool_name LIKE '${tool_name:raw}' ORDER BY time DESC",
+          "format": "table"
+        }
+      ]
     }
   ],
   "time": {
