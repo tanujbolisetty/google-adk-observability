@@ -30,11 +30,11 @@ This document defines the **purpose and metrics** for the agent observability su
 **Goal:** Engineering health check, latency bottleneck discovery, and error tracking.
 
 ### Key Metrics:
-- **TTFT (Time To First Token):** Latency of the initial model response.
-- **Avg Tool Latency:** Performance of external tool calls and APIs.
-- **Latency Attribution Profile:** Breakdown of time spent in LLM Reasoning vs. Tool Execution vs. System Overhead.
-- **Orchestrator Handoffs:** Distribution of requests across sub-agents.
-- **LLM Reasoning Logs:** Full traces of prompts and responses.
+- **TTFT (Time To First Token):** Latency of the initial model response per individual model call.
+- **📊 Turn Latency Distribution:** Histogram of complete User/Agent interaction durations. Identifies consistency and outliers.
+- **📈 Turn Latency Attribution Trend:** Stacked trend showing the balance between LLM, Tools, and Overhead over time.
+- **⏱️ Turn Latency Attribution (Avg vs P95):** Precision table comparing typical vs. worst-case latencies for the 3-tier model.
+- **Orchestrator Handoffs:** Distribution of requests across specialized sub-agents.
 
 ---
 
@@ -42,11 +42,23 @@ This document defines the **purpose and metrics** for the agent observability su
 **Goal:** Qualitative audit of human-agent conversations for QA and CX improvement.
 
 ### Key Metrics:
-- **Transcript Feed:** Chronological reconstruction of the chat session.
-- **Speaker Attribution:** Differentiation between Human and Agent messages.
-- **Session Duration:** Total elapsed time for the conversation.
-- **Turn Performance Bar:** Visual indicator of LLM vs. Tool latency for every interaction in the session.
+- **Transcript Feed:** Chronological reconstruction including both Human (Input) and Agent (Response) messages. 
+- **Session Duration:** Total elapsed "Wall Clock" time, including human thinking time between turns.
+- **⚡ Session Performance Profile:** Visual bar per turn indicating the 3-tier breakdown:
+  - **🟦 Blue:** LLM Reasoning
+  - **🟧 Orange:** Tool Execution
+  - **⬜ Gray:** Agent/Orchestrator Overhead
 
 ---
 
-*For detailed SQL queries powering these panels, refer to bq_dashboard_views.md.*
+## 📖 Dashboard 5: Agent Intelligence Guide
+**Goal:** Onboarding and technical reference for dashboard users.
+
+### Key Features:
+- **Metric Definitions:** Clear explanations of TTFT, Turn latency, and 3-tier attribution logic.
+- **Navigation Map:** Cross-dashboard drill-down shortcuts.
+- **Logic Guide:** Technical breakdown of the BigQuery views and processing pipeline.
+
+---
+
+*For detailed SQL queries and BigQuery view logic, refer to bq_dashboard_views.md.*
