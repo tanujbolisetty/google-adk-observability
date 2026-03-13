@@ -54,16 +54,16 @@ Use these commands to manage the background service:
 ## 🖼️ Dashboard Gallery
 
 ### Agent Home (Landing)
-![Home](assets/Home.jpg)
+![Home](assets/Home_v2.jpg)
 
 ### FinOps & Diagnostics
-![FinOps](assets/FinOps.jpg)
-![Diagnostics 1](assets/Diagnostics1.jpg)
-![Diagnostics 2](assets/diagnostics2.jpg)
-![Diagnostics 3](assets/diagnostoics3.jpg)
+![FinOps](assets/Finops_v2.jpg)
+![Diagnostics 1](assets/Diagnostcis1_v2.jpg)
+![Diagnostics 2](assets/Diagnostcis2_v2.jpg)
+![Diagnostics 3](assets/Diagnostcis3_v2.jpg)
 
 ### Session Transcript
-![Transcripts](assets/Transcripts.jpg)
+![Transcripts](assets/Transcripts_v2.jpg)
 
 ---
 
