@@ -205,13 +205,13 @@
         "label": "GCP Project",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME",
-          "value": "REPLACE_ME"
+          "text": "REPLACE_ME_PROJECT",
+          "value": "REPLACE_ME_PROJECT"
         },
         "options": [
           {
-            "text": "REPLACE_ME",
-            "value": "REPLACE_ME"
+            "text": "REPLACE_ME_PROJECT",
+            "value": "REPLACE_ME_PROJECT"
           }
         ],
         "hide": 0
@@ -221,13 +221,13 @@
         "label": "BQ Dataset",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME",
-          "value": "REPLACE_ME"
+          "text": "REPLACE_ME_DATASET",
+          "value": "REPLACE_ME_DATASET"
         },
         "options": [
           {
-            "text": "REPLACE_ME",
-            "value": "REPLACE_ME"
+            "text": "REPLACE_ME_DATASET",
+            "value": "REPLACE_ME_DATASET"
           }
         ],
         "hide": 0
@@ -235,8 +235,8 @@
       {
         "allValue": "%",
         "current": {
-          "text": "REPLACE_ME",
-          "value": "REPLACE_ME"
+          "text": "REPLACE_ME_TABLE",
+          "value": "REPLACE_ME_TABLE"
         },
         "hide": 0,
         "includeAll": true,
@@ -244,11 +244,11 @@
         "name": "bq_table",
         "options": [
           {
-            "text": "REPLACE_ME",
-            "value": "REPLACE_ME"
+            "text": "REPLACE_ME_TABLE",
+            "value": "REPLACE_ME_TABLE"
           }
         ],
-        "query": "mosa_agent_events_v2",
+        "query": "agent_events_v1",
         "type": "textbox"
       }
     ]

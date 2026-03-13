@@ -234,10 +234,10 @@ def main():
                 # Hardcode project/dataset in variable queries (template vars don't resolve here)
                 q = var.get("query", "")
                 if isinstance(q, dict) and "rawSql" in q:
-                    q["rawSql"] = q["rawSql"].replace("${gcp_project}.${bq_dataset}", fqdn)
+                    q["rawSql"] = q["rawSql"].replace("${gcp_project}.${bq_dataset}", fqdn).replace("${bq_table}", bq_table)
                     q["project"] = gcp_project
                 elif isinstance(q, str):
-                    var["query"] = q.replace("${gcp_project}.${bq_dataset}", fqdn)
+                    var["query"] = q.replace("${gcp_project}.${bq_dataset}", fqdn).replace("${bq_table}", bq_table)
                 
                 var["datasource"] = {
                     "type": "grafana-bigquery-datasource",
