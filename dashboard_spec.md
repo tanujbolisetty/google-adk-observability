@@ -4,6 +4,16 @@ This document defines the **purpose and metrics** for the agent observability su
 
 ---
 
+## 🚀 Performance Paradigm: "True-Idle"
+All dashboards in this suite are optimized for **Zero-Cost Idle States** and a unified user experience.
+- **Silent on Load**: No BigQuery scans are triggered when a dashboard is first opened.
+- **SQL Guards**: Panels remain completely silent until both a **User** and **Session** are explicitly selected.
+- **Optimized Metadata**: Variable metadata scans are restricted and throttled to prevent background "blinking".
+- **6-Hour Default Window**: All views default to `now-6h` to ensure fast initial loads and operational relevance.
+- **Global Time Sync**: Navigation links preserve selected timeframes (`?from=${__from}&to=${__to}`) as users move between dashboards.
+
+---
+
 ## 🏠 Dashboard 1: Agent Home (Landing Page)
 **Goal:** High-level executive KPIs and usage trends across all agents.
 
@@ -34,8 +44,6 @@ This document defines the **purpose and metrics** for the agent observability su
 - **📊 Turn Latency Distribution:** Histogram of complete User/Agent interaction durations. Identifies consistency and outliers.
 - **📈 Turn Latency Attribution Trend:** Stacked trend showing the balance between LLM, Tools, and Overhead over time.
 - **⏱️ Turn Latency Attribution (Avg vs P95):** Precision table comparing typical vs. worst-case latencies for the 3-tier model.
-- **🛠️ Raw Tool Traces (Payloads) [NEW]:** Detailed lookup of tool arguments and results. Essential for debugging API failures or incorrect logic.
-- **🧠 Agent Reasoning Logs (LLM Traces):** Detailed audit of raw prompts and model responses.
 - **Orchestrator Handoffs:** Distribution of requests across specialized sub-agents.
 
 ---
@@ -50,6 +58,7 @@ This document defines the **purpose and metrics** for the agent observability su
   - **🟦 Blue:** LLM Reasoning
   - **🟧 Orange:** Tool Execution
   - **⬜ Gray:** Agent/Orchestrator Overhead
+- **🤖 Counters**: At-a-glance counts for LLM and Tool calls in the current session.
 
 ---
 
@@ -61,6 +70,16 @@ This document defines the **purpose and metrics** for the agent observability su
 - **🚀 Latency Optimization Guide:** Dynamic advice on reducing LLM reasoning time, parallelizing tool calls, and minimizing system overhead.
 - **Navigation Map:** Cross-dashboard drill-down shortcuts.
 - **Logic Guide:** Technical breakdown of the BigQuery views and processing pipeline.
+
+---
+
+## 🔎 Dashboard 6: Agent Technical Traces
+**Goal:** Deep technical autopsy and payload audit for specific sessions.
+
+### Key Features:
+- **🛠️ Raw Tool Traces:** Detailed audit of tool arguments and execution results (Uses Hybrid JSON extraction for robust payload capture).
+- **🧠 Agent Reasoning Logs:** Deep trace of raw LLM prompts and model responses.
+- **Drill-down Integration:** 1-click jump from Chat Transcript interaction counters.
 
 ---
 

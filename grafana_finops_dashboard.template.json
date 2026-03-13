@@ -135,7 +135,7 @@
         "y": 0
       },
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n  <a href=\"/d/agent-finops\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n  <a href=\"/d/agent-transcript\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n  <a href=\"/d/agent-diagnostics\" style=\"text-decoration: none;\">\u2699\ufe0f Diagnostics</a>\n  <a href=\"/d/agent-guide\" style=\"text-decoration: none;\">\u2753 Help</a>\n</div>",
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
         "mode": "html"
       },
       "transparent": true
@@ -154,8 +154,8 @@
           "unit": "currencyUSD",
           "links": [
             {
-              "title": "\ud83d\udd0d Drill into Diagnostics for this time",
-              "url": "/d/agent-diagnostics?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
+              "title": "🔍 Drill into Traces for this time",
+              "url": "/d/agent-traces?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
             }
           ]
         },
@@ -181,8 +181,8 @@
         "defaults": {
           "links": [
             {
-              "title": "\ud83d\udd0d Drill into Diagnostics for this turn",
-              "url": "/d/agent-diagnostics?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
+              "title": "🔍 Drill into Traces for this turn",
+              "url": "/d/agent-traces?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
             }
           ]
         },
@@ -247,7 +247,7 @@
                 "value": [
                   {
                     "title": "\ud83d\udd0d Drill into Diagnostics",
-                    "url": "/d/agent-diagnostics?var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
+                    "url": "/d/agent-traces?var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
                   },
                   {
                     "title": "\ud83d\udcac View Chat Transcript",
@@ -297,7 +297,7 @@
     }
   ],
   "time": {
-    "from": "now-30d",
+    "from": "now-6h",
     "to": "now"
   }
 }

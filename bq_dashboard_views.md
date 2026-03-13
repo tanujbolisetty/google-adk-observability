@@ -1,76 +1,103 @@
 # 🗄️ BigQuery Data Layer: The "Master Views"
 
-This document explains the technical logic behind the **Master Analytical Views**. These views flatten complex ADK JSON logs into clean tables that power your Grafana dashboards without requiring any runtime calculations.
+This document serves as the **Technical Specification** for the Master Analytical Views. It explains the "Why" and "How" behind the data processing pipeline, detailing the logic used to transform raw JSON logs into actionable metrics.
 
 ---
 
 ## 🏗️ Architecture Overview
-Agent Analytics uses a **View-on-Table** pattern. Instead of modifying your raw event data, we layer SQL views on top. This ensures:
-- **Zero Data Duplication**: Views are computed at query time.
-- **Cost Transparency**: Token usage is automatically joined with a pricing matrix.
-- **Context Preservation**: session and user IDs are normalized for easy filtering.
+Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event data, we layer SQL logic on top. This ensures:
+- **Zero Data Duplication**: All metrics are calculated dynamically.
+- **Financial Traceability**: model performance is paired with real-time model pricing.
+- **Standardization**: Complex JSON structures are flattened into a consistent schema.
 
 ---
 
-## Prerequisites: The Pricing Matrix
-Before creating any views, you must create a static lookup table that maps model versions to their specific input/output token costs.
+## 📊 View 1: Session Summary (`v_session_summary`)
+**Goal:** High-level KPIs tracking the complete lifecycle of human-agent conversations.
 
-*Run the following in your target BigQuery project, replacing `<YOUR_PROJECT>.<YOUR_DATASET>` with your specific locations.*
+### 📋 Captured Fields:
+- `session_id` / `user_id`: Identifiers for the conversation and human participant.
+- `session_duration_ms`: Total wall-clock time from the first user message to the final agent response.
+- `total_turns`: Count of individual request/response interactions within the session.
+- `session_total_tokens`: Aggregated token volume across all turns.
+- `session_total_cost_usd`: Estimated budget impact based on input/candidate model pricing.
+- `max_ttft_ms`: The single highest "Time to First Token" delay recorded during the session.
 
-```sql
-CREATE OR REPLACE TABLE `<YOUR_PROJECT>.<YOUR_DATASET>.model_pricing` AS
-SELECT "gemini-1.5-flash" AS model_version, 0.075 / 1000000 AS input_cost_per_token, 0.30 / 1000000 AS output_cost_per_token UNION ALL
-SELECT "gemini-1.5-pro", 1.25 / 1000000, 5.00 / 1000000 UNION ALL
-SELECT "gemini-2.0-flash", 0.10 / 1000000, 0.40 / 1000000 UNION ALL
-SELECT "gemini-2.0-pro", 1.50 / 1000000, 6.00 / 1000000;
-```
-
----
-
-## The 7 Master Views
-
-### 1️⃣ View: Session Summary
-**Purpose:** Top-level KPIs per session for the Landing Page.
-- **Columns:** `session_id`, `user_id`, `session_start`, `session_end`, `session_duration_ms`, `total_turns`, `session_total_tokens`, `session_total_cost_usd`, `max_ttft_ms`.
-- **Behind the Logic:** This view calculates the complete "Wall Clock" lifecycle of a conversation. It identifies the first and last events per `session_id` to determine total duration. It performs a session-wide aggregation of token costs by joining with the `model_pricing` lookup. The `max_ttft_ms` metric is specifically tracked to identify the worst-case initial response latency across the entire user experience.
-
-### 2️⃣ View: Turn Summary
-**Purpose:** Granular turn-by-turn performance and the 3-Tier Latency Model.
-- **Columns:** `invocation_id`, `turn_start`, `tokens`, `cost`, `total_llm_latency_ms`, `total_tool_latency_ms`, `turn_overhead_ms`, `turn_duration_ms`.
-- **Behind the Logic:** This is the core diagnostic engine. It groups events by `invocation_id` (a single User/Agent interaction).
-  - **LLM Latency:** Sum of all specific model reasoning times within the turn.
-  - **Tool Latency:** Sum of all external API or tool execution times.
-  - **Agent Overhead:** Calculated as `(Total Turn Duration) - (LLM + Tool)`. We use `GREATEST(0, ...)` to protect against negative values caused by out-of-order log arrival in high-concurrency systems.
-
-### 3️⃣ View: LLM Calls & Trace
-**Purpose:** Deep audit of individual model interactions and raw prompts.
-- **Columns:** `prompt`, `response`, `total_tokens`, `calculated_usd_cost`.
-- **Behind the Logic:** Flattens the complex `attributes` and `content` JSON structures. It provides a row for every single model inference, calculating the exact USD cost based on the specific model version used (Gemini 1.5, 2.0, etc.) via a pricing join.
+### 🧠 Analytical Logic:
+- **Financial Calculation**: The view performs a `LEFT JOIN` with the `model_pricing` matrix. It multiplies `prompt_token_count` by input rates and `candidates_token_count` by output rates for every `LLM_RESPONSE` event.
+- **Time Boxing**: It uses `MIN(timestamp)` and `MAX(timestamp)` per session to determine the full conversation "envelope".
+- **Productivity Ratios**: It counts `USER_MESSAGE_RECEIVED` vs `TOOL_COMPLETED` events to differentiate between simple chat turns and complex autonomous actions.
 
 ---
 
-### 4️⃣ View: Tool Usage
-**Purpose:** Performance profiling of external dependencies.
-- **Behind the Logic:** Extracts data from `TOOL_COMPLETED` events. It parses the JSON arguments and results to show exactly what went into a tool and what came out. This allows you to differentiate between a slow tool (high latency) and a failing tool (ERROR status).
+## ⚡ View 2: Turn Summary (`v_turn_summary`)
+**Goal:** Granular performance profiling using the **3-Tier Latency Model**.
+
+### 📋 Captured Fields:
+- `total_llm_latency_ms`: Combined reasoning time of all model calls in a single turn.
+- `total_tool_latency_ms`: Combined execution time of all external dependencies in a single turn.
+- `turn_overhead_ms`: The "System Tax"—time spent in orchestration, prompt building, or network transit.
+- `turn_duration_ms`: Total time elapsed for one User/Agent interaction.
+
+### 🧠 Analytical Logic:
+- **Latency Attribution**: 
+  - **LLM Time**: Derived from `LLM_RESPONSE` event metadata (`latency_ms.total_ms`).
+  - **Tool Time**: Derived from `TOOL_COMPLETED` event metadata (`latency_ms.total_ms`).
+  - **Overhead**: Calculated as `Total Duration - (LLM + Tool)`. The logic uses `GREATEST(0, ...)` to protect against negative values caused by non-sequential log delivery in high-concurrency environments.
+- **Cost Isolation**: Aggregates token costs per `invocation_id` to show the financial impact of a specific turn (e.g., identifying when a "Reasoning Loop" becomes expensive).
 
 ---
 
-### 5️⃣ View: Model Routing Flow
-**Purpose:** Visualizing the orchestrator's decision-making process.
-- **Behind the Logic:** Tracks the transit between the `root_agent_name` (the Orchestrator) and the `agent` (the Specialist). By filtering for assignment events, it builds the sequence needed for the "Chain of Thought" flow diagrams.
+## 🔎 View 3: LLM Calls & Trace (`v_llm_calls`)
+**Goal:** Technical autopsy of model reasoning and prompt/candidate auditing.
+
+### 📋 Captured Fields:
+- `model`: The specific model version used (e.g., Gemini 1.5 Pro).
+- `prompt` / `response`: The raw input provided to the model and the raw result returned.
+- `prompt_tokens` / `completion_tokens`: Granular token breakdown for the specific call.
+- `calculated_usd_cost`: Precision cost tracking at the individual call level.
+
+### 🧠 Analytical Logic:
+- **Payload Extraction**: Uses `JSON_VALUE` to pull the `content.prompt` and `content.response` into top-level columns.
+- **Granular Costing**: Unlike the Session Summary (which globals costs), this view calculates the price of **every single inference**, allowing researchers to find specific expensive prompts.
 
 ---
 
-### 6️⃣ View: User Intent Tracking
-**Purpose:** Semantic profiling of human-initiated messages.
-- **Behind the Logic:** Focuses on the "Input" side of the agent. It extracts `text_summary` and metadata such as the user's timezone to help analyze intent patterns and geographic performance variations.
+## 🛠️ View 4: Tool Performance (`v_tool_usage`)
+**Goal:** Auditing external tool integration and payload accuracy.
 
-### 7️⃣ View: Full Session Transcript
-**Purpose:** Chronological reconstruction of the conversation for Chat Replay.
-- **Behind the Logic:**
-  - **Human Side:** Uses `COALESCE(text, text_summary)` to ensure user messages are captured regardless of whether the logger used raw or summarized formats.
-  - **Agent Side:** Employs a `ROW_NUMBER()` window function partitioned by `invocation_id`. This identifies the **final** successful response from the agent for a turn, effectively hiding all internal "thinking" steps, tool-calls, and intermediate reasoning for a clean, user-friendly replay.
+### 📋 Captured Fields:
+- `tool_name` / `status`: Identification of the tool and whether it succeeded/errored.
+- `latency_ms`: Duration of the external execution.
+- `input_args`: The parameters passed to the tool.
+- `output_result`: The value returned by the tool to the agent.
+
+### 🧠 Analytical Logic:
+- **Hybrid Extraction Pattern**: This view implements a complex `JOIN` between `TOOL_STARTING` and `TOOL_COMPLETED` events.
+- **Schema Robustness**: It uses a `COALESCE` strategy to capture payloads across multiple SDK versions. It checks for `args`, `arguments`, `parameters`, and `input` fields simultaneously using `TO_JSON_STRING(JSON_QUERY(...))`. This ensures tool data is never hidden, even if the logging schema changes.
 
 ---
 
-*For the full SQL source code of these views, refer to setup_bq_views.py.*
+## 🤖 View 5: Agent Routing (`v_agent_routing`)
+**Goal:** Visualizing the Orchestrator's delegation and handoff sequence.
+
+### 🧠 Analytical Logic:
+- **Handoff Tracking**: Filters specifically for `AGENT_COMPLETED` and `LLM_REQUEST` events. 
+- **Delegation Mapping**: Maps the `root_agent_name` (the decision-maker) to the `agent` (the execution specialist) to show exactly how a user request was distributed across the system.
+
+---
+
+## 💬 View 6: Session Transcript (`v_session_transcript`)
+**Goal:** Chronological reconstruction for professional Conversation Replay.
+
+### 🧠 Analytical Logic:
+- **Human Feed Integrity**: Uses `COALESCE` on `content.text` and `content.text_summary` to ensure human input is captured regardless of whether the client sent raw text or a summary.
+- **Agent Clean-Up (Replay Filtering)**: 
+  - To prevent "Double-Speak" in the UI, the view uses a `ROW_NUMBER()` window function partitioned by `invocation_id`. 
+  - It sorts by timestamp and selects only the **Final Success Response** for the turn. This effectively hides internal reasoning, failed retries, and tool-call noise, presenting a clean Human-Agent dialogue.
+
+---
+
+## 🚀 Key Performance Principle: "True-Idle"
+All logic within these views is hardened with **Placeholder Guards**. By checking for values like `-- Select --`, the views return empty results with **zero scan cost**. This allows the Dashboards to remain open and active without consuming BigQuery budget while in an idle state.
+

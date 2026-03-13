@@ -7,6 +7,7 @@
     "agent-traces"
   ],
   "editable": true,
+  "refresh": "",
   "schemaVersion": 39,
   "description": "Deep trace of LLM prompts and Tool payloads. [FILTERS]: User ID, Session ID (Required for Deep Dive)",
   "timezone": "browser",
@@ -48,11 +49,11 @@
         "label": "User",
         "type": "query",
         "query": {
-          "rawSql": "SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id"
+          "rawSql": "SELECT '-- Select User --' as user_id UNION ALL (SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id LIMIT 1000)"
         },
-        "refresh": 2,
-        "includeAll": true,
-        "allValue": "%",
+        "refresh": 1,
+        "includeAll": false,
+        "current": { "selected": true, "text": "-- Select User --", "value": "-- Select User --" },
         "datasource": { "type": "grafana-bigquery-datasource", "uid": "${datasource}" }
       },
       {
@@ -60,11 +61,11 @@
         "label": "Session",
         "type": "query",
         "query": {
-          "rawSql": "SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND $__timeFilter(timestamp) ORDER BY session_id DESC"
+          "rawSql": "SELECT '-- Select Session --' as session_id UNION ALL (SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND '${user_id:raw}' != '-- Select User --' AND $__timeFilter(timestamp) ORDER BY session_id DESC)"
         },
         "refresh": 2,
-        "includeAll": true,
-        "allValue": "%",
+        "includeAll": false,
+        "current": { "selected": true, "text": "-- Select Session --", "value": "-- Select Session --" },
         "datasource": { "type": "grafana-bigquery-datasource", "uid": "${datasource}" }
       }
     ]
@@ -75,7 +76,7 @@
       "title": "",
       "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-transcript\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-diagnostics\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-traces\" style=\"text-decoration: none;\">🔍 Traces</a>\n  <a href=\"/d/agent-guide\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
         "mode": "html"
       },
       "transparent": true
@@ -85,9 +86,36 @@
       "title": "🧠 Agent Reasoning Logs (LLM Traces)",
       "gridPos": { "h": 12, "w": 24, "x": 0, "y": 2 },
       "description": "Deep trace of prompts sent to the LLM and the responses received.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "inspect": true, "wrapText": false }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "inp" },
+            "properties": [{ "id": "custom.width", "value": 60 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "out" },
+            "properties": [{ "id": "custom.width", "value": 60 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "usd" },
+            "properties": [{ "id": "custom.width", "value": 80 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "agent" },
+            "properties": [{ "id": "custom.width", "value": 100 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "model" },
+            "properties": [{ "id": "custom.width", "value": 150 }]
+          }
+        ]
+      },
       "targets": [
         {
-          "rawSql": "SELECT timestamp as time, agent, model, prompt_tokens as inp, completion_tokens as out, calculated_usd_cost as usd, response FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' ORDER BY time DESC",
+          "rawSql": "SELECT timestamp as time, agent, model, prompt_tokens as inp, completion_tokens as out, calculated_usd_cost as usd, response FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' AND '${session_id:raw}' != '-- Select Session --' ORDER BY time DESC",
           "format": "table"
         }
       ]
@@ -99,16 +127,30 @@
       "description": "Deep audit of tool arguments and execution results.",
       "fieldConfig": {
         "defaults": {
-          "custom": { "inspect": true, "wrapText": true }
-        }
+          "custom": { "inspect": true, "wrapText": false }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "status" },
+            "properties": [{ "id": "custom.width", "value": 80 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "ms" },
+            "properties": [{ "id": "custom.width", "value": 80 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "tool_name" },
+            "properties": [{ "id": "custom.width", "value": 150 }]
+          }
+        ]
       },
       "targets": [
         {
-          "rawSql": "SELECT timestamp as time, tool_name, status, latency_ms as ms, input_args, output_result FROM `${gcp_project}.${bq_dataset}.v_tool_usage` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' ORDER BY time DESC",
+          "rawSql": "SELECT timestamp as time, tool_name, status, latency_ms as ms, input_args, output_result FROM `${gcp_project}.${bq_dataset}.v_tool_usage` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' AND '${session_id:raw}' != '-- Select Session --' ORDER BY time DESC",
           "format": "table"
         }
       ]
     }
   ],
-  "time": { "from": "now-30d", "to": "now" }
+  "time": { "from": "now-6h", "to": "now" }
 }

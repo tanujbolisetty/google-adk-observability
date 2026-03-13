@@ -7,14 +7,11 @@
     "agent-chat"
   ],
   "editable": true,
+  "refresh": "",
   "schemaVersion": 39,
   "description": "Conversation transcripts and session performance profile. [FILTERS]: User ID (Global), Session ID (Global - Required)",
   "timezone": "browser",
   "links": [],
-  "time": {
-    "from": "now-30d",
-    "to": "now"
-  },
   "templating": {
     "list": [
       {
@@ -70,7 +67,6 @@
         "name": "bq_table",
         "label": "Base Table",
         "type": "textbox",
-        "query": "agent_events_v1",
         "current": {
           "text": "REPLACE_ME_TABLE",
           "value": "REPLACE_ME_TABLE"
@@ -90,32 +86,14 @@
         "label": "User",
         "type": "query",
         "query": {
-          "rawSql": "SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id",
+          "rawSql": "SELECT '-- Select User --' as user_id UNION ALL (SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id LIMIT 1000)",
           "rawQuery": true,
           "editorMode": "code",
-          "format": 1,
-          "refId": "tempvar",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
+          "format": 1
         },
-        "refresh": 2,
+        "refresh": 1,
         "includeAll": false,
-        "current": {},
+        "current": { "selected": true, "text": "-- Select User --", "value": "-- Select User --" },
         "sort": 1,
         "datasource": {
           "type": "grafana-bigquery-datasource",
@@ -127,32 +105,14 @@
         "label": "Session",
         "type": "query",
         "query": {
-          "rawSql": "SELECT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND $__timeFilter(timestamp) GROUP BY session_id ORDER BY MAX(timestamp) DESC",
+          "rawSql": "SELECT '-- Select Session --' as session_id UNION ALL (SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND '${user_id:raw}' != '-- Select User --' AND $__timeFilter(timestamp) ORDER BY session_id DESC)",
           "rawQuery": true,
           "editorMode": "code",
-          "format": 1,
-          "refId": "tempvar",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
+          "format": 1
         },
         "refresh": 2,
         "includeAll": false,
-        "current": {},
+        "current": { "selected": true, "text": "-- Select Session --", "value": "-- Select Session --" },
         "sort": 3,
         "datasource": {
           "type": "grafana-bigquery-datasource",
@@ -172,7 +132,7 @@
         "y": 0
       },
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n  <a href=\"/d/agent-finops\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n  <a href=\"/d/agent-transcript\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n  <a href=\"/d/agent-diagnostics\" style=\"text-decoration: none;\">\u2699\ufe0f Diagnostics</a>\n  <a href=\"/d/agent-guide\" style=\"text-decoration: none;\">\u2753 Help</a>\n</div>",
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
         "mode": "html"
       },
       "transparent": true
@@ -189,7 +149,7 @@
       "description": "Visual breakdown of where time was spent in each turn of the conversation. Helps identify if a slow turn was caused by model inference or tool execution.",
       "targets": [
         {
-          "rawSql": "SELECT \n  SUBSTR(invocation_id, -8) as turn, \n  total_llm_latency_ms as llm_ms, \n  total_tool_latency_ms as tool_ms,\n  turn_overhead_ms as overhead_ms\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE session_id = '${session_id:raw}'\nORDER BY turn",
+          "rawSql": "SELECT \n  SUBSTR(invocation_id, -8) as turn, \n  total_llm_latency_ms as llm_ms, \n  total_tool_latency_ms as tool_ms,\n  turn_overhead_ms as overhead_ms\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'\nORDER BY turn",
           "format": "table"
         }
       ],
@@ -290,7 +250,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT session_duration_ms FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}'",
+          "rawSql": "SELECT session_duration_ms FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'",
           "format": "table"
         }
       ],
@@ -327,7 +287,7 @@
           },
           "links": [
             {
-              "title": "\ud83d\udd0e Drill Down: View LLM Prompts",
+              "title": "🔍 Drill Down: View LLM Prompts",
               "url": "/d/agent-traces?var-session_id=${session_id}&var-user_id=${user_id}"
             }
           ]
@@ -335,7 +295,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT total_llm_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}'",
+          "rawSql": "SELECT total_llm_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'",
           "format": "table"
         }
       ],
@@ -373,14 +333,14 @@
           "links": [
             {
               "title": "\ud83d\udd0e Drill Down: View Tool Payloads",
-              "url": "/d/agent-diagnostics?var-session_id=${session_id}&var-user_id=${user_id}"
+              "url": "/d/agent-traces?var-session_id=${session_id}&var-user_id=${user_id}"
             }
           ]
         }
       },
       "targets": [
         {
-          "rawSql": "SELECT total_tools_executed as total_tool_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}'",
+          "rawSql": "SELECT total_tools_executed as total_tool_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'",
           "format": "table"
         }
       ],
@@ -480,10 +440,14 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT timestamp as time, speaker, message FROM `${gcp_project}.${bq_dataset}.v_session_transcript` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' ORDER BY time ASC",
+          "rawSql": "SELECT timestamp as time, speaker, message FROM `${gcp_project}.${bq_dataset}.v_session_transcript` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --' ORDER BY time ASC",
           "format": "table"
         }
       ]
     }
-  ]
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  }
 }
