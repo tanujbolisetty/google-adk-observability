@@ -30,41 +30,46 @@ SELECT "gemini-2.0-pro", 1.50 / 1000000, 6.00 / 1000000;
 ## The 7 Master Views
 
 ### 1️⃣ View: Session Summary
-**Purpose:** Top-level KPIs per session.
-- **Columns:** `session_id`, `user_id`, `session_start`, `session_end`, `session_duration_ms`, `session_total_tokens`, `session_total_cost_usd`, `max_ttft_ms`.
-- **Behind the Logic:** This view aggregates all events for a `session_id`. It sums up the costs of every individual LLM call using the Pricing Matrix and calculates the total "Wall Clock" time by subtracting the first event's timestamp from the last.
+**Purpose:** Top-level KPIs per session for the Landing Page.
+- **Columns:** `session_id`, `user_id`, `session_start`, `session_end`, `session_duration_ms`, `total_turns`, `session_total_tokens`, `session_total_cost_usd`, `max_ttft_ms`.
+- **Behind the Logic:** This view calculates the complete "Wall Clock" lifecycle of a conversation. It identifies the first and last events per `session_id` to determine total duration. It performs a session-wide aggregation of token costs by joining with the `model_pricing` lookup. The `max_ttft_ms` metric is specifically tracked to identify the worst-case initial response latency across the entire user experience.
 
 ### 2️⃣ View: Turn Summary
-**Purpose:** Granular turn-by-turn metrics for drill-downs.
-- **Columns:** `invocation_id`, `turn_start`, `tokens`, `cost`, `total_llm_latency_ms`, `total_tool_latency_ms`, `turn_duration_ms`.
-- **Behind the Logic:** This is the most complex view. It groups events by `invocation_id` (a single user/agent turn). It calculates **Latency Attribution** by summing up all LLM processing time and all Tool execution time within that specific turn. Any remaining time in the `turn_duration_ms` is classified as "Overhead".
+**Purpose:** Granular turn-by-turn performance and the 3-Tier Latency Model.
+- **Columns:** `invocation_id`, `turn_start`, `tokens`, `cost`, `total_llm_latency_ms`, `total_tool_latency_ms`, `turn_overhead_ms`, `turn_duration_ms`.
+- **Behind the Logic:** This is the core diagnostic engine. It groups events by `invocation_id` (a single User/Agent interaction).
+  - **LLM Latency:** Sum of all specific model reasoning times within the turn.
+  - **Tool Latency:** Sum of all external API or tool execution times.
+  - **Agent Overhead:** Calculated as `(Total Turn Duration) - (LLM + Tool)`. We use `GREATEST(0, ...)` to protect against negative values caused by out-of-order log arrival in high-concurrency systems.
 
 ### 3️⃣ View: LLM Calls & Trace
-**Purpose:** Deep traces of prompt/response interactions.
+**Purpose:** Deep audit of individual model interactions and raw prompts.
 - **Columns:** `prompt`, `response`, `total_tokens`, `calculated_usd_cost`.
-- **Behind the Logic:** Flattens the nested `attributes` and `content` JSON fields. It performs a real-time join with the `model_pricing` table to assign a dollar value to every individual model inference.
+- **Behind the Logic:** Flattens the complex `attributes` and `content` JSON structures. It provides a row for every single model inference, calculating the exact USD cost based on the specific model version used (Gemini 1.5, 2.0, etc.) via a pricing join.
 
 ---
 
 ### 4️⃣ View: Tool Usage
-**Purpose:** Performance metrics for individual tool executions.
-- **Behind the Logic:** Specifically filters for `TOOL_COMPLETED` events. It Extracts the tool name and its execution latency, allowing you to identify which external APIs are the bottlenecks.
+**Purpose:** Performance profiling of external dependencies.
+- **Behind the Logic:** Extracts data from `TOOL_COMPLETED` events. It parses the JSON arguments and results to show exactly what went into a tool and what came out. This allows you to differentiate between a slow tool (high latency) and a failing tool (ERROR status).
 
 ---
 
 ### 5️⃣ View: Model Routing Flow
-**Purpose:** Visualizing orchestrator-to-specialist delegations.
-- **Behind the Logic:** Uses `attributes.root_agent_name` to identify the starting point and `agent` to show where the work was delegated. This tracks the "Orchestrator Handoffs" in the Diagnostics dashboard.
+**Purpose:** Visualizing the orchestrator's decision-making process.
+- **Behind the Logic:** Tracks the transit between the `root_agent_name` (the Orchestrator) and the `agent` (the Specialist). By filtering for assignment events, it builds the sequence needed for the "Chain of Thought" flow diagrams.
 
 ---
 
 ### 6️⃣ View: User Intent Tracking
-**Purpose:** Extracting and analyzing raw human inputs.
-- **Behind the Logic:** Aggregates `USER_MESSAGE_RECEIVED` events. This provides the "input" side of the analysis, allowing you to see what users are actually asking for.
+**Purpose:** Semantic profiling of human-initiated messages.
+- **Behind the Logic:** Focuses on the "Input" side of the agent. It extracts `text_summary` and metadata such as the user's timezone to help analyze intent patterns and geographic performance variations.
 
 ### 7️⃣ View: Full Session Transcript
-**Purpose:** Reconstructing chronological conversation flows.
-- **Behind the Logic:** This view uses a `UNION ALL` to combine human and agent messages. To ensure a clean transcript, it uses `ROW_NUMBER()` to select only the **final** agent response for each turn, suppressing internal technical steps like tool calls or reasoning iterations.
+**Purpose:** Chronological reconstruction of the conversation for Chat Replay.
+- **Behind the Logic:**
+  - **Human Side:** Uses `COALESCE(text, text_summary)` to ensure user messages are captured regardless of whether the logger used raw or summarized formats.
+  - **Agent Side:** Employs a `ROW_NUMBER()` window function partitioned by `invocation_id`. This identifies the **final** successful response from the agent for a turn, effectively hiding all internal "thinking" steps, tool-calls, and intermediate reasoning for a clean, user-friendly replay.
 
 ---
 

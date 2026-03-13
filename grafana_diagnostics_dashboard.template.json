@@ -384,14 +384,14 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT COUNTIF(status != 'ERROR') / COUNT(*) FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}'",
+          "rawSql": "SELECT COUNTIF(errors_in_turn = 0) / COUNT(*) FROM `${gcp_project}.${bq_dataset}.v_turn_summary` WHERE $__timeFilter(turn_start) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}'",
           "format": "table"
         }
       ]
     },
     {
       "type": "table",
-      "title": "⏱️ Latency Attribution (Avg vs P95)",
+      "title": "⏱️ Turn Latency Attribution (Avg vs P95)",
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -401,7 +401,7 @@
       "description": "Consolidated breakdown of turn latency. Avg shows typical performance; P95 shows the slowness experienced by the worst 5% of interactions.",
       "targets": [
         {
-          "rawSql": "SELECT \n  'LLM Reasoning' as metric, \n  ROUND(AVG(total_llm_latency_ms), 0) as avg_ms, \n  APPROX_QUANTILES(total_llm_latency_ms, 100)[OFFSET(95)] as p95_ms\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}'\nUNION ALL\nSELECT \n  'Tool Execution', \n  ROUND(AVG(total_tool_latency_ms), 0), \n  APPROX_QUANTILES(total_tool_latency_ms, 100)[OFFSET(95)]\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}'\nUNION ALL\nSELECT \n  'Agent Overhead', \n  ROUND(AVG(GREATEST(0, turn_duration_ms - total_llm_latency_ms - total_tool_latency_ms)), 0),\n  APPROX_QUANTILES(GREATEST(0, turn_duration_ms - total_llm_latency_ms - total_tool_latency_ms), 100)[OFFSET(95)]\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}'",
+          "rawSql": "SELECT \n  'LLM Reasoning' as metric, \n  ROUND(AVG(total_llm_latency_ms), 0) as avg_ms, \n  APPROX_QUANTILES(total_llm_latency_ms, 100)[OFFSET(95)] as p95_ms\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}'\nUNION ALL\nSELECT \n  'Tool Execution', \n  ROUND(AVG(total_tool_latency_ms), 0), \n  APPROX_QUANTILES(total_tool_latency_ms, 100)[OFFSET(95)]\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}'\nUNION ALL\nSELECT \n  'Agent Overhead', \n  ROUND(AVG(turn_overhead_ms), 0),\n  APPROX_QUANTILES(turn_overhead_ms, 100)[OFFSET(95)]\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}'",
           "format": "table"
         }
       ],
@@ -415,13 +415,111 @@
       }
     },
     {
+      "type": "histogram",
+      "title": "📊 Turn Latency Distribution",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "description": "Bucketized distribution of complete User/Agent interaction durations (Turns). Shows frequency of fast turns vs slow outliers.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT turn_duration_ms as value FROM `${gcp_project}.${bq_dataset}.v_turn_summary` WHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}'",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "📈 Turn Latency Attribution Trend",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "description": "Stacked view of how each turn's time is split between LLM, Tools, and Overhead over time.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "fillOpacity": 70
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "llm_ms"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "tool_ms"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F0A141",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "overhead_ms"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#969696",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT turn_start as time, total_llm_latency_ms as llm_ms, total_tool_latency_ms as tool_ms, turn_overhead_ms as overhead_ms FROM `${gcp_project}.${bq_dataset}.v_turn_summary` WHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}' ORDER BY time",
+          "format": "table"
+        }
+      ]
+    },
+    {
       "type": "timeseries",
       "title": "\u23f1\ufe0f System Latency Trend (TTFT)",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 22
       },
       "description": "Real-time TTFT latency for every LLM turn. Identifies if the LLM is consistently slow or spiking during complex steps.",
       "fieldConfig": {
@@ -443,7 +541,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 22
       },
       "description": "Tool names ranked by average execution latency.",
       "fieldConfig": {
@@ -469,7 +567,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 30
       },
       "description": "Distribution of requests delegated from the root agent to specialist sub-agents.",
       "options": {
@@ -490,7 +588,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 30
       },
       "description": "Frequency and performance of specific tool calls mapped to agents.",
       "targets": [
@@ -507,7 +605,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 38
       },
       "targets": [
         {
@@ -558,7 +656,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 44
       },
       "description": "Deep trace of prompts sent to the LLM and the responses received.",
       "fieldConfig": {

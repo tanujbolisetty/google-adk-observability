@@ -7,8 +7,9 @@ def create_views(project_id, dataset_id, table_name):
     dataset_ref = f"{project_id}.{dataset_id}"
 
     # 1. Model Pricing Table
-    # Static table containing input/output token costs for various Gemini model versions. 
-    # Used for calculating estimated USD cost of agent operations.
+    # A reference table that maps model names to their respective token costs.
+    # Logic: Uses hardcoded USD constants per 1M tokens for input (prompt) and output (candidate).
+    # Usage: Essential for cross-joining with raw events to provide financial visibility (FinOps).
     pricing_sql = f"""
     CREATE OR REPLACE TABLE `{dataset_ref}.model_pricing` AS
     SELECT "gemini-1.5-flash" AS model_version, 0.075 / 1000000 AS input_cost_per_token, 0.30 / 1000000 AS output_cost_per_token UNION ALL
@@ -22,9 +23,10 @@ def create_views(project_id, dataset_id, table_name):
     """
     
     # 2. Master Session Summary
-    # Aggregates all events at the `session_id` level. 
-    # Purpose: Provide high-level KPIs (Total Cost, Tokens, Duration, Errors) for the entire conversation. 
-    # Logic: Summarizes costs across all LLM responses in the session and calculates session-wide duration (End - Start).
+    # The primary roll-up view for the Home/Landing dashboard.
+    # Logic: Calculates session-wide duration (Max - Min timestamp) and sums costs/tokens 
+    # across all turns. It identifies 'Human' vs 'LLM' volume to measure agent productivity.
+    # Metric: 'max_ttft_ms' identifies the worst-case initial response delay for the entire session.
     session_master_sql = f"""
     CREATE OR REPLACE VIEW `{dataset_ref}.v_session_summary` AS
     WITH session_costs AS (
@@ -61,10 +63,12 @@ def create_views(project_id, dataset_id, table_name):
     """
 
     # 3. Master Turn Summary
-    # Aggregates events at the `invocation_id` (turn) level. 
-    # Purpose: Analyze individual user interactions. 
-    # Logic: Calculates Latency Attribution by summing LLM response times vs Tool execution times vs Total Turn Duration. 
-    # This is the primary source for 'Performance Profile' charts.
+    # The most complex engineering view, underpinning the 3-Tier Latency Model.
+    # Logic: Each 'invocation_id' represents a single User/Agent turn. 
+    #   - LLM Time: Sum of all specific model reasoning latencies in the turn.
+    #   - Tool Time: Sum of all external API/script execution latencies.
+    #   - Agent Overhead: (Total Wall-Clock Time) - (LLM + Tool). 
+    # Uses GREATEST(0, ...) to guard against negative values from scrambled log delivery.
     turn_master_sql = f"""
     CREATE OR REPLACE VIEW `{dataset_ref}.v_turn_summary` AS
     WITH turn_costs AS (
@@ -95,16 +99,19 @@ def create_views(project_id, dataset_id, table_name):
       MAX(c.turn_usd_cost) AS cost,
       SUM(IF(e.event_type = 'LLM_RESPONSE', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0)) AS total_llm_latency_ms,
       SUM(IF(e.event_type = 'TOOL_COMPLETED', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0)) AS total_tool_latency_ms,
-      TIMESTAMP_DIFF(MAX(e.timestamp), MIN(e.timestamp), MILLISECOND) AS turn_duration_ms
+      TIMESTAMP_DIFF(MAX(e.timestamp), MIN(e.timestamp), MILLISECOND) AS turn_duration_ms,
+      GREATEST(0, TIMESTAMP_DIFF(MAX(e.timestamp), MIN(e.timestamp), MILLISECOND) - 
+        SUM(IF(e.event_type = 'LLM_RESPONSE', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0)) - 
+        SUM(IF(e.event_type = 'TOOL_COMPLETED', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0))) AS turn_overhead_ms
     FROM `{dataset_ref}.{table_name}` e
     LEFT JOIN turn_costs c ON e.session_id = c.session_id AND e.invocation_id = c.invocation_id
     GROUP BY e.session_id, e.invocation_id, e.user_id;
     """
 
     # 4. Master LLM & Prompt Tracing
-    # Flattens `LLM_RESPONSE` events to expose prompts and responses for audit. 
-    # Purpose: Deep-dive into agent reasoning and prompt debugging. 
-    # Logic: Joins with the pricing table to provide a granular cost per individual model call.
+    # Flattened view of LLM response events, surfacing the raw conversation 'payload'.
+    # Logic: Cross-joins raw event metadata with the 'model_pricing' table to calculate
+    # the exact cost of every individual model call. SURFACES: Raw Prompts and Final Responses.
     llm_master_sql = f"""
     CREATE OR REPLACE VIEW `{dataset_ref}.v_llm_calls` AS
     SELECT
@@ -130,9 +137,9 @@ def create_views(project_id, dataset_id, table_name):
     """
 
     # 5. Master Tool Performance
-    # Flattens `TOOL_COMPLETED` events for auditing external API performance. 
-    # Purpose: Identify slow or failing external dependencies. 
-    # Logic: Extracts tool names, arguments, results, and execution latencies.
+    # Flattened view of 'TOOL_COMPLETED' events for diagnosing external latency.
+    # Logic: Extracts tool names, status (SUCCESS/ERROR), and JSON-parsed arguments/results.
+    # Usage: Informs the 'Tool Execution' slice of the 3-tier latency model.
     tool_master_sql = f"""
     CREATE OR REPLACE VIEW `{dataset_ref}.v_tool_usage` AS
     SELECT
@@ -152,9 +159,9 @@ def create_views(project_id, dataset_id, table_name):
     """
 
     # 6. Model Routing & Orchestrator Flow
-    # Tracks how the orchestrator delegates tasks to specialist sub-agents. 
-    # Purpose: Visualize agent handoffs and intent classification. 
-    # Logic: Filters for `AGENT_COMPLETED` and `LLM_REQUEST` to see the flow of assignments.
+    # Tracks the internal delegation sequence between the Orchestrator and Specialists.
+    # Logic: Filters for the handoff events to visualize the 'Chain of Thought' transit.
+    # Usage: Helps debug logic loops or incorrect agent assignments.
     routing_sql = f"""
     CREATE OR REPLACE VIEW `{dataset_ref}.v_agent_routing` AS
     SELECT
@@ -171,9 +178,9 @@ def create_views(project_id, dataset_id, table_name):
     """
 
     # 7. User Context & Intent
-    # Extracts the 'User Message' events for semantic analysis. 
-    # Purpose: High-level intent tracking and user environment context. 
-    # Logic: Grabs raw text summaries and metadata like timezones from user-initiated events.
+    # Semantic analysis view focusing exclusively on the human side of the interaction.
+    # Logic: Extracts 'text_summary' (input) and session metadata like User Timezone.
+    # Usage: Provides the 'Input' profile for intent categorization and demographic analysis.
     intent_sql = f"""
     CREATE OR REPLACE VIEW `{dataset_ref}.v_user_intent` AS
     SELECT
@@ -187,11 +194,12 @@ def create_views(project_id, dataset_id, table_name):
     ORDER BY timestamp DESC;
     """
 
-    # 8. Session Transcript (for Chat Replay)
-    # Reconstructs the chronological chat feed for the transcript UI. 
-    # Purpose: Human-readable playback of the conversation. 
-    # Logic: Unions Human messages and Agent responses, using ROW_NUMBER to pick the final agent 
-    # output per turn (hiding intermediate internal chain-of-thought/tool-call steps).
+    # 8. Session Transcript (Chat Replay)
+    # The reconstruction logic for the chronological chat replay feed. 
+    # Logic: 
+    #   - Human: Uses COALESCE(text, text_summary) to robustly capture user input across schemas.
+    #   - Agent: Uses ROW_NUMBER to only pick the SUCCESSFUL final response per turn, 
+    #     filtering out intermediate internal tool-calls for a clean human-readable feed.
     transcript_sql = f"""
     CREATE OR REPLACE VIEW `{dataset_ref}.v_session_transcript` AS
     SELECT 
@@ -199,7 +207,7 @@ def create_views(project_id, dataset_id, table_name):
       session_id, 
       user_id,
       'Human' as speaker, 
-      JSON_VALUE(content, '$.text') as message
+      COALESCE(JSON_VALUE(content, '$.text'), JSON_VALUE(content, '$.text_summary')) as message
     FROM `{dataset_ref}.{table_name}`
     WHERE event_type = 'USER_MESSAGE_RECEIVED'
     UNION ALL
