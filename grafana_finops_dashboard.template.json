@@ -135,7 +135,7 @@
         "y": 0
       },
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}&${__all_variables}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}&${__all_variables}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}&${__all_variables}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}&${__all_variables}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}&${__all_variables}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}&${__all_variables}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
         "mode": "html"
       },
       "transparent": true
