@@ -182,7 +182,7 @@
       "title": "⚡ Session Performance Profile (Per Turn)",
       "gridPos": {
         "h": 8,
-        "w": 18,
+        "w": 12,
         "x": 0,
         "y": 2
       },
@@ -262,8 +262,8 @@
       "title": "🕒 Session Duration",
       "gridPos": {
         "h": 8,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 12,
         "y": 2
       },
       "description": "Total elapsed time from the first user message to the final agent response. Note: This includes 'Wall Clock' time, meaning human wait/thinking time between turns is part of this total.",
@@ -296,6 +296,84 @@
       ],
       "options": {
         "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "🤖 Total LLM Calls",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 16,
+        "y": 2
+      },
+      "description": "Total number of model inference requests triggered in this session.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "fixedColor": "#5794F2",
+            "mode": "fixed"
+          }
+        }
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT total_llm_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}'",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "🛠️ Total Tool Calls",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 2
+      },
+      "description": "Total number of external tools/API executions triggered in this session.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "fixedColor": "#F0A141",
+            "mode": "fixed"
+          }
+        }
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT total_tools_executed as total_tool_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}'",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
