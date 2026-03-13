@@ -71,6 +71,20 @@
         "content": "### What is a \"Turn\"? \nIn this system, a **Turn** is defined as one complete user interaction. It starts when the user sends a message and ends when the agent provides its final response. \n\n### The 3-Tier Latency Model\nEvery turn is broken down into three distinct phases for precision diagnostics:\n\n1.  **🟦 Blue: Model Reasoning (LLM)**: \nThe literal \"thinking\" time of the AI. This is the bulk of the latency in complex reasoning tasks where the model is generating tokens.\n\n2.  **🟧 Orange: Tool Execution**: \nThe time spent waiting for external APIs, database lookups, or system scripts to return results back to the agent.\n\n3.  **⬜ Gray: Agent Overhead**: \nThe \"internal processing\" time. This includes orchestrator startup, parsing tool results, and the few milliseconds of logic between model calls. \n\n### Analyzing the Graphs\n- **📊 Turn Latency Distribution**: A histogram showing how many turns were fast (left) vs slow (right). Useful for spotting outliers.\n- **📈 Turn Latency Attribution Trend**: A stacked chart showing how the 3-tier split changes over time. Helps identify if your API (Tools) is becoming slower than your LLM.",
         "mode": "markdown"
       }
+    },
+    {
+      "type": "text",
+      "title": "🚀 Latency Optimization Guide",
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "options": {
+        "content": "If you see bars in the **\"Danger Zone\"** (far right of the histogram), use these strategies to shift them back to the left:\n\n#### \ud83e\udde0 LLM Reasoning (Blue Bars)\n- **Model Tiers**: Use **Gemini Flash** for routing and extraction; reserve **Gemini Pro** for deep synthesis tasks.\n- **Output Limits**: Set `max_output_tokens` to prevent the model from becoming overly verbose.\n- **Concise Prompts**: Simplify your \"System Instructions\" to reduce the baseline processing time per call.\n\n#### \ud83d\udfe7 Tool Execution (Orange Bars)\n- **Parallelism**: Execute multiple tools simultaneously instead of sequentially wherever logic permits.\n- **Result Caching**: Cache results for expensive or frequent tool calls (e.g., knowledge base searches).\n- **Data Pruning**: Pass only the essential fields back to the agent rather than massive raw JSON objects.\n\n#### \u2b1c System Overhead (Gray Bars)\n- **Orchestration Logic**: Audit the \"glue code\" between agent handoffs for any inefficient parsing or serialization.\n- **Cold Starts**: Ensure your hosting environment (Cloud Run, Functions, etc.) has sufficient min-instances to prevent startup delays.",
+        "mode": "markdown"
+      }
     }
   ],
   "templating": {

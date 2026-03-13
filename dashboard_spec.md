@@ -56,6 +56,7 @@ This document defines the **purpose and metrics** for the agent observability su
 
 ### Key Features:
 - **Metric Definitions:** Clear explanations of TTFT, Turn latency, and 3-tier attribution logic.
+- **🚀 Latency Optimization Guide:** Dynamic advice on reducing LLM reasoning time, parallelizing tool calls, and minimizing system overhead.
 - **Navigation Map:** Cross-dashboard drill-down shortcuts.
 - **Logic Guide:** Technical breakdown of the BigQuery views and processing pipeline.
 
