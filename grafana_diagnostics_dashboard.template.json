@@ -25,7 +25,7 @@
         "name": "datasource",
         "options": [],
         "query": "grafana-bigquery-datasource",
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
@@ -86,7 +86,7 @@
         "label": "User",
         "type": "query",
         "query": {
-          "rawSql": "SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id",
+          "rawSql": "SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL ORDER BY user_id",
           "rawQuery": true,
           "editorMode": "code",
           "format": 1,
