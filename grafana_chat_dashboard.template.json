@@ -105,7 +105,7 @@
         "label": "Session",
         "type": "query",
         "query": {
-          "rawSql": "SELECT '-- Select Session --' as session_id UNION ALL (SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND '${user_id:raw}' != '-- Select User --' AND $__timeFilter(timestamp) ORDER BY session_id DESC)",
+          "rawSql": "SELECT '-- Select Session --' as session_id UNION ALL (SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND '${user_id:raw}' NOT IN ('-- Select User --', 'All', '$__all', '%') AND $__timeFilter(timestamp) ORDER BY session_id DESC)",
           "rawQuery": true,
           "editorMode": "code",
           "format": 1
@@ -149,7 +149,7 @@
       "description": "Visual breakdown of where time was spent in each turn of the conversation. Helps identify if a slow turn was caused by model inference or tool execution.",
       "targets": [
         {
-          "rawSql": "SELECT \n  SUBSTR(invocation_id, -8) as turn, \n  total_llm_latency_ms as llm_ms, \n  total_tool_latency_ms as tool_ms,\n  turn_overhead_ms as overhead_ms\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'\nORDER BY turn",
+          "rawSql": "SELECT \n  SUBSTR(invocation_id, -8) as turn, \n  total_llm_latency_ms as llm_ms, \n  total_tool_latency_ms as tool_ms,\n  turn_overhead_ms as overhead_ms\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')\nORDER BY turn",
           "format": "table"
         }
       ],
@@ -250,7 +250,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT session_duration_ms FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'",
+          "rawSql": "SELECT session_duration_ms FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')",
           "format": "table"
         }
       ],
@@ -295,7 +295,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT total_llm_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'",
+          "rawSql": "SELECT total_llm_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')",
           "format": "table"
         }
       ],
@@ -340,7 +340,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT total_tools_executed as total_tool_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --'",
+          "rawSql": "SELECT total_tools_executed as total_tool_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')",
           "format": "table"
         }
       ],
@@ -440,7 +440,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT timestamp as time, speaker, message FROM `${gcp_project}.${bq_dataset}.v_session_transcript` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND '${session_id:raw}' != '-- Select Session --' ORDER BY time ASC",
+          "rawSql": "SELECT timestamp as time, speaker, message FROM `${gcp_project}.${bq_dataset}.v_session_transcript` WHERE $__timeFilter(timestamp) AND session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%') ORDER BY time ASC",
           "format": "table"
         }
       ]

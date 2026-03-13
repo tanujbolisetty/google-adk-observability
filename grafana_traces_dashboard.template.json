@@ -61,7 +61,7 @@
         "label": "Session",
         "type": "query",
         "query": {
-          "rawSql": "SELECT '-- Select Session --' as session_id UNION ALL (SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND '${user_id:raw}' != '-- Select User --' AND $__timeFilter(timestamp) ORDER BY session_id DESC)"
+          "rawSql": "SELECT '-- Select Session --' as session_id UNION ALL (SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND '${user_id:raw}' NOT IN ('-- Select User --', 'All', '$__all', '%') AND $__timeFilter(timestamp) ORDER BY session_id DESC)"
         },
         "refresh": 2,
         "includeAll": false,
@@ -115,7 +115,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT timestamp as time, agent, model, prompt_tokens as inp, completion_tokens as out, calculated_usd_cost as usd, response FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' AND '${session_id:raw}' != '-- Select Session --' ORDER BY time DESC",
+          "rawSql": "SELECT timestamp as time, agent, model, prompt_tokens as inp, completion_tokens as out, calculated_usd_cost as usd, response FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%') ORDER BY time DESC",
           "format": "table"
         }
       ]
@@ -146,7 +146,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT timestamp as time, tool_name, status, latency_ms as ms, input_args, output_result FROM `${gcp_project}.${bq_dataset}.v_tool_usage` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' AND '${session_id:raw}' != '-- Select Session --' ORDER BY time DESC",
+          "rawSql": "SELECT timestamp as time, tool_name, status, latency_ms as ms, input_args, output_result FROM `${gcp_project}.${bq_dataset}.v_tool_usage` WHERE $__timeFilter(timestamp) AND session_id LIKE '${session_id:raw}' AND user_id LIKE '${user_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%') ORDER BY time DESC",
           "format": "table"
         }
       ]
