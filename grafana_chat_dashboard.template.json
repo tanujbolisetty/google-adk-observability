@@ -86,7 +86,7 @@
         "label": "User",
         "type": "query",
         "query": {
-          "rawSql": "SELECT '-- Select User --' as user_id UNION ALL (SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL ORDER BY user_id LIMIT 1000)",
+          "rawSql": "SELECT '-- Select User --' as user_id UNION ALL (SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id LIMIT 1000)",
           "rawQuery": true,
           "editorMode": "code",
           "format": 1
