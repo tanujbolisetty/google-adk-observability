@@ -65,6 +65,9 @@ Use these commands to manage the background service:
 ### Session Transcript
 ![Transcripts](assets/Transcripts_v2.jpg)
 
+### Technical Traces
+![Traces](assets/Traces_v2.jpg)
+
 ---
 
 ## 🏗️ Documentation Structure
