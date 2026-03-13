@@ -11,6 +11,7 @@ All dashboards in this suite are optimized for **Zero-Cost Idle States** and a u
 - **Optimized Metadata**: Variable metadata scans are restricted and throttled to prevent background "blinking".
 - **6-Hour Default Window**: All views default to `now-6h` to ensure fast initial loads and operational relevance.
 - **Global Time Sync**: Navigation links preserve selected timeframes (`?from=${__from}&to=${__to}`) as users move between dashboards.
+- **Hierarchical Discovery**: Filters follow a context-aware "Parent-Child" chain (Time -> User -> Session -> Tool) to maintain relevance.
 
 ---
 
