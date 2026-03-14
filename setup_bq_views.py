@@ -26,6 +26,8 @@ def create_views(project_id, dataset_id, table_name):
       SELECT 
         session_id,
         SUM(CAST(JSON_VALUE(attributes, '$.usage_metadata.total_token_count') AS INT64)) as total_tokens,
+        SUM(CAST(JSON_VALUE(attributes, '$.usage_metadata.prompt_token_count') AS INT64)) as prompt_tokens,
+        SUM(CAST(JSON_VALUE(attributes, '$.usage_metadata.candidates_token_count') AS INT64)) as output_tokens,
         SUM(
           (CAST(JSON_VALUE(attributes, '$.usage_metadata.prompt_token_count') AS INT64) * p.input_cost_per_token) + 
           (CAST(JSON_VALUE(attributes, '$.usage_metadata.candidates_token_count') AS INT64) * p.output_cost_per_token)
@@ -48,6 +50,8 @@ def create_views(project_id, dataset_id, table_name):
       COUNTIF(e.event_type = 'TOOL_COMPLETED') AS total_tools_executed,
       COUNTIF(e.status = 'ERROR') AS total_errors,
       MAX(c.total_tokens) AS session_total_tokens,
+      MAX(c.prompt_tokens) AS session_prompt_tokens,
+      MAX(c.output_tokens) AS session_completion_tokens,
       MAX(c.total_usd_cost) AS session_total_cost_usd,
       MAX(CAST(JSON_VALUE(e.latency_ms, '$.time_to_first_token_ms') AS INT64)) AS max_ttft_ms
     FROM `{dataset_ref}.{table_name}` e

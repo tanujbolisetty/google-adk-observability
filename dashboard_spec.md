@@ -33,9 +33,10 @@ To ensure performance and relevance, the suite uses a **cascading hierarchy** fo
 
 ### Key Metrics:
 - **Total Sessions:** Unique count of all user-agent conversations.
-- **Total Tokens:** Aggregated token consumption (Input + Output).
+- **Tokens (Input/Output/Total):** Granular breakdown of consumption (Input + Output).
 - **Total Cost (USD):** Estimated dollar cost based on model pricing.
 - **Usage Trends:** Daily breakdown of sessions and token volume.
+    - **Visualization:** Mixed chart style using base-10 logarithmic scale. **Total Tokens** are shown as subtle background bars, while **Input** and **Output** tokens are plotted as lines for clear comparative profiling.
 
 ---
 

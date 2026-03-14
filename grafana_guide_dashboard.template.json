@@ -105,6 +105,54 @@
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
+      },
+      {
+        "name": "gcp_project",
+        "label": "GCP Project",
+        "type": "textbox",
+        "current": {
+          "text": "REPLACE_ME_PROJECT",
+          "value": "REPLACE_ME_PROJECT"
+        },
+        "options": [
+          {
+            "text": "REPLACE_ME_PROJECT",
+            "value": "REPLACE_ME_PROJECT"
+          }
+        ],
+        "hide": 0
+      },
+      {
+        "name": "bq_dataset",
+        "label": "BQ Dataset",
+        "type": "textbox",
+        "current": {
+          "text": "REPLACE_ME_DATASET",
+          "value": "REPLACE_ME_DATASET"
+        },
+        "options": [
+          {
+            "text": "REPLACE_ME_DATASET",
+            "value": "REPLACE_ME_DATASET"
+          }
+        ],
+        "hide": 0
+      },
+      {
+        "name": "bq_table",
+        "label": "Base Table",
+        "type": "textbox",
+        "current": {
+          "text": "REPLACE_ME_TABLE",
+          "value": "REPLACE_ME_TABLE"
+        },
+        "options": [
+          {
+            "text": "REPLACE_ME_TABLE",
+            "value": "REPLACE_ME_TABLE"
+          }
+        ],
+        "hide": 0
       }
     ]
   }

@@ -20,6 +20,8 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 - `session_duration_ms`: Total wall-clock time from the first user message to the final agent response.
 - `total_turns`: Count of individual request/response interactions within the session.
 - `session_total_tokens`: Aggregated token volume across all turns.
+- `session_prompt_tokens`: Cumulative input tokens (Prompts).
+- `session_completion_tokens`: Cumulative output tokens (Candidates).
 - `session_total_cost_usd`: Estimated budget impact based on input/candidate model pricing.
 - `max_ttft_ms`: The single highest "Time to First Token" delay recorded during the session.
 

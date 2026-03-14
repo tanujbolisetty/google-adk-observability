@@ -51,13 +51,13 @@
         "label": "BQ Dataset",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_PROJECT",
-          "value": "REPLACE_ME_PROJECT"
+          "text": "REPLACE_ME_DATASET",
+          "value": "REPLACE_ME_DATASET"
         },
         "options": [
           {
-            "text": "REPLACE_ME_PROJECT",
-            "value": "REPLACE_ME_PROJECT"
+            "text": "REPLACE_ME_DATASET",
+            "value": "REPLACE_ME_DATASET"
           }
         ],
         "hide": 0

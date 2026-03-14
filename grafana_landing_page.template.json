@@ -150,13 +150,105 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, SUM(session_total_tokens) AS value FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start) GROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, SUM(session_total_tokens) AS total_tokens, SUM(session_prompt_tokens) AS input_tokens, SUM(session_completion_tokens) AS output_tokens FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start) GROUP BY 1 ORDER BY 1",
           "format": "table"
         }
       ],
       "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "spanNulls": true,
+            "showPoints": "always",
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "log",
+              "log": 10
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_tokens"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Tokens"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "bars"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 20
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "input_tokens"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Input Tokens"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "output_tokens"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output Tokens"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        }
       }
     },
     {
