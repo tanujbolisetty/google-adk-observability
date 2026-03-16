@@ -2,6 +2,12 @@
 
 **Agent Analytics** is an observability suite designed for agents built with the **Google Agent Development Kit (ADK)**. It transforms raw BigQuery event logs into actionable insights using a high-performance data layering strategy and Grafana visualizations.
 
+**Minimum ADK Version:** 1.19.0  
+**Tested With:** 1.26.0
+
+> [!IMPORTANT]
+> These **7 custom master views** are specific to this observability suite and its data layering strategy. They are distinct from the standard views functionality introduced in ADK version 1.27.0+.
+
 ---
 
 ## 🚀 Quick Start (2-Command Deployment)
@@ -9,7 +15,7 @@
 Deploy the entire analytics stack using our automated scripts:
 
 ### 1. Setup the BigQuery Data Layer
-Creates the 7 master analytical views (flattened JSON, costs, latencies).
+Creates the 7 custom master analytical views (flattened JSON, costs, latencies).
 ```bash
 python3 setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
 ```
