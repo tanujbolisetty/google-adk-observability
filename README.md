@@ -93,7 +93,7 @@ Use these commands to manage the background service:
 ### Requirements
 - **Google ADK Configured with BigQuery Agent Analytics Plugin**: Follow the [official integration guide](https://google.github.io/adk-docs/integrations/bigquery-agent-analytics/#use-with-agent) to ensure your agent is emitting logs to BigQuery.
 
-from google.adk.plugins.bigquery_agent_analytics_plugin import ( BigQueryAgentAnalyticsPlugin, BigQueryLoggerConfig)
+       from google.adk.plugins.bigquery_agent_analytics_plugin import ( BigQueryAgentAnalyticsPlugin, BigQueryLoggerConfig)
   
 - **Google Cloud SDK** (authenticated)
 - **BigQuery** (with ADK logs)
