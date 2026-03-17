@@ -1,6 +1,6 @@
 # 📊 Agent Analytics for Google ADK
 
-**Agent Analytics** is an observability suite designed for agents built with the **Google Agent Development Kit (ADK)**. It transforms raw BigQuery event logs into actionable insights using a high-performance data layering strategy and Grafana visualizations.
+**Agent Analytics** is an observability suite designed for agents built with the **Google Agent Development Kit (ADK)**. It transforms agent interaction data directly streamed to BigQuery  into actionable insights using a high-performance data layering strategy and Grafana visualizations.
 
 **Minimum ADK Version:** 1.19.0  
 **Tested With:** 1.26.0
@@ -91,7 +91,7 @@ Use these commands to manage the background service:
 ## 🛠️ Requirements & Manual Setup
 
 ### Requirements
-- **Google ADK Configured with BigQuery Agent Analytics Plugin***: Follow the [official integration guide](https://google.github.io/adk-docs/integrations/bigquery-agent-analytics/#use-with-agent) to ensure your agent is emitting logs to BigQuery.
+- **Google ADK Configured with BigQuery Agent Analytics Plugin**: Follow the [official integration guide](https://google.github.io/adk-docs/integrations/bigquery-agent-analytics/#use-with-agent) to ensure your agent is emitting logs to BigQuery.
 - **Google Cloud SDK** (authenticated)
 - **BigQuery** (with ADK logs)
 - **Grafana** (with BigQuery Data Source plugin)
