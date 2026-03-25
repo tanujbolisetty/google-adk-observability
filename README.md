@@ -3,6 +3,7 @@
 **Agent Analytics** is a comprehensive **LLM observability suite** and **plugin** designed for conversational agents built with the **Google Agent Development Kit (ADK)**. It transforms raw **BigQuery** agent logs configured from **BigQuery Agent Analytics Plugin** into actionable intelligence, providing powerful **Grafana dashboards** for tracking LLM token costs, system latency, precision metrics, and full-text session transcripts.
 
 > **Keywords**: BigQuery Agent Analytics Plugin, Grafana Dashboards, Google Agent Development Kit, ADK, LLM Observability, Generative AI Metrics, Conversational Agent Monitoring, AI Telemetry.
+
 **Minimum ADK Version:** 1.19.0  
 **Tested With:** 1.26.0
 
@@ -59,9 +60,6 @@ Use these commands to manage the background service:
 The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency.
 
 ![Agent Home Dashboard Overview](./assets/Home_v2.jpg)
-
-[Open Grafana Analytics Folder](http://localhost:3000)
-.
 
 ---
 
