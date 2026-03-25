@@ -1,5 +1,10 @@
 # 📦 Changelog & Release Notes
 
+## [1.2.2] - 2026-03-25
+### ✨ Branding & Layout
+- **Branding Update**: Formally renamed the Home Dashboard landing to **"Google ADK Agent Analytics"**.
+- **Layout Precision**: Increased the "Welcome" panel height and shifted all subsequent grid rows down (+2 units) to ensure 3 lines of instruction fit natively without a scrollbar.
+
 ## [1.2.1] - 2026-03-25
 ### ✨ New Features
 - **Total User Questions Metric**: Added a new top-level `stat` panel to the Home Dashboard counting all human prompts, positioned directly beside "Total Sessions" for immediate volume visibility. Sourced from `v_aaa_user_intent`. Includes clarification that count spans all sessions in the selected timeframe.
