@@ -66,7 +66,7 @@ The Agent Analytics Suite is now 100% production-ready, interactive, and calibra
 ## 🖼️ Dashboard Gallery
 
 ### 🏠 Agent Home (Landing)
-Executive overview of fleet performance.
+Executive overview of fleet performance (Sessions, User Questions, Tokens, Cost).
 
 ![Agent Home](./assets/Home_v2.jpg)
 
