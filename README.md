@@ -68,30 +68,30 @@ The Agent Analytics Suite is now 100% production-ready, interactive, and calibra
 ### 🏠 Agent Home (Landing)
 Executive overview of fleet performance (Sessions, User Questions, Tokens, Cost).
 
-![Agent Home](./assets/Home_v2.jpg)
-![Agent Trends](./assets/Home_2_v2.jpg)
+![Agent Home](./Assets/Home_v2.jpg)
+![Agent Trends](./Assets/Home_2_v2.jpg)
 
 
 ### 💰 FinOps & 🛠️ Diagnostics
 Deep dives into token costs and system latency/errors.
 
-![FinOps Overview](./assets/Finops_v2.jpg)
-![FinOps Details](./assets/Finops2_v2.jpg)
-![Diagnostics 1](./assets/Diagnostcis1_v2.jpg)
-![Diagnostics 2](./assets/Diagnostcis2_v2.jpg)
-![Diagnostics 3](./assets/Diagnostcis3_v2.jpg)
-![Diagnostics 4](./assets/Diagnostcis4_v2.jpg)
+![FinOps Overview](./Assets/Finops_v2.jpg)
+![FinOps Details](./Assets/Finops2_v2.jpg)
+![Diagnostics 1](./Assets/Diagnostcis1_v2.jpg)
+![Diagnostics 2](./Assets/Diagnostcis2_v2.jpg)
+![Diagnostics 3](./Assets/Diagnostcis3_v2.jpg)
+![Diagnostics 4](./Assets/Diagnostcis4_v2.jpg)
 
 ### 💬 Transcripts & 📜 Technical Traces
 Turn-by-turn chat logs and trace-level tool payload auditing with **Full Content Expansion (Inspect Mode)**.
 
-![Transcripts](./assets/Transcripts_v2.jpg)
-![Technical Traces](./assets/Traces_v2.jpg)
+![Transcripts](./Assets/Transcripts_v2.jpg)
+![Technical Traces](./Assets/Traces_v2.jpg)
 
 ### 🧠 LLM & Prompt Audit
 Context inflation tracking and raw prompt-response evaluation.
 
-![LLM Audit](./assets/LLM_Audit.jpg)
+![LLM Audit](./Assets/LLM_Audit.jpg)
 
 ### 📖 Agent Intelligence Guide
 A centralized documentation hub for metric glossaries and system architecture usage.
