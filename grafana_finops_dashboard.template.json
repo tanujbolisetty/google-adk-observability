@@ -14,125 +14,107 @@
   "templating": {
     "list": [
       {
+        "name": "datasource",
+        "label": "Data Source",
+        "type": "datasource",
+        "query": "grafana-bigquery-datasource",
         "current": {
           "text": "BigQuery",
           "value": "BigQuery"
         },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Data Source",
-        "multi": false,
-        "name": "datasource",
-        "options": [],
-        "query": "grafana-bigquery-datasource",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "type": "datasource"
+        "hide": 2
       },
       {
         "name": "gcp_project",
         "label": "GCP Project",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_PROJECT",
-          "value": "REPLACE_ME_PROJECT"
+          "text": "your-project-id",
+          "value": "your-project-id"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_PROJECT",
-            "value": "REPLACE_ME_PROJECT"
-          }
-        ],
-        "hide": 0
+        "hide": 2
       },
       {
         "name": "bq_dataset",
         "label": "BQ Dataset",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_DATASET",
-          "value": "REPLACE_ME_DATASET"
+          "text": "your-dataset-id",
+          "value": "your-dataset-id"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_DATASET",
-            "value": "REPLACE_ME_DATASET"
-          }
-        ],
-        "hide": 0
+        "hide": 2
       },
       {
-        "allValue": "%",
-        "current": {
-          "text": "REPLACE_ME_TABLE",
-          "value": "REPLACE_ME_TABLE"
-        },
-        "hide": 0,
-        "includeAll": true,
-        "label": "Base Table",
         "name": "bq_table",
-        "options": [
-          {
-            "text": "REPLACE_ME_TABLE",
-            "value": "REPLACE_ME_TABLE"
-          }
-        ],
-        "query": "agent_events_v1",
-        "type": "textbox"
+        "label": "Base Table",
+        "type": "textbox",
+        "current": {
+          "text": "your-table-name",
+          "value": "your-table-name"
+        },
+        "hide": 2
       },
       {
         "name": "user_id",
         "label": "User",
         "type": "query",
+        "hide": 0,
         "query": {
-          "rawSql": "SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id",
+          "rawSql": "SELECT 'Select_User' as user_id UNION ALL (SELECT user_id FROM (SELECT user_id, MAX(session_start) as last_seen FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE user_id IS NOT NULL AND $__timeFilter(session_start) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000))",
           "rawQuery": true,
           "editorMode": "code",
-          "format": 1,
-          "refId": "tempvar",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
+          "format": 1
         },
+        "sort": 0,
         "refresh": 2,
         "includeAll": true,
-        "allValue": "%",
+        "allValue": "Select_User",
         "current": {
           "text": "All",
           "value": "$__all"
         },
-        "sort": 1,
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          }
+        ],
         "datasource": {
           "type": "grafana-bigquery-datasource",
           "uid": "${datasource}"
         }
       },
       {
-        "name": "c_user",
-        "hide": 2,
+        "name": "session_id",
+        "label": "Session",
         "type": "query",
+        "hide": 0,
         "query": {
-          "rawSql": "SELECT CASE WHEN '${user_id:raw}' = '%' THEN '-- Select User --' ELSE '${user_id:raw}' END",
+          "rawSql": "SELECT 'Select_Session' as session_id UNION ALL (SELECT session_id FROM (SELECT session_id, MAX(timestamp) as last_seen FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All')) AND $__timeFilter(timestamp) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000))",
           "rawQuery": true,
+          "editorMode": "code",
           "format": 1
         },
-        "datasource": { "type": "grafana-bigquery-datasource", "uid": "${datasource}" },
-        "refresh": 2
+        "sort": 0,
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": "Select_Session",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          }
+        ],
+        "datasource": {
+          "type": "grafana-bigquery-datasource",
+          "uid": "${datasource}"
+        }
       }
     ]
   },
@@ -146,8 +128,9 @@
         "x": 0,
         "y": 0
       },
+      "id": 999,
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${c_user}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${c_user}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 14px; font-weight: bold; justify-content: center; align-items: center; width: 100%;\">\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcca SUMMARY</span>\n    <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n    <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n    <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udee0\ufe0f Diagnostics</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udd0d FORENSICS</span>\n    <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n    <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcdc Traces</a>\n    <a href=\"/d/agent-llm-audit?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83e\udde0 LLM Audit</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcd6 GUIDE</span>\n    <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcd6 Guide</a>\n  </div>\n</div>",
         "mode": "html"
       },
       "transparent": true
@@ -166,8 +149,8 @@
           "unit": "currencyUSD",
           "links": [
             {
-              "title": "🔍 Drill into Traces for this time",
-              "url": "/d/agent-traces?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
+              "title": "\ud83d\udd0d Drill into Traces for this time",
+              "url": "/d/agent-traces?${__url_time_range}&var-user_id=${user_id}"
             }
           ]
         },
@@ -175,8 +158,12 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT session_start AS time, session_total_cost_usd AS value FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE $__timeFilter(session_start) AND user_id LIKE '${user_id:raw}' ORDER BY time",
-          "format": "table"
+          "rawSql": "SELECT session_start AS time, session_total_cost_usd AS value FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('Select_Session', '--', '', 'All')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All')) ORDER BY time",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
         }
       ]
     },
@@ -193,8 +180,8 @@
         "defaults": {
           "links": [
             {
-              "title": "🔍 Drill into Traces for this turn",
-              "url": "/d/agent-traces?from=${__value.time}&to=${__value.time}&var-user_id=${user_id}"
+              "title": "\ud83d\udd0d Drill into Traces for this turn",
+              "url": "/d/agent-traces?${__url_time_range}&var-user_id=${user_id}"
             }
           ]
         },
@@ -202,8 +189,12 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT turn_start AS time, tokens AS value FROM `${gcp_project}.${bq_dataset}.v_turn_summary` WHERE $__timeFilter(turn_start) AND user_id LIKE '${user_id:raw}' ORDER BY time",
-          "format": "table"
+          "rawSql": "SELECT turn_start AS time, tokens AS value FROM `${gcp_project}.${bq_dataset}.v_aaa_turn_summary` WHERE $__timeFilter(turn_start) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('Select_Session', '--', '', 'All')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All')) ORDER BY time",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
         }
       ]
     },
@@ -231,8 +222,12 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT model, SUM(total_tokens) as total_tokens, SUM(calculated_usd_cost) as total_cost_usd FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND user_id LIKE '${user_id:raw}' GROUP BY model ORDER BY total_tokens DESC",
-          "format": "table"
+          "rawSql": "SELECT model, SUM(total_tokens) as total_tokens, SUM(calculated_usd_cost) as total_cost_usd FROM `${gcp_project}.${bq_dataset}.v_aaa_llm_calls` WHERE $__timeFilter(timestamp) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('Select_Session', '--', '', 'All')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All')) GROUP BY model ORDER BY total_tokens DESC",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
         }
       ]
     },
@@ -251,6 +246,70 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "total_cost_usd"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cost (USD)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "input_tokens"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Input"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "output_tokens"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Output"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_tokens"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total Tokens"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "session_id"
             },
             "properties": [
@@ -259,11 +318,11 @@
                 "value": [
                   {
                     "title": "\ud83d\udd0d Drill into Diagnostics",
-                    "url": "/d/agent-traces?var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
+                    "url": "/d/agent-traces?${__url_time_range}&var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
                   },
                   {
                     "title": "\ud83d\udcac View Chat Transcript",
-                    "url": "/d/agent-transcript?var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
+                    "url": "/d/agent-transcript?${__url_time_range}&var-session_id=${__value.text}&var-user_id=${__data.fields.user_id}"
                   }
                 ]
               }
@@ -273,8 +332,12 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT l.session_id, l.user_id, SUM(l.calculated_usd_cost) as total_cost_usd, MIN(l.timestamp) as session_start, SUM(l.prompt_tokens) as input_tokens, SUM(l.completion_tokens) as output_tokens, SUM(l.total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_llm_calls` l WHERE $__timeFilter(l.timestamp) AND l.user_id LIKE '${user_id:raw}' GROUP BY l.session_id, l.user_id ORDER BY total_cost_usd DESC LIMIT 20",
-          "format": "table"
+          "rawSql": "SELECT l.session_id, l.user_id, SUM(l.calculated_usd_cost) as total_cost_usd, MIN(l.timestamp) as session_start, SUM(l.prompt_tokens) as input_tokens, SUM(l.completion_tokens) as output_tokens, SUM(l.total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_llm_calls` l WHERE $__timeFilter(l.timestamp) AND (l.session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('Select_Session', '--', '', 'All')) AND (l.user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All')) GROUP BY l.session_id, l.user_id ORDER BY total_cost_usd DESC LIMIT 20",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
         }
       ]
     },
@@ -302,8 +365,12 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT agent, SUM(total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_llm_calls` WHERE $__timeFilter(timestamp) AND user_id LIKE '${user_id:raw}' GROUP BY agent ORDER BY total_tokens DESC",
-          "format": "table"
+          "rawSql": "SELECT agent, SUM(total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_llm_calls` WHERE $__timeFilter(timestamp) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('Select_Session', '--', '', 'All')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All')) GROUP BY agent ORDER BY total_tokens DESC",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
         }
       ]
     }

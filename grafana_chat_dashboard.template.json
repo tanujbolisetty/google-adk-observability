@@ -7,94 +7,78 @@
     "agent-chat"
   ],
   "editable": true,
-  "refresh": "",
   "schemaVersion": 39,
-  "description": "Conversation transcripts and session performance profile. [FILTERS]: User ID (Global), Session ID (Global - Required)",
+  "description": "Conversation transcripts and session performance profile.",
   "timezone": "browser",
   "links": [],
   "templating": {
     "list": [
       {
+        "name": "datasource",
+        "label": "Data Source",
+        "type": "datasource",
+        "query": "grafana-bigquery-datasource",
         "current": {
           "text": "BigQuery",
           "value": "BigQuery"
         },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Data Source",
-        "multi": false,
-        "name": "datasource",
-        "options": [],
-        "query": "grafana-bigquery-datasource",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "type": "datasource"
+        "hide": 2
       },
       {
         "name": "gcp_project",
         "label": "GCP Project",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_PROJECT",
-          "value": "REPLACE_ME_PROJECT"
+          "text": "your-project-id",
+          "value": "your-project-id"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_PROJECT",
-            "value": "REPLACE_ME_PROJECT"
-          }
-        ],
-        "hide": 0
+        "hide": 2
       },
       {
         "name": "bq_dataset",
         "label": "BQ Dataset",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_DATASET",
-          "value": "REPLACE_ME_DATASET"
+          "text": "your-dataset-id",
+          "value": "your-dataset-id"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_DATASET",
-            "value": "REPLACE_ME_DATASET"
-          }
-        ],
-        "hide": 0
+        "hide": 2
       },
       {
         "name": "bq_table",
         "label": "Base Table",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_TABLE",
-          "value": "REPLACE_ME_TABLE"
+          "text": "your-table-name",
+          "value": "your-table-name"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_TABLE",
-            "value": "REPLACE_ME_TABLE"
-          }
-        ],
-        "hide": 0,
-        "includeAll": true,
-        "allValue": "%"
+        "hide": 2
       },
       {
         "name": "user_id",
         "label": "User",
         "type": "query",
+        "hide": 0,
         "query": {
-          "rawSql": "SELECT '-- Select User --' as user_id UNION ALL (SELECT DISTINCT user_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id IS NOT NULL AND $__timeFilter(timestamp) ORDER BY user_id LIMIT 1000)",
+          "rawSql": "SELECT 'Select_User' as user_id UNION ALL (SELECT user_id FROM (SELECT user_id, MAX(session_start) as last_seen FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE user_id IS NOT NULL AND $__timeFilter(session_start) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000))",
           "rawQuery": true,
           "editorMode": "code",
           "format": 1
         },
+        "sort": 0,
         "refresh": 2,
         "includeAll": false,
-        "current": { "selected": true, "text": "-- Select User --", "value": "-- Select User --" },
-        "sort": 1,
+        "current": {
+          "text": "Select_User",
+          "value": "Select_User"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "Select_User",
+            "value": "Select_User"
+          }
+        ],
         "datasource": {
           "type": "grafana-bigquery-datasource",
           "uid": "${datasource}"
@@ -104,16 +88,27 @@
         "name": "session_id",
         "label": "Session",
         "type": "query",
+        "hide": 0,
         "query": {
-          "rawSql": "SELECT '-- Select Session --' as session_id UNION ALL (SELECT DISTINCT session_id FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id LIKE '${user_id:raw}' AND '${user_id:raw}' NOT IN ('-- Select User --', 'All', '$__all', '%') AND $__timeFilter(timestamp) ORDER BY session_id DESC)",
+          "rawSql": "SELECT 'Select_Session' as session_id UNION ALL (SELECT session_id FROM (SELECT session_id, MAX(timestamp) as last_seen FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id = '${user_id:raw}' AND '${user_id:raw}' NOT IN ('Select_User', '--', 'All') AND $__timeFilter(timestamp) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000))",
           "rawQuery": true,
           "editorMode": "code",
           "format": 1
         },
+        "sort": 0,
         "refresh": 2,
         "includeAll": false,
-        "current": { "selected": true, "text": "-- Select Session --", "value": "-- Select Session --" },
-        "sort": 3,
+        "current": {
+          "text": "Select_Session",
+          "value": "Select_Session"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "Select_Session",
+            "value": "Select_Session"
+          }
+        ],
         "datasource": {
           "type": "grafana-bigquery-datasource",
           "uid": "${datasource}"
@@ -131,259 +126,42 @@
         "x": 0,
         "y": 0
       },
+      "id": 999,
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 14px; font-weight: bold; justify-content: center; align-items: center; width: 100%;\">\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcca SUMMARY</span>\n    <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n    <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n    <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udee0\ufe0f Diagnostics</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udd0d FORENSICS</span>\n    <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n    <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcdc Traces</a>\n    <a href=\"/d/agent-llm-audit?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83e\udde0 LLM Audit</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcd6 GUIDE</span>\n    <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcd6 Guide</a>\n  </div>\n</div>",
         "mode": "html"
       },
       "transparent": true
     },
     {
-      "type": "bargauge",
-      "title": "⚡ Session Performance Profile (Per Turn)",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 2
-      },
-      "description": "Visual breakdown of where time was spent in each turn of the conversation. Helps identify if a slow turn was caused by model inference or tool execution.",
-      "targets": [
-        {
-          "rawSql": "SELECT \n  SUBSTR(invocation_id, -8) as turn, \n  total_llm_latency_ms as llm_ms, \n  total_tool_latency_ms as tool_ms,\n  turn_overhead_ms as overhead_ms\nFROM `${gcp_project}.${bq_dataset}.v_turn_summary` \nWHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')\nORDER BY turn",
-          "format": "table"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "llm_ms"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#5794F2",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "tool_ms"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#F0A141",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "overhead_ms"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#969696",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      }
-    },
-    {
-      "type": "stat",
-      "title": "🕒 Session Duration",
-      "gridPos": {
-        "h": 8,
-        "w": 4,
-        "x": 12,
-        "y": 2
-      },
-      "description": "Total elapsed time from the first user message to the final agent response. Note: This includes 'Wall Clock' time, meaning human wait/thinking time between turns is part of this total.",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 30000
-              }
-            ]
-          }
-        }
-      },
-      "targets": [
-        {
-          "rawSql": "SELECT session_duration_ms FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')",
-          "format": "table"
-        }
-      ],
-      "options": {
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name"
-      }
-    },
-    {
-      "type": "stat",
-      "title": "🤖 Total LLM Calls",
-      "gridPos": {
-        "h": 8,
-        "w": 4,
-        "x": 16,
-        "y": 2
-      },
-      "description": "Total number of model inference requests triggered in this session.",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "color": {
-            "fixedColor": "#5794F2",
-            "mode": "fixed"
-          },
-          "links": [
-            {
-              "title": "🔍 Drill Down: View LLM Prompts",
-              "url": "/d/agent-traces?var-session_id=${session_id}&var-user_id=${user_id}"
-            }
-          ]
-        }
-      },
-      "targets": [
-        {
-          "rawSql": "SELECT total_llm_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')",
-          "format": "table"
-        }
-      ],
-      "options": {
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name"
-      }
-    },
-    {
-      "type": "stat",
-      "title": "🛠️ Total Tool Calls",
-      "gridPos": {
-        "h": 8,
-        "w": 4,
-        "x": 20,
-        "y": 2
-      },
-      "description": "Total number of external tools/API executions triggered in this session.",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none",
-          "color": {
-            "fixedColor": "#F0A141",
-            "mode": "fixed"
-          },
-          "links": [
-            {
-              "title": "\ud83d\udd0e Drill Down: View Tool Payloads",
-              "url": "/d/agent-traces?var-session_id=${session_id}&var-user_id=${user_id}"
-            }
-          ]
-        }
-      },
-      "targets": [
-        {
-          "rawSql": "SELECT total_tools_executed as total_tool_calls FROM `${gcp_project}.${bq_dataset}.v_session_summary` WHERE session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%')",
-          "format": "table"
-        }
-      ],
-      "options": {
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name"
-      }
-    },
-    {
-      "type": "text",
-      "title": "",
-      "gridPos": {
-        "h": 2,
-        "w": 24,
-        "x": 0,
-        "y": 10
-      },
-      "options": {
-        "content": "\ud83d\udca1 **Tip:** Select a **User** and then a **Session** from the dropdown filters above to see the full conversation flow for that session.",
-        "mode": "markdown"
-      },
-      "transparent": true
-    },
-    {
       "type": "table",
-      "title": "Conversation Flow",
+      "title": "\ud83d\udcac Conversation Flow (Synchronized Transcript)",
       "gridPos": {
-        "h": 24,
+        "h": 26,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 2
+      },
+      "id": 1,
+      "options": {
+        "showHeader": true,
+        "cellHeight": "auto",
+        "footer": {
+          "show": false
+        }
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "text"
+            },
+            "inspect": true,
+            "filterable": true,
+            "wrapText": true
+          }
+        },
         "overrides": [
           {
             "matcher": {
@@ -393,11 +171,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 80
-              },
-              {
-                "id": "custom.align",
-                "value": "center"
+                "value": 100
               }
             ]
           },
@@ -409,7 +183,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 180
+                "value": 200
               }
             ]
           },
@@ -420,32 +194,53 @@
             },
             "properties": [
               {
+                "id": "custom.wrapText",
+                "value": true
+              },
+              {
                 "id": "custom.inspect",
                 "value": true
               },
               {
-                "id": "custom.wrapText",
-                "value": true
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
               }
             ]
           }
         ]
       },
-      "options": {
-        "showHeader": true,
-        "cellHeight": "auto",
-        "footer": {
-          "show": false
-        }
-      },
       "targets": [
         {
-          "rawSql": "SELECT timestamp as time, speaker, message FROM `${gcp_project}.${bq_dataset}.v_session_transcript` WHERE $__timeFilter(timestamp) AND session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('-- Select Session --', 'All', '$__all', '%') ORDER BY time ASC",
-          "format": "table"
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          },
+          "format": "table",
+          "rawSql": "SELECT timestamp as time, speaker, message, TIMESTAMP_DIFF(timestamp, LAG(timestamp) OVER (ORDER BY timestamp ASC), MILLISECOND) as duration_ms FROM `${gcp_project}.${bq_dataset}.v_aaa_session_transcript` WHERE session_id = '${session_id:raw}' AND $__timeFilter(timestamp) ORDER BY time ASC",
+          "refId": "A"
         }
       ]
     }
   ],
+  "version": 1,
   "time": {
     "from": "now-6h",
     "to": "now"

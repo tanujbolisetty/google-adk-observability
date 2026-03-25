@@ -1,0 +1,365 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Graphics --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 999,
+      "options": {
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 14px; font-weight: bold; justify-content: center; align-items: center; width: 100%;\">\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcca SUMMARY</span>\n    <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n    <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n    <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udee0\ufe0f Diagnostics</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udd0d FORENSICS</span>\n    <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n    <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcdc Traces</a>\n    <a href=\"/d/agent-llm-audit?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83e\udde0 LLM Audit</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcd6 GUIDE</span>\n    <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcd6 Guide</a>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "transparent": true
+    },
+    {
+      "datasource": {
+        "type": "grafana-bigquery-datasource",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 1,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          },
+          "format": "table",
+          "rawSql": "SELECT timestamp, agent, model, invocation_id, prompt_tokens, completion_tokens, total_tokens, calculated_usd_cost, prompt, response FROM `${gcp_project}.${bq_dataset}.v_aaa_llm_calls` WHERE session_id = '${session_id:raw}' AND $__timeFilter(timestamp) ORDER BY timestamp ASC",
+          "refId": "A"
+        }
+      ],
+      "title": "\ud83e\udde0 LLM Inference & Prompt Audit (Full Content)",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "text"
+            },
+            "inspect": true,
+            "filterable": true,
+            "wrapText": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "invocation_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "prompt"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "response"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "session_id"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "prompt_body"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "response_body"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "raw_payload"
+            },
+            "properties": []
+          }
+        ]
+      }
+    },
+    {
+      "type": "stat",
+      "title": "\ud83c\udff7\ufe0f Total Session Tokens",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 2
+      },
+      "id": 11,
+      "description": "The total sum of all tokens (input + output) processed during the entire session.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1000000
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT SUM(total_tokens) FROM `${gcp_project}.${bq_dataset}.v_aaa_llm_calls` WHERE session_id = '${session_id:raw}' AND $__timeFilter(timestamp)",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "\ud83d\udcc8 Session Context Inflation (Tokens Per Turn)",
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 2
+      },
+      "id": 10,
+      "description": "Shows how the total token count (context) grows with each turn in the current session.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#EAB839"
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "invocation_id"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "xTickLabelRotation": 0,
+        "showValue": "always",
+        "stacking": "none",
+        "groupWidth": 0.7,
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT \n  CAST(t.turn_index AS STRING) as turn, \n  MAX(l.prompt_tokens) as context_tokens, \n  MAX(l.completion_tokens) as response_tokens, \n  MAX(l.invocation_id) as invocation_id \nFROM `${gcp_project}.${bq_dataset}.v_aaa_llm_calls` l\nJOIN `${gcp_project}.${bq_dataset}.v_aaa_turn_summary` t\n  ON l.invocation_id = t.invocation_id AND l.session_id = t.session_id\nWHERE l.session_id = '${session_id:raw}' AND '${session_id:raw}' NOT IN ('Select_Session', '--', 'All')\nGROUP BY t.turn_index \nORDER BY t.turn_index",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "Data Source",
+        "type": "datasource",
+        "query": "grafana-bigquery-datasource",
+        "current": {
+          "text": "BigQuery",
+          "value": "BigQuery"
+        },
+        "hide": 2
+      },
+      {
+        "name": "gcp_project",
+        "label": "GCP Project",
+        "type": "textbox",
+        "current": {
+          "text": "your-project-id",
+          "value": "your-project-id"
+        },
+        "hide": 2
+      },
+      {
+        "name": "bq_dataset",
+        "label": "BQ Dataset",
+        "type": "textbox",
+        "current": {
+          "text": "your-dataset-id",
+          "value": "your-dataset-id"
+        },
+        "hide": 2
+      },
+      {
+        "name": "bq_table",
+        "label": "Base Table",
+        "type": "textbox",
+        "current": {
+          "text": "your-table-name",
+          "value": "your-table-name"
+        },
+        "hide": 2
+      },
+      {
+        "name": "user_id",
+        "label": "User",
+        "type": "query",
+        "hide": 0,
+        "query": {
+          "rawSql": "SELECT 'Select_User' as user_id UNION ALL (SELECT user_id FROM (SELECT user_id, MAX(session_start) as last_seen FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE user_id IS NOT NULL AND $__timeFilter(session_start) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000))",
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": 1
+        },
+        "sort": 0,
+        "refresh": 2,
+        "includeAll": false,
+        "current": {
+          "text": "Select_User",
+          "value": "Select_User"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "Select_User",
+            "value": "Select_User"
+          }
+        ],
+        "datasource": {
+          "type": "grafana-bigquery-datasource",
+          "uid": "${datasource}"
+        }
+      },
+      {
+        "name": "session_id",
+        "label": "Session",
+        "type": "query",
+        "hide": 0,
+        "query": {
+          "rawSql": "SELECT 'Select_Session' as session_id UNION ALL (SELECT session_id FROM (SELECT session_id, MAX(timestamp) as last_seen FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE user_id = '${user_id:raw}' AND '${user_id:raw}' NOT IN ('Select_User', '--', 'All') AND $__timeFilter(timestamp) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000))",
+          "rawQuery": true,
+          "editorMode": "code",
+          "format": 1
+        },
+        "sort": 0,
+        "refresh": 2,
+        "includeAll": false,
+        "current": {
+          "text": "Select_Session",
+          "value": "Select_Session"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "Select_Session",
+            "value": "Select_Session"
+          }
+        ],
+        "datasource": {
+          "type": "grafana-bigquery-datasource",
+          "uid": "${datasource}"
+        }
+      }
+    ]
+  },
+  "title": "Agent LLM & Prompt Audit",
+  "uid": "agent-llm-audit",
+  "version": 1
+}
