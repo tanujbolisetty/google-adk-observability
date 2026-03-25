@@ -59,8 +59,6 @@ Use these commands to manage the background service:
 
 The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency.
 
-![Agent Home Dashboard Overview](./assets/Home_v2.jpg)
-
 ---
 
 ---
