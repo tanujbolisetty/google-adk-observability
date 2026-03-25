@@ -47,14 +47,15 @@
       "fieldConfig": {
         "defaults": {},
         "overrides": []
-      }
+      },
+      "id": 2
     },
     {
       "type": "stat",
       "title": "Total Sessions",
       "gridPos": {
         "h": 5,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 5
       },
@@ -72,15 +73,42 @@
         "defaults": {},
         "overrides": []
       },
-      "description": "Unique count of session IDs initiated by users in the selected time range."
+      "description": "Unique count of session IDs initiated by users in the selected time range.",
+      "id": 3
+    },
+    {
+      "type": "stat",
+      "title": "Total User Questions",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT count(*) as total_questions FROM `${gcp_project}.${bq_dataset}.v_aaa_user_intent` WHERE $__timeFilter(timestamp)",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "description": "Total number of human-initiated questions/prompts processed by the agent within the selected timeframe.",
+      "id": 4
     },
     {
       "type": "stat",
       "title": "Total Tokens",
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 12,
         "y": 5
       },
       "targets": [
@@ -99,15 +127,16 @@
         },
         "overrides": []
       },
-      "description": "Cumulative tokens consumed (Prompt + Completion). Automatically scales (K, M, B)."
+      "description": "Cumulative tokens consumed (Prompt + Completion). Automatically scales (K, M, B).",
+      "id": 5
     },
     {
       "type": "stat",
       "title": "Total Cost (USD)",
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 18,
         "y": 5
       },
       "fieldConfig": {
@@ -126,7 +155,8 @@
           }
         }
       ],
-      "description": "Estimated cumulative cost in USD based on model pricing and token usage."
+      "description": "Estimated cumulative cost in USD based on model pricing and token usage.",
+      "id": 6
     },
     {
       "type": "timeseries",
@@ -150,7 +180,8 @@
       "fieldConfig": {
         "defaults": {},
         "overrides": []
-      }
+      },
+      "id": 7
     },
     {
       "type": "timeseries",
@@ -266,7 +297,8 @@
           "placement": "bottom",
           "showLegend": true
         }
-      }
+      },
+      "id": 8
     },
     {
       "type": "table",
@@ -345,7 +377,8 @@
           }
         ]
       },
-      "description": "Latest 20 user sessions with activity and cost summaries."
+      "description": "Latest 20 user sessions with activity and cost summaries.",
+      "id": 9
     }
   ],
   "templating": {

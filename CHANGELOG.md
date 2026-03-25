@@ -1,5 +1,9 @@
 # 📦 Changelog & Release Notes
 
+## [1.2.1] - 2026-03-25
+### ✨ New Features
+- **Total User Questions Metric**: Added a new top-level `stat` panel to the Home Dashboard counting all human prompts, positioned directly beside "Total Sessions" for immediate volume visibility. Sourced from `v_aaa_user_intent`.
+
 ## [1.2.0] - Dashboard Evolution & Forensic Precision
 
 ### ✨ New Features
