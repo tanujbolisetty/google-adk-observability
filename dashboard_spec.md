@@ -33,7 +33,7 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
 **Goal**: Fleet KPIs (Total Sessions, User Questions, Token Volume, Total Cost).
 - **Panel Breakdown**:
     - **Total Sessions (Stat)**: Unique conversation count. (Source: `v_aaa_session_summary`)
-    - **Total User Questions (Stat)**: Total count of human-initiated prompts. (Source: `v_aaa_user_intent`)
+    - **Total User Questions (Stat)**: Total count of human-initiated prompts. Sourced from `v_aaa_user_intent` to prioritize "What did the human ask?" over internal technical reprocessing. (Source: `v_aaa_user_intent`)
     - **Total Tokens (Stat)**: Cumulative volume of input and output tokens. (Source: `v_aaa_session_summary`)
     - **Total Estimated Cost (Stat)**: Aggregated USD consumption. (Source: `v_aaa_session_summary`)
     - **Usage Trends (Mixed Time Series)**: Daily token volume (Logarithmic). (Source: `v_aaa_session_summary`)

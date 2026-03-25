@@ -41,7 +41,7 @@
         "y": 2
       },
       "options": {
-        "content": "# \ud83d\udcca Google ADK Agent Analytics\nWelcome! Use the navigation bar above to explore your agent telemetry.",
+        "content": "# \ud83d\udcca Agent Intelligence Dashboard\nWelcome! Use the navigation bar above to explore your agent telemetry.",
         "mode": "markdown"
       },
       "fieldConfig": {
@@ -185,12 +185,47 @@
     },
     {
       "type": "timeseries",
-      "title": "\ud83d\udcc8 Daily Token Consumption",
+      "title": "\ud83d\udcca Questions Per Day",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
         "y": 12
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT TIMESTAMP(DATE(timestamp)) AS time, COUNT(*) AS value FROM `${gcp_project}.${bq_dataset}.v_aaa_user_intent` WHERE $__timeFilter(timestamp) GROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "showPoints": "always"
+          }
+        },
+        "overrides": []
+      },
+      "description": "Daily volume of human-initiated prompts processed by the agent.",
+      "id": 10
+    },
+    {
+      "type": "timeseries",
+      "title": "\ud83d\udcc8 Daily Token Consumption",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 20
       },
       "targets": [
         {
@@ -307,7 +342,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 28
       },
       "targets": [
         {

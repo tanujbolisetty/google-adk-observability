@@ -1,9 +1,11 @@
-# 📦 Changelog & Release Notes
-
 ## [1.2.2] - 2026-03-25
 ### ✨ Branding & Layout
 - **Branding Update**: Formally renamed the Home Dashboard landing to **"Google ADK Agent Analytics"**.
-- **Layout Precision**: Increased the "Welcome" panel height and shifted all subsequent grid rows down (+2 units) to ensure 3 lines of instruction fit natively without a scrollbar.
+- **Layout Precision**:
+    - Increased the "Welcome" panel height to remove the scrollbar.
+    - Added a **"Questions Per Day"** trend beside "Sessions Per Day" (Width 12 each).
+    - Expanded **"Daily Token Consumption"** to full-width (Width 24) for improved legibility of multi-line metrics.
+    - Orchestrated a global grid shift to accommodate the expanded visualization row.
 
 ## [1.2.1] - 2026-03-25
 ### ✨ New Features

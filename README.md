@@ -69,6 +69,8 @@ The Agent Analytics Suite is now 100% production-ready, interactive, and calibra
 Executive overview of fleet performance (Sessions, User Questions, Tokens, Cost).
 
 ![Agent Home](./assets/Home_v2.jpg)
+![Agent Trends](./assets/Home_2_v2.jpg)
+
 
 ### 💰 FinOps & 🛠️ Diagnostics
 Deep dives into token costs and system latency/errors.
