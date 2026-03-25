@@ -33,15 +33,15 @@
     },
     {
       "type": "text",
-      "title": "Welcome to Agent Analytics",
+      "title": "Welcome to Google ADK Agent Analytics",
       "gridPos": {
-        "h": 3,
+        "h": 5,
         "w": 24,
         "x": 0,
         "y": 2
       },
       "options": {
-        "content": "# \ud83d\udcca Agent Intelligence Dashboard\nWelcome! Use the navigation bar above to explore your agent telemetry.",
+        "content": "# \ud83d\udcca Google ADK Agent Analytics\nWelcome! Use the navigation bar above to explore your agent telemetry.",
         "mode": "markdown"
       },
       "fieldConfig": {
@@ -57,7 +57,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 5
+        "y": 7
       },
       "targets": [
         {
@@ -83,7 +83,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 5
+        "y": 7
       },
       "targets": [
         {
@@ -109,7 +109,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 5
+        "y": 7
       },
       "targets": [
         {
@@ -137,7 +137,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 5
+        "y": 7
       },
       "fieldConfig": {
         "defaults": {
@@ -165,7 +165,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 12
       },
       "targets": [
         {
@@ -190,7 +190,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 12
       },
       "targets": [
         {
@@ -307,7 +307,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 20
       },
       "targets": [
         {
