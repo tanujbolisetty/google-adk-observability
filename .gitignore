@@ -1,8 +1,12 @@
 # Local configured dashboards (contain real IDs)
 configured/
 
+# Agentic skill configuration
+.agents/
+
 # Historical backups
 backups/
+
 
 # Environment secrets
 .env

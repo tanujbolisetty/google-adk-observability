@@ -1,6 +1,8 @@
-# 📊 Agent Analytics for Google ADK
+# 📊 Agent Analytics for Google ADK (BigQuery Agent Analytics Plugin)
 
-**Agent Analytics** is an observability suite designed for agents built with the **Google Agent Development Kit (ADK)**. It transforms raw BigQuery event logs into actionable insights using a high-performance data layering strategy and Grafana visualizations.
+**Agent Analytics** is a comprehensive **LLM observability suite** and **plugin** designed for conversational agents built with the **Google Agent Development Kit (ADK)**. It transforms raw **BigQuery** agent logs configured from BigQuery agent Analytics plugin into actionable intelligence, providing powerful **Grafana dashboards** for tracking LLM token costs, system latency, precision metrics, and full-text session transcripts.
+
+> **Keywords**: BigQuery Agent Analytics Plugin, Grafana Dashboards, Google Agent Development Kit, ADK, LLM Observability, Generative AI Metrics, Conversational Agent Monitoring, AI Telemetry.
 
 **Minimum ADK Version:** 1.19.0  
 **Tested With:** 1.26.0
@@ -15,13 +17,13 @@
 Deploy the entire analytics stack using our automated scripts:
 
 ### 1. Setup the BigQuery Data Layer
-Creates the 7 custom master analytical views (flattened JSON, costs, latencies).
+Creates the **8 custom master analytical views** (flattened JSON, costs, latencies).
 ```bash
 python3 setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
 ```
 
 ### 2. Setup the Grafana Visual Layer (Optional)
-Configures and imports 5 interconnected dashboards into your target Grafana folder. **Parameters like `--datasource-uid` can be auto-detected if omitted.**
+Configures and imports 7 interconnected dashboards into your target Grafana folder. **Parameters like `--datasource-uid` can be auto-detected if omitted.**
 ```bash
 python3 setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME> --url <GRAFANA_URL>
 ```
@@ -55,25 +57,60 @@ Use these commands to manage the background service:
 > [!NOTE]
 > Once started, access your local dashboard at [http://localhost:3000](http://localhost:3000).
 
+The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency.
+
+![Agent Home Dashboard Overview](./assets/Home_v2.jpg)
+
+[Open Grafana Analytics Folder](http://localhost:3000)
+.
+
+---
+
+---
+
+## 🏗️ The "Symmetric Selection" Architecture
+
+This suite uses a high-stability **Symmetric Selection** pattern to solve common Grafana navigation issues:
+- **Zero-Latency State Sync**: Summary dashboards (Home, FinOps) use `allValue` mapping to pass valid default states to Forensic dashboards without hidden variable lag.
+- **Valid URL Parameters**: Navigation links are guaranteed to pass valid one-word tokens (e.g., `Select_User`) instead of empty strings, preventing "Blank Box" filter regressions.
+- [x] Fix Recency Sort Order & sort:0 setting
+- [x] Recover & Standardize Chat Transcript template
+- [x] Fix 'Context Inflation' Sawtooth Bug (Market Research + BQ Audit)
+- [x] Update Architecture Guide & SKILL.md with Traceability Rules
+- **Recency-First Sorting**: All session and event dropdowns are internally sorted by recency to prioritize active debugging targets.
+
 ---
 
 ## 🖼️ Dashboard Gallery
 
-### Agent Home (Landing)
-![Home](assets/Home_v2.jpg)
+### 🏠 Agent Home (Landing)
+Executive overview of fleet performance.
 
-### FinOps & Diagnostics
-![FinOps 1](assets/Finops_v2.jpg)
-![FinOps 2](assets/Finops2_v2.jpg)
-![Diagnostics 1](assets/Diagnostcis1_v2.jpg)
-![Diagnostics 2](assets/Diagnostcis2_v2.jpg)
-![Diagnostics 3](assets/Diagnostcis3_v2.jpg)
+![Agent Home](./assets/Home_v2.jpg)
 
-### Session Transcript
-![Transcripts](assets/Transcripts_v2.jpg)
+### 💰 FinOps & 🛠️ Diagnostics
+Deep dives into token costs and system latency/errors.
 
-### Technical Traces
-![Traces](assets/Traces_v2.jpg)
+![FinOps Overview](./assets/Finops_v2.jpg)
+![FinOps Details](./assets/Finops2_v2.jpg)
+![Diagnostics 1](./assets/Diagnostcis1_v2.jpg)
+![Diagnostics 2](./assets/Diagnostcis2_v2.jpg)
+![Diagnostics 3](./assets/Diagnostcis3_v2.jpg)
+![Diagnostics 4](./assets/Diagnostcis4_v2.jpg)
+
+### 💬 Transcripts & 📜 Technical Traces
+Turn-by-turn chat logs and trace-level tool payload auditing with **Full Content Expansion (Inspect Mode)**.
+
+![Transcripts](./assets/Transcripts_v2.jpg)
+![Technical Traces](./assets/Traces_v2.jpg)
+
+### 🧠 LLM & Prompt Audit
+Context inflation tracking and raw prompt-response evaluation.
+
+![LLM Audit](./assets/LLM_Audit.jpg)
+
+### 📖 Agent Intelligence Guide
+A centralized documentation hub for metric glossaries and system architecture usage.
 
 ---
 

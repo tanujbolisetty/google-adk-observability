@@ -24,65 +24,82 @@
         "x": 0,
         "y": 0
       },
+      "id": 999,
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 16px; font-weight: bold; justify-content: center; padding: 10px; width: 100%;\">\n  <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">🏠 Home</a>\n  <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">💰 FinOps</a>\n  <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">⚙️ Diagnostics</a>\n  <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">💬 Transcripts</a>\n  <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">🔎 Traces</a>\n  <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">❓ Help</a>\n</div>",
+        "content": "<div style=\"display: flex; gap: 24px; font-size: 14px; font-weight: bold; justify-content: center; align-items: center; width: 100%;\">\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcca SUMMARY</span>\n    <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n    <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n    <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udee0\ufe0f Diagnostics</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udd0d FORENSICS</span>\n    <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n    <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcdc Traces</a>\n    <a href=\"/d/agent-llm-audit?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83e\udde0 LLM Audit</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcd6 GUIDE</span>\n    <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcd6 Guide</a>\n  </div>\n</div>",
         "mode": "html"
       },
       "transparent": true
     },
     {
       "type": "text",
-      "title": "\ud83d\uddfa\ufe0f Navigation & Architecture",
+      "title": "\ud83d\udcd9 Technical Metric: TTFT Understanding",
       "gridPos": {
-        "h": 12,
+        "h": 13,
         "w": 24,
         "x": 0,
         "y": 2
       },
       "options": {
-        "content": "### Dashboard Architecture\nThe analytical interface is designed as a multi-page **Dashboard Application**. \n\n1. **\ud83c\udfe0 Home (Landing Page)**: Executive summary of all orchestration. Provides trends on sessions, total token usage, and cumulative cost.\n2. **\ud83d\udcb0 FinOps (Costs)**: Granular financial deep-dive. Track precisely how much each user turn and session is costing in USD.\n3. **\u2699\ufe0f Diagnostics (Health)**: Technical troubleshooting. Monitor TTFT spikes, tool execution latency, and error rates.\n4. **\ud83d\udcac Transcripts (Replay)**: Operational auditing. Reconstruct the full back-and-forth conversation for any specific session.\n\n### Navigation Tips\n- **Drill-Downs**: Click on Session IDs in tables to jump between dashboards while keeping your filters.\n- **Control Bar**: Use the variables at the top to switch between BigQuery Datasets or Table versions without changing code.\n- **Time Filters**: Changing the time in the top right carries over across all dashboards automatically.",
+        "content": "## What is TTFT (Time To First Token)?\n\n**TTFT** measures the latency (in milliseconds) for the LLM to return the very first character of its response for **every individual LLM interaction** in a session. \n\n> [!IMPORTANT]\n> **TTFT vs Total Latency**\n> - **TTFT** shows when the first word appeared.\n> - **Total MS** shows when the last word appeared.\n> \n> If the `run()` method is used, the difference between these two values is negligible (0-1ms) because the backend waits for the entire response before sending it. Otherwise, using streaming methods like `run_stream()` will result in a distinct difference between these metrics.\n\n## Where is it measured?\nTTFT is measured for *every* LLM call made by the agent. This includes:\n1. **Initial Prompts**: The first greeting issued when a user session starts.\n2. **Orchestration Steps**: When the agent is reasoning about which tool to use.\n3. **Final Synthesis**: After a tool has returned data and the agent is forming the final answer to the user.",
         "mode": "markdown"
       }
     },
     {
       "type": "text",
-      "title": "\ud83d\udcd9 Technical Metric: TTFT Understanding",
+      "title": "",
       "gridPos": {
-        "h": 10,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 15
       },
       "options": {
-        "content": "### What is TTFT (Time To First Token)?\n\n**TTFT** measures the latency (in milliseconds) for the LLM to return the very first character of its response for **every individual LLM interaction** in a session. \n\n> [!IMPORTANT]\n> **TTFT vs Total Latency**\n> - **TTFT** shows when the first word appeared.\n> - **Total MS** shows when the last word appeared.\n> \n> If the `run()` method is used, the difference between these two values is negligible (0-1ms) because the backend waits for the entire response before sending it. Otherwise, using streaming methods like `run_stream()` will result in a distinct difference between these metrics.\n\n### Where is it measured?\nTTFT is measured for *every* LLM call made by the agent. This includes:\n1. **Initial Prompts**: The first greeting issued when a user session starts.\n2. **Orchestration Steps**: When the agent is reasoning about which tool to use.\n3. **Final Synthesis**: After a tool has returned data and the agent is forming the final answer to the user.",
+        "content": "",
+        "mode": "markdown"
+      },
+      "transparent": true
+    },
+    {
+      "type": "text",
+      "title": "\ud83e\udde0 Latency Attribution & Turn Logic",
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "options": {
+        "content": "## What is a \"Turn\"? \nIn this system, a **Turn** is defined as one complete user interaction. It starts when the user sends a message and ends when the agent provides its final response. \n\n## The 3-Tier Latency Model\nEvery turn is broken down into three distinct phases for precision diagnostics:\n\n1.  **\ud83d\udfe6 Blue: Model Reasoning (LLM)**: \nThe literal \"thinking\" time of the AI. This is the bulk of the latency in complex reasoning tasks where the model is generating tokens.\n\n2.  **\ud83d\udfe7 Orange: Tool Execution**: \nThe time spent waiting for external APIs, database lookups, or system scripts to return results back to the agent.\n\n3.  **\u2b1c Gray: Agent Overhead**: \nThe \"internal processing\" time. This includes orchestrator startup, parsing tool results, and the few milliseconds of logic between model calls. \n\n## Analyzing the Graphs\n- **\ud83d\udcca Turn Latency Distribution**: A histogram showing how many turns were fast (left) vs slow (right). Useful for spotting outliers.\n- **\ud83d\udcc8 Turn Latency Attribution Trend**: A stacked chart showing how the 3-tier split changes over time. Guides identify if your API (Tools) is becoming slower than your LLM.",
         "mode": "markdown"
       }
     },
     {
       "type": "text",
-      "title": "🧠 Latency Attribution & Turn Logic",
+      "title": "",
       "gridPos": {
-        "h": 12,
+        "h": 1,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 31
       },
       "options": {
-        "content": "### What is a \"Turn\"? \nIn this system, a **Turn** is defined as one complete user interaction. It starts when the user sends a message and ends when the agent provides its final response. \n\n### The 3-Tier Latency Model\nEvery turn is broken down into three distinct phases for precision diagnostics:\n\n1.  **🟦 Blue: Model Reasoning (LLM)**: \nThe literal \"thinking\" time of the AI. This is the bulk of the latency in complex reasoning tasks where the model is generating tokens.\n\n2.  **🟧 Orange: Tool Execution**: \nThe time spent waiting for external APIs, database lookups, or system scripts to return results back to the agent.\n\n3.  **⬜ Gray: Agent Overhead**: \nThe \"internal processing\" time. This includes orchestrator startup, parsing tool results, and the few milliseconds of logic between model calls. \n\n### Analyzing the Graphs\n- **📊 Turn Latency Distribution**: A histogram showing how many turns were fast (left) vs slow (right). Useful for spotting outliers.\n- **📈 Turn Latency Attribution Trend**: A stacked chart showing how the 3-tier split changes over time. Helps identify if your API (Tools) is becoming slower than your LLM.",
+        "content": "",
         "mode": "markdown"
-      }
+      },
+      "transparent": true
     },
     {
       "type": "text",
-      "title": "🚀 Latency Optimization Guide",
+      "title": "\ud83d\ude80 Latency Optimization Guide",
       "gridPos": {
-        "h": 14,
+        "h": 17,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 32
       },
       "options": {
-        "content": "If you see bars in the **\"Danger Zone\"** (far right of the histogram), use these strategies to shift them back to the left:\n\n#### \ud83e\udde0 LLM Reasoning (Blue Bars)\n- **Model Tiers**: Use **Gemini Flash** for routing and extraction; reserve **Gemini Pro** for deep synthesis tasks.\n- **Output Limits**: Set `max_output_tokens` to prevent the model from becoming overly verbose.\n- **Concise Prompts**: Simplify your \"System Instructions\" to reduce the baseline processing time per call.\n\n#### \ud83d\udfe7 Tool Execution (Orange Bars)\n- **Parallelism**: Execute multiple tools simultaneously instead of sequentially wherever logic permits.\n- **Result Caching**: Cache results for expensive or frequent tool calls (e.g., knowledge base searches).\n- **Data Pruning**: Pass only the essential fields back to the agent rather than massive raw JSON objects.\n\n#### \u2b1c System Overhead (Gray Bars)\n- **Orchestration Logic**: Audit the \"glue code\" between agent handoffs for any inefficient parsing or serialization.\n- **Cold Starts**: Ensure your hosting environment (Cloud Run, Functions, etc.) has sufficient min-instances to prevent startup delays.",
+        "content": "If you see bars in the **\"Danger Zone\"** (far right of the histogram), use these strategies to shift them back to the left:\n\n## \ud83e\udde0 LLM Reasoning (Blue Bars)\n- **Model Tiers**: Use **Gemini Flash** for routing and extraction; reserve **Gemini Pro** for deep synthesis tasks.\n- **Output Limits**: Set `max_output_tokens` to prevent the model from becoming overly verbose.\n- **Concise Prompts**: Simplify your \"System Instructions\" to reduce the baseline processing time per call.\n\n## \ud83d\udfe7 Tool Execution (Orange Bars)\n- **Parallelism**: Execute multiple tools simultaneously instead of sequentially wherever logic permits.\n- **Result Caching**: Cache results for expensive or frequent tool calls (e.g., knowledge base searches).\n- **Data Pruning**: Pass only the essential fields back to the agent rather than massive raw JSON objects.\n\n## \u2b1c System Overhead (Gray Bars)\n- **Orchestration Logic**: Audit the \"glue code\" between agent handoffs for any inefficient parsing or serialization.\n- **Cold Starts**: Ensure your hosting environment (Cloud Run, Functions, etc.) has sufficient min-instances to prevent startup delays.",
         "mode": "markdown"
       }
     }
@@ -111,15 +128,9 @@
         "label": "GCP Project",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_PROJECT",
-          "value": "REPLACE_ME_PROJECT"
+          "text": "your-project-id",
+          "value": "your-project-id"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_PROJECT",
-            "value": "REPLACE_ME_PROJECT"
-          }
-        ],
         "hide": 0
       },
       {
@@ -127,15 +138,9 @@
         "label": "BQ Dataset",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_DATASET",
-          "value": "REPLACE_ME_DATASET"
+          "text": "your-dataset-id",
+          "value": "your-dataset-id"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_DATASET",
-            "value": "REPLACE_ME_DATASET"
-          }
-        ],
         "hide": 0
       },
       {
@@ -143,16 +148,34 @@
         "label": "Base Table",
         "type": "textbox",
         "current": {
-          "text": "REPLACE_ME_TABLE",
-          "value": "REPLACE_ME_TABLE"
+          "text": "your-table-name",
+          "value": "your-table-name"
         },
-        "options": [
-          {
-            "text": "REPLACE_ME_TABLE",
-            "value": "REPLACE_ME_TABLE"
-          }
-        ],
         "hide": 0
+      },
+      {
+        "name": "user_id",
+        "hide": 2,
+        "type": "custom",
+        "includeAll": true,
+        "allValue": "Select_User",
+        "query": "All",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "session_id",
+        "hide": 2,
+        "type": "custom",
+        "includeAll": true,
+        "allValue": "Select_Session",
+        "query": "All",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
       }
     ]
   }

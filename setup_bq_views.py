@@ -21,7 +21,7 @@ def create_views(project_id, dataset_id, table_name):
     
     # 2. Master Session Summary
     session_master_sql = f"""
-    CREATE OR REPLACE VIEW `{dataset_ref}.v_session_summary` AS
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_session_summary` AS
     WITH session_costs AS (
       SELECT 
         session_id,
@@ -61,7 +61,7 @@ def create_views(project_id, dataset_id, table_name):
 
     # 3. Master Turn Summary
     turn_master_sql = f"""
-    CREATE OR REPLACE VIEW `{dataset_ref}.v_turn_summary` AS
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_turn_summary` AS
     WITH turn_costs AS (
       SELECT 
         session_id,
@@ -81,6 +81,7 @@ def create_views(project_id, dataset_id, table_name):
       e.session_id,
       e.invocation_id,
       e.user_id,
+      ROW_NUMBER() OVER(PARTITION BY e.session_id ORDER BY MIN(e.timestamp)) as turn_index,
       MIN(e.timestamp) AS turn_start,
       MAX(e.timestamp) AS turn_end,
       COUNTIF(e.event_type = 'LLM_REQUEST') AS llm_calls_in_turn,
@@ -101,7 +102,22 @@ def create_views(project_id, dataset_id, table_name):
 
     # 4. Master LLM & Prompt Tracing
     llm_master_sql = f"""
-    CREATE OR REPLACE VIEW `{dataset_ref}.v_llm_calls` AS
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_llm_calls` AS
+    WITH prompts AS (
+      SELECT 
+        invocation_id, 
+        session_id,
+        ANY_VALUE(COALESCE(
+          TO_JSON_STRING(JSON_QUERY(content, '$.prompt')), 
+          TO_JSON_STRING(JSON_QUERY(content, '$.request.prompt')),
+          JSON_VALUE(content, '$.prompt'),
+          JSON_VALUE(content, '$.request.prompt')
+        )) as turn_prompt
+      FROM `{dataset_ref}.{table_name}`
+      WHERE event_type IN ('LLM_REQUEST', 'LLM_RESPONSE') 
+        AND (JSON_QUERY(content, '$.prompt') IS NOT NULL OR JSON_QUERY(content, '$.request.prompt') IS NOT NULL)
+      GROUP BY invocation_id, session_id
+    )
     SELECT
       e.timestamp,
       e.session_id,
@@ -116,17 +132,25 @@ def create_views(project_id, dataset_id, table_name):
         (CAST(JSON_VALUE(e.attributes, '$.usage_metadata.prompt_token_count') AS INT64) * p.input_cost_per_token) + 
         (CAST(JSON_VALUE(e.attributes, '$.usage_metadata.candidates_token_count') AS INT64) * p.output_cost_per_token)
       ) AS calculated_usd_cost,
-      JSON_VALUE(e.content, '$.prompt') AS prompt,
-      JSON_VALUE(e.content, '$.response') AS response
+      COALESCE(pr.turn_prompt, TO_JSON_STRING(JSON_QUERY(e.content, '$.prompt'))) AS prompt,
+      COALESCE(
+        JSON_VALUE(e.content, '$.response.text'), 
+        JSON_VALUE(e.content, '$.response'), 
+        JSON_VALUE(e.content, '$.text'),
+        TO_JSON_STRING(JSON_QUERY(e.content, '$.response')),
+        TO_JSON_STRING(e.content)
+      ) AS response
     FROM `{dataset_ref}.{table_name}` e
     LEFT JOIN `{dataset_ref}.model_pricing` p 
       ON JSON_VALUE(e.attributes, '$.model_version') = p.model_version
+    LEFT JOIN prompts pr
+      ON e.invocation_id = pr.invocation_id AND e.session_id = pr.session_id
     WHERE e.event_type = 'LLM_RESPONSE';
     """
 
     # 5. Master Tool Performance
     tool_master_sql = f"""
-    CREATE OR REPLACE VIEW `{dataset_ref}.v_tool_usage` AS
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_tool_usage` AS
     WITH tool_starts AS (
       SELECT 
         invocation_id, session_id, user_id, agent,
@@ -164,7 +188,7 @@ def create_views(project_id, dataset_id, table_name):
 
     # 6. Model Routing & Orchestrator Flow
     routing_sql = f"""
-    CREATE OR REPLACE VIEW `{dataset_ref}.v_agent_routing` AS
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_agent_routing` AS
     SELECT
       timestamp,
       session_id,
@@ -180,7 +204,7 @@ def create_views(project_id, dataset_id, table_name):
 
     # 7. User Context & Intent
     intent_sql = f"""
-    CREATE OR REPLACE VIEW `{dataset_ref}.v_user_intent` AS
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_user_intent` AS
     SELECT
       timestamp,
       session_id,
@@ -194,7 +218,7 @@ def create_views(project_id, dataset_id, table_name):
 
     # 8. Session Transcript (Chat Replay)
     transcript_sql = f"""
-    CREATE OR REPLACE VIEW `{dataset_ref}.v_session_transcript` AS
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_session_transcript` AS
     SELECT 
       timestamp, 
       session_id, 
@@ -209,13 +233,104 @@ def create_views(project_id, dataset_id, table_name):
       session_id, 
       user_id,
       'Agent' as speaker, 
-      JSON_VALUE(content, '$.response') as message
+      COALESCE(JSON_VALUE(content, '$.response.text'), JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.text')) as message
     FROM (
       SELECT *, ROW_NUMBER() OVER(PARTITION BY session_id, invocation_id ORDER BY timestamp DESC) as rn
       FROM `{dataset_ref}.{table_name}`
       WHERE event_type = 'LLM_RESPONSE'
     )
     WHERE rn = 1;
+    """
+
+    
+    # 9. Unified Session Chronology
+    chronology_sql = f"""
+    CREATE OR REPLACE VIEW `{dataset_ref}.v_aaa_session_chronology` AS
+    WITH raw_data AS (
+      SELECT
+        timestamp as time,
+        session_id,
+        user_id,
+        invocation_id,
+        event_type,
+        status,
+        error_message,
+        content,
+        agent,
+        attributes,
+        latency_ms
+      FROM `{dataset_ref}.{table_name}`
+    ),
+    prompts AS (
+      -- Extract prompts from any event in the turn (LLM_REQUEST or LLM_RESPONSE)
+      SELECT 
+        invocation_id, 
+        session_id,
+        ANY_VALUE(COALESCE(JSON_VALUE(content, '$.prompt'), JSON_VALUE(content, '$.request.prompt'))) as turn_prompt
+      FROM raw_data
+      WHERE event_type IN ('LLM_REQUEST', 'LLM_RESPONSE') 
+        AND (JSON_VALUE(content, '$.prompt') IS NOT NULL OR JSON_VALUE(content, '$.request.prompt') IS NOT NULL)
+      GROUP BY invocation_id, session_id
+    ),
+    base_events AS (
+      SELECT
+        r.*,
+        CASE 
+          WHEN r.event_type = 'USER_MESSAGE_RECEIVED' THEN '👤 Human Input'
+          WHEN r.event_type = 'TOOL_STARTING' THEN '🔧 Tool Starting'
+          WHEN r.event_type = 'TOOL_COMPLETED' THEN '✅ Tool Execution Result'
+          WHEN r.event_type = 'LLM_REQUEST' THEN '🧠 Agent Reasoning (Start)'
+          WHEN r.event_type = 'LLM_RESPONSE' THEN '🗣️ Agent Output'
+          WHEN r.event_type = 'AGENT_STARTING' THEN '🔀 Sub-Agent Routing'
+          WHEN r.event_type = 'AGENT_COMPLETED' THEN '🏁 Sub-Agent Completed'
+          ELSE r.event_type
+        END as step_type,
+        COALESCE(
+          JSON_VALUE(r.content, '$.tool'),
+          r.agent,
+          JSON_VALUE(r.attributes, '$.root_agent_name'),
+          'System'
+        ) as actor,
+        COALESCE(CAST(JSON_VALUE(r.latency_ms, '$.total_ms') AS INT64), 0) as duration_ms,
+        p.turn_prompt
+      FROM raw_data r
+      LEFT JOIN prompts p ON r.invocation_id = p.invocation_id AND r.session_id = p.session_id
+      WHERE r.event_type IN (
+        'USER_MESSAGE_RECEIVED', 
+        'LLM_REQUEST', 
+        'LLM_RESPONSE', 
+        'TOOL_STARTING', 
+        'TOOL_COMPLETED', 
+        'AGENT_STARTING', 
+        'AGENT_COMPLETED'
+      )
+    )
+    SELECT
+      time, session_id, user_id, invocation_id, event_type, step_type, actor, duration_ms, status, error_message,
+      -- 1. Conversation Message (Expanded UI - Identical to Transcripts)
+      CASE
+        WHEN event_type = 'USER_MESSAGE_RECEIVED' THEN 
+          COALESCE(JSON_VALUE(content, '$.text'), JSON_VALUE(content, '$.text_summary'))
+        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED') AND (actor = JSON_VALUE(attributes, '$.root_agent_name') OR agent = JSON_VALUE(attributes, '$.root_agent_name')) THEN 
+          COALESCE(JSON_VALUE(content, '$.response.text'), JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.text'))
+        ELSE NULL
+      END as message,
+      -- 2. Technical Details (Collapsed UI with Eye Icon)
+      CASE
+        WHEN event_type = 'TOOL_STARTING' THEN 
+          TO_JSON_STRING(COALESCE(JSON_QUERY(content, '$.args'), JSON_QUERY(content, '$.arguments'), JSON_QUERY(content, '$.parameters'), JSON_QUERY(content, '$.input'), content))
+        WHEN event_type = 'TOOL_COMPLETED' THEN 
+          TO_JSON_STRING(COALESCE(JSON_QUERY(content, '$.result'), JSON_QUERY(content, '$.response'), JSON_QUERY(content, '$.output'), content))
+        WHEN event_type = 'LLM_REQUEST' THEN 
+          CONCAT('🧠 Inference started (', actor, ')')
+        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED') AND NOT (actor = JSON_VALUE(attributes, '$.root_agent_name') OR agent = JSON_VALUE(attributes, '$.root_agent_name')) THEN 
+          TO_JSON_STRING(content)
+        ELSE NULL
+      END as technical_details,
+      -- 3. Always provide full details for the 'Inspect' side-drawer
+      COALESCE(TO_JSON_STRING(content), '(No data)') as _full_details
+    FROM base_events
+    ORDER BY time ASC;
     """
 
     queries = [
@@ -226,7 +341,8 @@ def create_views(project_id, dataset_id, table_name):
         ("Tool Usage View", tool_master_sql),
         ("Agent Routing View", routing_sql),
         ("User Intent View", intent_sql),
-        ("Session Transcript View", transcript_sql)
+        ("Session Transcript View", transcript_sql),
+        ("Unified Session Chronology", chronology_sql)
     ]
 
     table_success = 0

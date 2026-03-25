@@ -1,101 +1,96 @@
 # 📊 Dashboard Specification: Metrics & Insights
 
-This document defines the **purpose and metrics** for the agent observability suite. It serves as a blueprint for understanding what is being measured and how the data is visualized.
+This document defines the **technical architecture and visual requirements** for the Agent Analytics Suite.
 
 ---
 
-## 🚀 Performance Paradigm: "True-Idle"
-All dashboards in this suite are optimized for **Zero-Cost Idle States** and a unified user experience.
-- **Silent on Load**: No BigQuery scans are triggered when a dashboard is first opened.
-- **SQL Guards**: Panels remain completely silent until both a **User** and **Session** are explicitly selected.
-- **Optimized Metadata**: Variable metadata scans are restricted and throttled to prevent background "blinking".
-- **6-Hour Default Window**: All views default to `now-6h` to ensure fast initial loads and operational relevance.
-- **Global Time Sync**: Navigation links preserve selected timeframes (`?from=${__from}&to=${__to}`) as users move between dashboards.
-- **Hierarchical Discovery**: Filters follow a context-aware "Parent-Child" chain (Time -> User -> Session -> Tool) to maintain relevance.
+## 🏗️ Design Philosophy: "Forensic Symmetricity"
+To balance global monitoring with surgical forensic isolation, the suite implements a **Symmetric Selection** architecture.
+
+### 1. Dual-Design Patterns
+- **Summary Dashboards** (Home, FinOps, Diagnostics, Guide):
+    - **Default State**: "All" (`includeAll: true` acting as `Select_User` / `Select_Session` pass-through).
+    - **Goal**: Fleet-wide KPIs, trend discovery, and broad documentation access.
+- **Forensic Dashboards** (Traces, Transcripts, LLM Audit):
+    - **Default State**: Mandatory Selection (`Select_User` / `Select_Session`).
+    - **Goal**: Precision isolation and sub-millisecond payload audit.
+
+### 2. Standardized Logic & UX
+- **Hidden Metadata**: Technical variables (`gcp_project`, `bq_dataset`, `bq_table`) are preset with `hide: 2`. This prevents user error while allowing drill-downs to pass environment context via URL parameters.
+- **Symmetric Selection**: Summary dashboards use `allValue: "Select_User"` to ensure that "All" selections propagate correctly to forensic dashboards without passing empty strings.
+- **Recency-First Sorting**: All dropdowns (Users, Sessions) are sorted by `timestamp DESC` to ensure the most relevant data appears first.
+- **Forensic Table Aesthetics (Transcripts)**: Implements the **"Wide Open Display"** standard:
+    - `cellHeight: auto` (Panel level).
+    - `message` override: `wrapText: true`, `width: auto`, `cellType: auto`.
+    - `inspect: true` (Field level) to ensure zero truncation of large agent payloads.
+    - Metadata columns (`speaker`, `time`) are fixed-width to maximize wrapping area.
 
 ---
 
-## 🔍 Filtering & Discovery Logic
-To ensure performance and relevance, the suite uses a **cascading hierarchy** for all filters:
+## 🔍 The 7-Dashboard Analytical Flow
 
-1.  **Global Time Range**: The primary filter. All dropdowns below only show values that exist within this window.
-2.  **User ID Filter**: Scoped to the **Time Range**. Lists everyone active in the selected window.
-3.  **Session ID Filter**: Scoped to the **User** AND **Time Range**. Shows only sessions matching both criteria.
-4.  **Agent & Tool Filters**: Scoped to the individual **Session**. Shows only the specific instruments used in that interaction.
+### 1. 🏠 Agent Home (Landing Page)
+**Goal**: Fleet KPIs (Total Sessions, Token Volume, Total Cost).
+- **Panel Breakdown**:
+    - **Total Sessions (Stat)**: Unique conversation count. (Source: `v_aaa_session_summary`)
+    - **Total Tokens (Stat)**: Cumulative volume of input and output tokens. (Source: `v_aaa_session_summary`)
+    - **Total Estimated Cost (Stat)**: Aggregated USD consumption. (Source: `v_aaa_session_summary`)
+    - **Usage Trends (Mixed Time Series)**: Daily token volume (Logarithmic). (Source: `v_aaa_session_summary`)
+    - **Cost by User (Bar Chart)**: Top 10 most active users. (Source: `v_aaa_session_summary`)
 
-> [!TIP]
-> If a User or Session "disappears," simply expand your **Time Range** (e.g., to "Last 30 Days"). The dropdowns will instantly re-populate thanks to the **Dynamic Refresh** logic.
+### 2. 💰 Token FinOps
+**Goal**: Cost drivers and budget tracking.
+- **Panel Breakdown**:
+    - **Cost Over Time (Time Series)**: Per-session cost trending. (Source: `v_aaa_turn_summary`)
+    - **Tokens Per Turn (Time Series)**: Average context payload per interaction. (Source: `v_aaa_turn_summary`)
+    - **Usage by Model (Bar Chart)**: Token split (Gemini 1.0 vs 1.5 Pro/Flash). (Source: `v_aaa_llm_calls`)
+    - **Usage by Agent (Bar Chart)**: Tracking specialist assistant resource consumption. (Source: `v_aaa_turn_summary`)
 
----
+### 3. ⚙️ System Diagnostics
+**Goal**: Latency attribution and error tracking.
+- **Panel Breakdown**:
+    - **Total Errors (Stat)**: count of failing interactions. (Source: `v_aaa_turn_summary`)
+    - **Max TTFT (Stat)**: Identifying peak inference lag. (Source: `v_aaa_turn_summary`)
+    - **Success Rate (Stat)**: Fleet performance health. (Source: `v_aaa_turn_summary`)
+    - **Turn Latency Breakdown (Stacked Area)**: Visualizing time spent in LLM vs. Tools vs. Overhead. (Source: `v_aaa_turn_summary`)
+    - **Orchestrator Handoffs (Bar Chart)**: Routing volume to sub-agents. (Source: `v_aaa_agent_routing`)
+    - **User Questions (Intent) (Table)**: Captured human prompts. (Source: `v_aaa_user_intent`)
+    - **Error Details (Table)**: Granular log for technical debugging. (Source: `v_aaa_turn_summary`)
 
-## 🏠 Dashboard 1: Agent Home (Landing Page)
-**Goal:** High-level executive KPIs and usage trends across all agents.
+### 4. 💬 Chat Transcripts
+**Goal**: Qualitative audit of human-agent conversations.
+- **Display Standard**: **Wide Open Display** (Auto-height, mandatory message wrapping).
+- **Panel Breakdown**:
+    - **Conversation Flow (Transcript) (Table)**: Optimized chat record for user feedback auditing. Includes a `duration_ms` column (calculated via `LAG()`) to measure the precise interval between human/agent messages. (Source: `v_aaa_session_transcript`)
 
-### Key Metrics:
-- **Total Sessions:** Unique count of all user-agent conversations.
-- **Tokens (Input/Output/Total):** Granular breakdown of consumption (Input + Output).
-- **Total Cost (USD):** Estimated dollar cost based on model pricing.
-- **Usage Trends:** Daily breakdown of sessions and token volume.
-    - **Visualization:** Mixed chart style using base-10 logarithmic scale. **Total Tokens** are shown as subtle background bars, while **Input** and **Output** tokens are plotted as lines for clear comparative profiling.
+### 5. 🔎 Agent Technical Traces
+**Goal**: Deep technical autopsy of tool payloads and orchestrator logic.
+- **Panel Breakdown**:
+    - **Session Performance Profile (Bar Gauge)**: Per-turn latency breakdown. (Source: `v_aaa_turn_summary`)
+    - **Session Duration (Stat)**: Total interaction time health check. (Source: `v_aaa_session_summary`)
+    - **Total LLM Calls (Stat)**: Volume of inference triggers. (Source: `v_aaa_session_summary`)
+    - **Total Tool Calls (Stat)**: Volume of external API triggers. (Source: `v_aaa_session_summary`)
+    - **Session Chronology (Unified Turn Flow) (Table)**: Master audit of step logic and payloads. (Source: `v_aaa_session_chronology`)
 
----
+### 6. 🧠 LLM & Prompt Audit
+**Goal**: Technical tracing of model reasoning and prompt quality.
+- **Panel Breakdown**:
+    - **Total Session Tokens (Stat)**: Accumulative payload volume. (Source: `v_aaa_llm_calls`)
+    - **Session Context Inflation (Tokens Per Turn) (Bar Chart)**: Visualizing context growth per interaction step. **Interactive Hover**: Shows the associated `invocation_id` for each turn. (Source: `v_aaa_turn_summary`)
+    - **LLM Inference & Prompt Audit (Full Content) (Table)**: Side-by-side audit of Prompt vs. Response. (Source: `v_aaa_llm_calls`)
 
-## 💰 Dashboard 2: Token FinOps
-**Goal:** Identifying cost drivers, model efficiency, and budget tracking.
-
-### Key Metrics:
-- **Cost Over Time:** Session-level cost breakdown.
-- **Tokens Per Turn:** Granular view of model efficiency per interaction.
-- **Usage by Model:** Comparison of token consumption across Gemini versions.
-- **Usage by Agent:** Identifying which specialized agents are the most "expensive".
-
----
-
-## ⚙️ Dashboard 3: System Diagnostics
-**Goal:** Engineering health check, latency bottleneck discovery, and error tracking.
-
-### Key Metrics:
-- **TTFT (Time To First Token):** Latency of the initial model response per individual model call.
-- **📊 Turn Latency Distribution:** Histogram of complete User/Agent interaction durations. Identifies consistency and outliers.
-- **📈 Turn Latency Attribution Trend:** Stacked trend showing the balance between LLM, Tools, and Overhead over time.
-- **⏱️ Turn Latency Attribution (Avg vs P95):** Precision table comparing typical vs. worst-case latencies for the 3-tier model.
-- **Orchestrator Handoffs:** Distribution of requests across specialized sub-agents.
-
----
-
-## 💬 Dashboard 4: Chat Transcripts
-**Goal:** Qualitative audit of human-agent conversations for QA and CX improvement.
-
-### Key Metrics:
-- **Transcript Feed:** Chronological reconstruction including both Human (Input) and Agent (Response) messages. 
-- **Session Duration:** Total elapsed "Wall Clock" time, including human thinking time between turns.
-- **⚡ Session Performance Profile:** Visual bar per turn indicating the 3-tier breakdown:
-  - **🟦 Blue:** LLM Reasoning
-  - **🟧 Orange:** Tool Execution
-  - **⬜ Gray:** Agent/Orchestrator Overhead
-- **🤖 Counters**: At-a-glance counts for LLM and Tool calls in the current session.
+### 7. 📖 Agent Intelligence Guide
+**Goal**: Onboarding and technical reference.
+- **Panel Breakdown**:
+    - **Metrics Glossary**: Definitions of all suite KPIs (TTFT, Overhead).
+    - **Forensic Workflow**: Guided instructions for drill-down analysis.
 
 ---
 
-## 📖 Dashboard 5: Agent Intelligence Guide
-**Goal:** Onboarding and technical reference for dashboard users.
-
-### Key Features:
-- **Metric Definitions:** Clear explanations of TTFT, Turn latency, and 3-tier attribution logic.
-- **🚀 Latency Optimization Guide:** Dynamic advice on reducing LLM reasoning time, parallelizing tool calls, and minimizing system overhead.
-- **Navigation Map:** Cross-dashboard drill-down shortcuts.
-- **Logic Guide:** Technical breakdown of the BigQuery views and processing pipeline.
+## 🔗 Data Link Ecosystem
+Dashboards are connected via context-aware **URL Data Links**. Preserved variables:
+- `var-user_id`, `var-session_id`, `var-datasource`, `var-gcp_project`, `var-bq_dataset`, `var-bq_table`.
 
 ---
 
-## 🔎 Dashboard 6: Agent Technical Traces
-**Goal:** Deep technical autopsy and payload audit for specific sessions.
-
-### Key Features:
-- **🛠️ Raw Tool Traces:** Detailed audit of tool arguments and execution results (Uses Hybrid JSON extraction for robust payload capture).
-- **🧠 Agent Reasoning Logs:** Deep trace of raw LLM prompts and model responses.
-- **Drill-down Integration:** 1-click jump from Chat Transcript interaction counters.
-
----
-
-*For detailed SQL queries and BigQuery view logic, refer to bq_dashboard_views.md.*
+*For technical schema details, refer to [bq_dashboard_views.md](bq_dashboard_views.md).*

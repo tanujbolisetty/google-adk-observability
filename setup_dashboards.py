@@ -28,6 +28,7 @@ DASHBOARD_FILES = [
     "grafana_chat_dashboard.template.json",
     "grafana_diagnostics_dashboard.template.json",
     "grafana_traces_dashboard.template.json",
+    "grafana_llm_calls_dashboard.template.json",
     "grafana_guide_dashboard.template.json",
 ]
 
@@ -211,14 +212,22 @@ def main():
             continue
 
         with open(src_path, "r") as f:
-            data = json.load(f)
+            template_str = f.read()
 
-        # Update hidden textbox defaults
+        # Aggressive string replacement for everything
+        template_str = template_str.replace("${gcp_project}", gcp_project)
+        template_str = template_str.replace("${bq_dataset}", bq_dataset)
+        template_str = template_str.replace("${bq_table}", bq_table)
+        template_str = template_str.replace("${datasource}", ds_uid)
+        
+        data = json.loads(template_str)
+
+        # Still update current/options for variable UI cleanliness
         for var in data.get("templating", {}).get("list", []):
             if var.get("name") == "gcp_project":
                 var["current"] = {"text": gcp_project, "value": gcp_project}
                 var["options"] = [{"text": gcp_project, "value": gcp_project}]
-                var["hide"] = 0
+                var["hide"] = 0  # Restore visibility
             elif var.get("name") == "bq_dataset":
                 var["current"] = {"text": bq_dataset, "value": bq_dataset}
                 var["options"] = [{"text": bq_dataset, "value": bq_dataset}]
@@ -231,19 +240,6 @@ def main():
                 var["current"] = {"text": auto_name, "value": ds_uid}
                 var["options"] = [{"text": auto_name, "value": ds_uid}]
                 var["hide"] = 0
-            elif var.get("type") == "query":
-                # Hardcode project/dataset in variable queries (template vars don't resolve here)
-                q = var.get("query", "")
-                if isinstance(q, dict) and "rawSql" in q:
-                    q["rawSql"] = q["rawSql"].replace("${gcp_project}.${bq_dataset}", fqdn).replace("${bq_table}", bq_table)
-                    q["project"] = gcp_project
-                elif isinstance(q, str):
-                    var["query"] = q.replace("${gcp_project}.${bq_dataset}", fqdn).replace("${bq_table}", bq_table)
-                
-                var["datasource"] = {
-                    "type": "grafana-bigquery-datasource",
-                    "uid": ds_uid
-                }
 
         # Save configured copy - strip '.template' from filename for the output
         clean_filename = filename.replace(".template.json", ".json")
