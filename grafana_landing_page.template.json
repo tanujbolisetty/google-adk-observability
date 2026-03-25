@@ -99,7 +99,7 @@
         "defaults": {},
         "overrides": []
       },
-      "description": "Total number of human-initiated questions/prompts processed by the agent within the selected timeframe.",
+      "description": "Total number of human-initiated questions/prompts processed by the agent within the selected timeframe (questions count across all sessions during the timeframe).",
       "id": 4
     },
     {
