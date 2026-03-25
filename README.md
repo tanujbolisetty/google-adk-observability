@@ -65,19 +65,6 @@ The Agent Analytics Suite is now 100% production-ready, interactive, and calibra
 
 ---
 
-## 🏗️ The "Symmetric Selection" Architecture
-
-This suite uses a high-stability **Symmetric Selection** pattern to solve common Grafana navigation issues:
-- **Zero-Latency State Sync**: Summary dashboards (Home, FinOps) use `allValue` mapping to pass valid default states to Forensic dashboards without hidden variable lag.
-- **Valid URL Parameters**: Navigation links are guaranteed to pass valid one-word tokens (e.g., `Select_User`) instead of empty strings, preventing "Blank Box" filter regressions.
-- [x] Fix Recency Sort Order & sort:0 setting
-- [x] Recover & Standardize Chat Transcript template
-- [x] Fix 'Context Inflation' Sawtooth Bug (Market Research + BQ Audit)
-- [x] Update Architecture Guide & SKILL.md with Traceability Rules
-- **Recency-First Sorting**: All session and event dropdowns are internally sorted by recency to prioritize active debugging targets.
-
----
-
 ## 🖼️ Dashboard Gallery
 
 ### 🏠 Agent Home (Landing)
