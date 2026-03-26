@@ -118,9 +118,9 @@ Deep dives into token costs and system latency/errors.
 
 ![FinOps 1](assets/Finops_v2.jpg)
 ![FinOps 2](assets/Finops2_v2.jpg)
-![Diagnostics 1](assets/Diagnostcis1_v2.jpg)
-![Diagnostics 2](assets/Diagnostcis2_v2.jpg)
-![Diagnostics 3](assets/Diagnostcis3_v2.jpg)
+![Diagnostics 1](assets/Diagnostics1_v2.jpg)
+![Diagnostics 2](assets/Diagnostics2_v2.jpg)
+![Diagnostics 3](assets/Diagnostics3_v2.jpg)
 
 ### 💬 Transcripts & 📜 Technical Traces
 Turn-by-turn chat logs and trace-level tool payload auditing with **Full Content Expansion (Inspect Mode)**.
