@@ -1,3 +1,9 @@
+## [1.2.3] - 2026-03-26
+### 🛠️ Maintenance
+- **Repository Optimization**: Removed `docker/` directory from Git tracking. Docker configuration is now treated as a local development utility to prevent project-specific configuration leakage.
+- **Docker & K8s Alignment**: Updated `docker/entrypoint.sh` and `docker/k8s-deployment.yaml` to use standard template placeholders (`your-project-id`, `your-dataset-id`, etc.) for generic provisioning.
+- **Git Hygiene**: Updated `.gitignore` to ensure Docker artifacts and local overrides are not tracked.
+
 ## [1.2.2] - 2026-03-25
 ### ✨ Branding & Layout
 - **Branding Update**: Formally renamed the Home Dashboard landing to **"Google ADK Agent Analytics"**.
