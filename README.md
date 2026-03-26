@@ -30,8 +30,8 @@
 The FinOps and LLM Audit dashboards calculate costs based on the `model_pricing` table created in `setup/setup_bq_views.py`. 
 
 To update pricing or add new models:
-1.  **Modify SQL**: Update rows in the `pricing_sql` block of [setup/setup_bq_views.py](setup/setup_bq_views.py) (lines 10-20).
-2.  **Re-Run Setup**: Execute `python3 setup/setup_bq_views.py` with your environment parameters.
+1.  **Modify SQL**: Update rows in the `pricing_sql` block of [./setup/setup_bq_views.py](./setup/setup_bq_views.py) (lines 10-20).
+2.  **Re-Run Setup**: Execute `python3 ./setup/setup_bq_views.py` with your environment parameters.
 
 > [!TIP]
 > **Pricing Resilience**: As of v1.3, the views use `COALESCE(..., 0)`. If a model is missing from the pricing table, the dashboard will display a **$0** cost instead of `NULL` (which would hide the session from some charts).
@@ -39,9 +39,9 @@ To update pricing or add new models:
 ### Manual Setup Steps
 If you prefer not to use the automated scripts, follow these steps:
 1.  **Service Account**: Create a GCP Service Account with `BigQuery Data Viewer` and `BigQuery Job User` roles. Download the JSON key.
-2.  **SQL Views**: Manually execute the queries found in [docs/bq_dashboard_views.md](docs/bq_dashboard_views.md).
+2.  **SQL Views**: Manually execute the queries found in [./docs/bq_dashboard_views.md](./docs/bq_dashboard_views.md).
 3.  **Grafana Datasource**: Add the BigQuery datasource in Grafana using your Service Account key.
-4.  **Import Dashboard JSONs**: Manually import the `.template.json` files from `dashboard_templates/`.
+4.  **Import Dashboard JSONs**: Manually import the `.template.json` files from `./dashboard_templates/`.
     *   **⚠️ CRITICAL**: You must manually Search & Replace these 4 placeholders in the JSON files before importing:
         *   `${gcp_project}` -> Your Google Cloud Project ID
         *   `${bq_dataset}` -> Your BigQuery Dataset ID
@@ -57,13 +57,13 @@ Deploy the entire analytics stack using our automated scripts:
 ### 1. Setup the BigQuery Data Layer
 Creates the **8 custom master analytical views** (flattened JSON, costs, latencies).
 ```bash
-python3 setup/setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
+python3 ./setup/setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
 ```
 
 ### 2. Setup the Grafana Visual Layer (Optional)
 Configures and imports 7 interconnected dashboards into your target Grafana folder. **Parameters like `--datasource-uid` can be auto-detected if omitted.**
 ```bash
-python3 setup/setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME> --url <GRAFANA_URL>
+python3 ./setup/setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME> --url <GRAFANA_URL>
 ```
 > [!TIP]
 > Both scripts are interactive. If you omit any required flags, the script will prompt you for them during execution.
@@ -150,9 +150,9 @@ A centralized documentation hub for metric glossaries and system architecture us
 | Document | Focus | Contents |
 | :--- | :--- | :--- |
 | README.md | **Setup** | Fast deployment & manual prep. |
-| bq_dashboard_views.md | **Understanding Views** | [SQL logic & field mappings](docs/bq_dashboard_views.md). |
-| dashboard_spec.md | **Understanding Dashboards** | [Business metrics & panel definitions](docs/dashboard_spec.md). |
-| grafana_architecture_guide.md | **Architecture** | [Drill-down logic & navigation](docs/grafana_architecture_guide.md). |
+| bq_dashboard_views.md | **Understanding Views** | [SQL logic & field mappings](./docs/bq_dashboard_views.md). |
+| dashboard_spec.md | **Understanding Dashboards** | [Business metrics & panel definitions](./docs/dashboard_spec.md). |
+| grafana_architecture_guide.md | **Architecture** | [Drill-down logic & navigation](./docs/grafana_architecture_guide.md). |
 
 ---
 
