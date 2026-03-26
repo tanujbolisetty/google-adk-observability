@@ -1,3 +1,13 @@
+## [1.3.0] - 2026-03-26
+### ✨ Milestone: Suite-Wide Standardization & UX
+- **Homepage Optimization**:
+    - Relocated **User intent (Questions)** from Diagnostics to the Landing Page.
+    - Implemented **Full-Width (2000px)** and **Zero-Scroll (Height 15)** layout for human prompts.
+- **Advanced Forensics**:
+    - **Global Column Filters**: Enabled header-level filtering for all analytical tables (Traces, Home, FinOps).
+    - **Chronology Transparency**: Updated `v_aaa_session_chronology` message logic to show **Sub-Agent / Specialist responses** in the main audit log.
+- **Template v1.3 Master Baseline**: Synchronized all 7 templates with the Professional Blue/Gray navigation theme and 2nd-line infrastructure status bar.
+
 ## [1.2.3] - 2026-03-26
 ### 🛠️ Maintenance
 - **Repository Optimization**: Removed `docker/` directory from Git tracking. Docker configuration is now treated as a local development utility to prevent project-specific configuration leakage.

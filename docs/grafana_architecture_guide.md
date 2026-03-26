@@ -28,12 +28,12 @@ The system preserves your view context (Time Range, User ID, Session ID) as you 
 ### 1. Unified Variable Control Bar
 Every dashboard shares a common set of variables. Here is how they apply across the suite:
 
-| Filter | Agent Home | FinOps | Diagnostics | Transcript | Traces | LLM Audit |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **User ID** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
-| **Session ID** | ✅ Yes (All) | ✅ Yes (All) | ✅ Yes | ✅ Yes (Req)| ✅ Yes (Req)| ✅ Yes (Req)|
-| **Agent Name** | ❌ No | ❌ No | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes |
-| **Tool Name** | ❌ No | ❌ No | ✅ Yes | ❌ No | ✅ Yes | ❌ No |
+| Filter | Agent Home | FinOps | Diagnostics | Transcript | Traces | LLM Audit | Guide |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| User ID | ❌ No | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No |
+| Session ID | ❌ No | ✅ Yes (All) | ✅ Yes (All) | ✅ Yes (Req)| ✅ Yes (Req)| ✅ Yes (Req)| ❌ No |
+| Agent Name | ❌ No | ❌ No | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| Tool Name | ❌ No | ❌ No | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
 
 ### 2. Variable Logic & Cascading
 - **Cascading Filters**: Filters are "aware" of each other. For example, selecting a **User ID** automatically limits the **Session ID** list to only that user's sessions.
@@ -69,7 +69,8 @@ The suite maintains a clear distinction between **Financial Consumption** and **
 The project is architected for **Generic Agent Observability**:
 - **Naming Standard**: Use **"Agent Analytics"** for all folder names, documentation headers, and skill definitions.
 - **Project Isolation**: All dashboard templates use the `var-datasource` and `var-gcp_project` variables to ensure they can be deployed to any environment without hardcoded strings (Setup script performs literal injection for V2 stability).
-- **Metadata Visibility**: Infrastructure-level labels (Project ID, Dataset ID, Table) are **Visible** (`hide: 0`) by default to allow for rapid environment verification.
+- **Metadata Visibility (v1.3.25)**: Infrastructure-level labels (Project ID, Dataset ID, Table, Datasource) are **Visible** (`hide: 0`) by default across all dashboards to allow for rapid environment and data-path verification.
+- **Purple Theme (Help Guide)**: The **Agent Intelligence Guide** uses a specialized **Purple Theme (`#B08CF5`)** to distinguish technical documentation from operational charts. This color is also used for "Agent Overhead" metrics to provide visual continuity for system diagnostics.
 
 ---
 
@@ -81,12 +82,19 @@ The project is architected for **Generic Agent Observability**:
 ---
 
 ## 🔗 Global Navigation Header
-Every dashboard features a persistent HTML navigation bar at the top, organized into three distinct visual pills to separate contexts:
+Every dashboard features a persistent, **2-line HTML navigation bar** at the top.
+
+### Line 1: Functional Navigation (Pills)
+Organized into three distinct visual categories to separate contexts:
 - **📊 SUMMARY**: `🏠 Home` | `💰 FinOps` | `🛠️ Diagnostics`
 - **🔍 FORENSICS**: `💬 Transcripts` | `📜 Traces` | `🧠 LLM Audit`
 - **📚 RESOURCES**: `📖 Guide`
 
-This unified header allows for rapid context switching and deep-dive exploration without losing selected dashboard variables.
+### Line 2: Infrastructure Status Bar (v1.3.25)
+A non-intrusive metadata block providing persistent environment awareness:
+- **🌐 Project** | **📂 Dataset** | **📄 Table** | **🔌 Source**
+
+This unified header allows for rapid context switching while maintaining clear visibility into exactly which GCP/BigQuery environment is being audited.
 
 ---
 

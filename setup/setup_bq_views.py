@@ -29,8 +29,8 @@ def create_views(project_id, dataset_id, table_name):
         SUM(CAST(JSON_VALUE(attributes, '$.usage_metadata.prompt_token_count') AS INT64)) as prompt_tokens,
         SUM(CAST(JSON_VALUE(attributes, '$.usage_metadata.candidates_token_count') AS INT64)) as output_tokens,
         SUM(
-          (CAST(JSON_VALUE(attributes, '$.usage_metadata.prompt_token_count') AS INT64) * p.input_cost_per_token) + 
-          (CAST(JSON_VALUE(attributes, '$.usage_metadata.candidates_token_count') AS INT64) * p.output_cost_per_token)
+          (CAST(JSON_VALUE(attributes, '$.usage_metadata.prompt_token_count') AS INT64) * COALESCE(p.input_cost_per_token, 0)) + 
+          (CAST(JSON_VALUE(attributes, '$.usage_metadata.candidates_token_count') AS INT64) * COALESCE(p.output_cost_per_token, 0))
         ) as total_usd_cost
       FROM `{dataset_ref}.{table_name}` e
       LEFT JOIN `{dataset_ref}.model_pricing` p 
@@ -68,19 +68,29 @@ def create_views(project_id, dataset_id, table_name):
         invocation_id,
         SUM(CAST(JSON_VALUE(attributes, '$.usage_metadata.total_token_count') AS INT64)) as turn_tokens,
         SUM(
-          (CAST(JSON_VALUE(attributes, '$.usage_metadata.prompt_token_count') AS INT64) * p.input_cost_per_token) + 
-          (CAST(JSON_VALUE(attributes, '$.usage_metadata.candidates_token_count') AS INT64) * p.output_cost_per_token)
+          (CAST(JSON_VALUE(attributes, '$.usage_metadata.prompt_token_count') AS INT64) * COALESCE(p.input_cost_per_token, 0)) + 
+          (CAST(JSON_VALUE(attributes, '$.usage_metadata.candidates_token_count') AS INT64) * COALESCE(p.output_cost_per_token, 0))
         ) as turn_usd_cost
       FROM `{dataset_ref}.{table_name}` e
       LEFT JOIN `{dataset_ref}.model_pricing` p 
         ON JSON_VALUE(e.attributes, '$.model_version') = p.model_version
       WHERE event_type = 'LLM_RESPONSE'
       GROUP BY session_id, invocation_id
+    ),
+    turn_intents AS (
+      SELECT 
+        session_id, 
+        invocation_id,
+        ANY_VALUE(JSON_VALUE(content, '$.text_summary')) as user_query
+      FROM `{dataset_ref}.{table_name}`
+      WHERE event_type = 'USER_MESSAGE_RECEIVED'
+      GROUP BY session_id, invocation_id
     )
     SELECT
       e.session_id,
       e.invocation_id,
       e.user_id,
+      i.user_query,
       ROW_NUMBER() OVER(PARTITION BY e.session_id ORDER BY MIN(e.timestamp)) as turn_index,
       MIN(e.timestamp) AS turn_start,
       MAX(e.timestamp) AS turn_end,
@@ -97,7 +107,8 @@ def create_views(project_id, dataset_id, table_name):
         SUM(IF(e.event_type = 'TOOL_COMPLETED', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0))) AS turn_overhead_ms
     FROM `{dataset_ref}.{table_name}` e
     LEFT JOIN turn_costs c ON e.session_id = c.session_id AND e.invocation_id = c.invocation_id
-    GROUP BY e.session_id, e.invocation_id, e.user_id;
+    LEFT JOIN turn_intents i ON e.session_id = i.session_id AND e.invocation_id = i.invocation_id
+    GROUP BY e.session_id, e.invocation_id, e.user_id, i.user_query;
     """
 
     # 4. Master LLM & Prompt Tracing
@@ -129,8 +140,8 @@ def create_views(project_id, dataset_id, table_name):
       CAST(JSON_VALUE(e.attributes, '$.usage_metadata.candidates_token_count') AS INT64) AS completion_tokens,
       CAST(JSON_VALUE(e.attributes, '$.usage_metadata.total_token_count') AS INT64) AS total_tokens,
       (
-        (CAST(JSON_VALUE(e.attributes, '$.usage_metadata.prompt_token_count') AS INT64) * p.input_cost_per_token) + 
-        (CAST(JSON_VALUE(e.attributes, '$.usage_metadata.candidates_token_count') AS INT64) * p.output_cost_per_token)
+        (CAST(JSON_VALUE(e.attributes, '$.usage_metadata.prompt_token_count') AS INT64) * COALESCE(p.input_cost_per_token, 0)) + 
+        (CAST(JSON_VALUE(e.attributes, '$.usage_metadata.candidates_token_count') AS INT64) * COALESCE(p.output_cost_per_token, 0))
       ) AS calculated_usd_cost,
       COALESCE(pr.turn_prompt, TO_JSON_STRING(JSON_QUERY(e.content, '$.prompt'))) AS prompt,
       COALESCE(
@@ -311,7 +322,7 @@ def create_views(project_id, dataset_id, table_name):
       CASE
         WHEN event_type = 'USER_MESSAGE_RECEIVED' THEN 
           COALESCE(JSON_VALUE(content, '$.text'), JSON_VALUE(content, '$.text_summary'))
-        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED') AND (actor = JSON_VALUE(attributes, '$.root_agent_name') OR agent = JSON_VALUE(attributes, '$.root_agent_name')) THEN 
+        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED') THEN 
           COALESCE(JSON_VALUE(content, '$.response.text'), JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.text'))
         ELSE NULL
       END as message,

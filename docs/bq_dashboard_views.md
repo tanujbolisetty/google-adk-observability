@@ -61,9 +61,8 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 - `LLM_REQUEST` (Prompt Fallback)
 
 ### 🧠 Analytical Logic:
-- **High-Fidelity Payload Extraction**: This view uses `TO_JSON_STRING(JSON_QUERY(...))` instead of simple `JSON_VALUE`. 
-    - **Why?**: `JSON_VALUE` returns only scalar strings and truncates complex objects (like system prompt arrays or tool-binding metadata). `JSON_QUERY` captures the **entire raw JSON structure**.
 - **Granular Costing**: Unlike the Session Summary (which globals costs), this view calculates the price of **every single inference**, allowing researchers to find specific expensive prompts.
+- **Pricing Resilience (v1.3.25)**: All cost calculations (`v_aaa_session_summary`, `v_aaa_turn_summary`, `v_aaa_llm_calls`) use `COALESCE(..., 0)` logic. If a model version is missing from the `model_pricing` table, the system will display a `$0.00` cost instead of returning `NULL`. This ensures sessions are always visible in visualizations even if pricing data is briefly out of sync.
 
 > [!CAUTION]
 > If using `JSON_VALUE` for prompts, the displayed text length will often not match the `prompt_token_count` because hidden orchestrator context (system instructions) is filtered out. Always use the "Inspect" icon in Grafana to view the full `JSON_QUERY` payload.
@@ -101,7 +100,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 
 ## 👤 View 6: User Intent (`v_aaa_user_intent`)
 **Goal:** Capturing the initial user prompt and system state.
-**Primary Usage**: **System Diagnostics** (User Questions).
+**Primary Usage**: **Agent Home** (User Questions), **System Diagnostics**.
 
 ### 📋 Captured Fields:
 - `raw_user_prompt`: The summary text of the user's initial message.
@@ -133,12 +132,12 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 
 ### 📋 Captured Fields:
 - `step_type`: Human-readable event classification (e.g., `👤 Human Input`).
-- `actor`: The entity performing the action.
-- `message`: The primary conversation content.
+- `actor`: The entity performing the action (Orchestrator or Specialist).
+- `message`: The primary conversation content (Includes all agent responses).
 - `technical_details`: Collapsed JSON payloads for internal reasoning.
 
 ### 🧩 Source Events:
-- `USER_MESSAGE_RECEIVED`, `LLM_REQUEST`, `LLM_RESPONSE`, `TOOL_STARTING`, `TOOL_COMPLETED`
+- `USER_MESSAGE_RECEIVED`, `LLM_REQUEST`, `LLM_RESPONSE`, `TOOL_STARTING`, `TOOL_COMPLETED`, `AGENT_STARTING`, `AGENT_COMPLETED`
 
 ---
 

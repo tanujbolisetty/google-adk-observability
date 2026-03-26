@@ -228,19 +228,15 @@ def main():
             if var.get("name") == "gcp_project":
                 var["current"] = {"text": gcp_project, "value": gcp_project}
                 var["options"] = [{"text": gcp_project, "value": gcp_project}]
-                var["hide"] = 0  # Restore visibility
             elif var.get("name") == "bq_dataset":
                 var["current"] = {"text": bq_dataset, "value": bq_dataset}
                 var["options"] = [{"text": bq_dataset, "value": bq_dataset}]
-                var["hide"] = 0
             elif var.get("name") == "bq_table":
                 var["current"] = {"text": bq_table, "value": bq_table}
                 var["options"] = [{"text": bq_table, "value": bq_table}]
-                var["hide"] = 0
             elif var.get("name") == "datasource":
                 var["current"] = {"text": auto_name, "value": ds_uid}
                 var["options"] = [{"text": auto_name, "value": ds_uid}]
-                var["hide"] = 0
 
         # Save configured copy - strip '.template' from filename for the output
         clean_filename = filename.replace(".template.json", ".json")

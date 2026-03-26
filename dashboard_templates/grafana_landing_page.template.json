@@ -26,7 +26,7 @@
       },
       "id": 999,
       "options": {
-        "content": "<div style=\"display: flex; gap: 24px; font-size: 14px; font-weight: bold; justify-content: center; align-items: center; width: 100%;\">\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcca SUMMARY</span>\n    <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none;\">\ud83c\udfe0 Home</a>\n    <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcb0 FinOps</a>\n    <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udee0\ufe0f Diagnostics</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udd0d FORENSICS</span>\n    <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcac Transcripts</a>\n    <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcdc Traces</a>\n    <a href=\"/d/agent-llm-audit?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83e\udde0 LLM Audit</a>\n  </div>\n  <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n    <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcd6 GUIDE</span>\n    <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none;\">\ud83d\udcd6 Guide</a>\n  </div>\n</div>",
+        "content": "<div style=\"display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;\">\n  <div style=\"display: flex; gap: 24px; font-size: 14px; font-weight: bold; justify-content: center; align-items: center; width: 100%;\">\n    <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n      <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcca SUMMARY</span>\n      <a href=\"/d/agent-landing?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}\" style=\"text-decoration: none; color: #5794F2;\">\ud83c\udfe0 Home</a>\n      <a href=\"/d/agent-finops?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none; color: #5794F2;\">\ud83d\udcb0 FinOps</a>\n      <a href=\"/d/agent-diagnostics?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none; color: #5794F2;\">\ud83d\udee0\ufe0f Diagnostics</a>\n    </div>\n    <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n      <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udd0d FORENSICS</span>\n      <a href=\"/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none; color: #5794F2;\">\ud83d\udcac Transcripts</a>\n      <a href=\"/d/agent-traces?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none; color: #5794F2;\">\ud83d\udcdc Traces</a>\n      <a href=\"/d/agent-llm-audit?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none; color: #5794F2;\">\ud83e\udde0 LLM Audit</a>\n    </div>\n    <div style=\"display: flex; gap: 16px; align-items: center; padding: 8px 16px; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid rgba(128,128,128,0.2);\">\n      <span style=\"color: #8e8e8e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">\ud83d\udcd6 GUIDE</span>\n      <a href=\"/d/agent-guide?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-user_id=${user_id}&var-session_id=${session_id}\" style=\"text-decoration: none; color: #5794F2;\">\ud83d\udcd6 Guide</a>\n    </div>\n  </div>\n  <div style=\"display: flex; gap: 24px; font-size: 11px; color: #8e8e8e; justify-content: center; align-items: center; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 8px; width: 100%;\">\n    <span>\ud83c\udf10 <b>Project:</b> ${gcp_project} &nbsp;&nbsp; | &nbsp;&nbsp; \ud83d\udcc2 <b>Dataset:</b> ${bq_dataset}</span>\n  </div>\n  <div style=\"display: flex; gap: 24px; font-size: 11px; color: #8e8e8e; justify-content: center; align-items: center; width: 100%;\">\n    <span>\ud83d\udcc4 <b>Table:</b> ${bq_table} &nbsp;&nbsp; | &nbsp;&nbsp; \ud83d\udd0c <b>Source:</b> ${datasource}</span>\n  </div>\n</div>",
         "mode": "html"
       },
       "transparent": true
@@ -178,7 +178,15 @@
         }
       ],
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 20,
+            "barAlignment": 0,
+            "lineWidth": 1,
+            "showPoints": "never"
+          }
+        },
         "overrides": []
       },
       "id": 7
@@ -205,12 +213,13 @@
       "fieldConfig": {
         "defaults": {
           "custom": {
-            "drawStyle": "line",
+            "drawStyle": "bars",
+            "fillOpacity": 20,
+            "barAlignment": 0,
+            "lineWidth": 1,
+            "showPoints": "never",
             "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "opacity",
-            "showPoints": "always"
+            "gradientMode": "opacity"
           }
         },
         "overrides": []
@@ -337,12 +346,69 @@
     },
     {
       "type": "table",
+      "title": "\ud83d\udcac User Questions (Intent)",
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT timestamp as time, raw_user_prompt FROM `${gcp_project}.${bq_dataset}.v_aaa_user_intent` WHERE $__timeFilter(timestamp) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('Select_Session', '--', '', 'All')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All')) ORDER BY time DESC",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false,
+            "filterable": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "raw_user_prompt"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 2000
+              }
+            ]
+          }
+        ]
+      },
+      "id": 11
+    },
+    {
+      "type": "table",
       "title": "Recent Sessions by User",
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 43
       },
       "targets": [
         {
@@ -355,7 +421,11 @@
         }
       ],
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "filterable": true
+          }
+        },
         "overrides": [
           {
             "matcher": {
@@ -419,10 +489,7 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "BigQuery",
-          "value": "BigQuery"
-        },
+        "current": { "text": "BigQuery", "value": "BigQuery" },
         "hide": 0,
         "includeAll": false,
         "label": "Data Source",
@@ -439,30 +506,21 @@
         "name": "gcp_project",
         "label": "GCP Project",
         "type": "textbox",
-        "current": {
-          "text": "your-project-id",
-          "value": "your-project-id"
-        },
+        "current": { "text": "your-project-id", "value": "your-project-id" },
         "hide": 0
       },
       {
         "name": "bq_dataset",
         "label": "BQ Dataset",
         "type": "textbox",
-        "current": {
-          "text": "your-dataset-id",
-          "value": "your-dataset-id"
-        },
+        "current": { "text": "your-dataset-id", "value": "your-dataset-id" },
         "hide": 0
       },
       {
         "name": "bq_table",
         "label": "Base Table",
         "type": "textbox",
-        "current": {
-          "text": "your-table-name",
-          "value": "your-table-name"
-        },
+        "current": { "text": "your-table-name", "value": "your-table-name" },
         "hide": 0
       },
       {

@@ -25,12 +25,28 @@
 - **BigQuery** (with ADK logs)
 - **Grafana** (with BigQuery Data Source plugin)
 
+## 📈 Maintaining Model Pricing
+
+The FinOps and LLM Audit dashboards calculate costs based on the `model_pricing` table created in `setup/setup_bq_views.py`. 
+
+To update pricing or add new models:
+1.  **Modify SQL**: Update rows in the `pricing_sql` block of [setup/setup_bq_views.py](setup/setup_bq_views.py) (lines 10-20).
+2.  **Re-Run Setup**: Execute `python3 setup/setup_bq_views.py` with your environment parameters.
+
+> [!TIP]
+> **Pricing Resilience**: As of v1.3.25, the views use `COALESCE(..., 0)`. If a model is missing from the pricing table, the dashboard will display a **$0** cost instead of `NULL` (which would hide the session from some charts).
+
 ### Manual Setup Steps
-If you prefer not to use the scripts, follow these steps:
+If you prefer not to use the automated scripts, follow these steps:
 1.  **Service Account**: Create a GCP Service Account with `BigQuery Data Viewer` and `BigQuery Job User` roles. Download the JSON key.
 2.  **SQL Views**: Manually execute the queries found in [docs/bq_dashboard_views.md](docs/bq_dashboard_views.md).
 3.  **Grafana Datasource**: Add the BigQuery datasource in Grafana using your Service Account key.
-4.  **Import Dashboard JSONs**: Manually import the `.template.json` files from this directory into Grafana (requires manual search/replace for placeholders).
+4.  **Import Dashboard JSONs**: Manually import the `.template.json` files from `dashboard_templates/`.
+    *   **⚠️ CRITICAL**: You must manually Search & Replace these 4 placeholders in the JSON files before importing:
+        *   `${gcp_project}` -> Your Google Cloud Project ID
+        *   `${bq_dataset}` -> Your BigQuery Dataset ID
+        *   `${bq_table}` -> Your Base BigQuery Table ID
+        *   `${datasource}` -> Your Grafana BigQuery Datasource UID
 
 ---
 
@@ -79,7 +95,7 @@ Use these commands to manage the background service:
 > [!NOTE]
 > Once started, access your local dashboard at [http://localhost:3000](http://localhost:3000).
 
-The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency.
+The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency (v1.3.0).
 
 ---
 
@@ -89,20 +105,22 @@ The Agent Analytics Suite is now 100% production-ready, interactive, and calibra
 
 ### 🏠 Agent Home (Landing)
 Executive overview of fleet performance (Sessions, User Questions, Tokens, Cost).
+- **NEW (v1.3.29)**: Integrated **User Intent** (What people are asking) directly onto the homepage with a full-width, zero-scroll layout.
+- **NEW (v1.3.28)**: Global **Column Filtering** enabled across all major tables.
 
-![Agent Home](assets/Home_v2.jpg)
-![Agent Trends](assets/Home_2_v2.jpg)
+![Home 1](assets/Home_v2.jpg)
+![Home 2](assets/Home_2_v2.jpg)
+![Home 3](assets/Home_3_v2.jpg)
 
 
 ### 💰 FinOps & 🛠️ Diagnostics
 Deep dives into token costs and system latency/errors.
 
-![FinOps Overview](assets/Finops_v2.jpg)
-![FinOps Details](assets/Finops2_v2.jpg)
+![FinOps 1](assets/Finops_v2.jpg)
+![FinOps 2](assets/Finops2_v2.jpg)
 ![Diagnostics 1](assets/Diagnostcis1_v2.jpg)
 ![Diagnostics 2](assets/Diagnostcis2_v2.jpg)
 ![Diagnostics 3](assets/Diagnostcis3_v2.jpg)
-![Diagnostics 4](assets/Diagnostcis4_v2.jpg)
 
 ### 💬 Transcripts & 📜 Technical Traces
 Turn-by-turn chat logs and trace-level tool payload auditing with **Full Content Expansion (Inspect Mode)**.

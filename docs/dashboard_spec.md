@@ -16,7 +16,8 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
     - **Goal**: Precision isolation and sub-millisecond payload audit.
 
 ### 2. Standardized Logic & UX
-- **Hidden Metadata**: Technical variables (`gcp_project`, `bq_dataset`, `bq_table`) are preset with `hide: 2`. This prevents user error while allowing drill-downs to pass environment context via URL parameters.
+- **Infrastructure Visibility (v1.3.25)**: Technical variables (`gcp_project`, `bq_dataset`, `bq_table`, `datasource`) are preset with **`hide: 0` (Visible)**. This allows for manual verification of the target environment and easy switching between multi-tenant datasets directly from the dashboard header.
+- **2-Line Infrastructure Status Bar**: Standardized Navigation Panel (**ID 999**) across all templates. Includes a dedicated 2nd line displaying the active Project, Dataset, Table, and Datasource UID for persistent environmental awareness.
 - **Symmetric Selection**: Summary dashboards use `allValue: "Select_User"` to ensure that "All" selections propagate correctly to forensic dashboards without passing empty strings.
 - **Recency-First Sorting**: All dropdowns (Users, Sessions) are sorted by `timestamp DESC` to ensure the most relevant data appears first.
 - **Forensic Table Aesthetics (Transcripts)**: Implements the **"Wide Open Display"** standard:
@@ -36,6 +37,7 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
     - **Total User Questions (Stat)**: Total count of human-initiated prompts. Sourced from `v_aaa_user_intent` to prioritize "What did the human ask?" over internal technical reprocessing. (Source: `v_aaa_user_intent`)
     - **Total Tokens (Stat)**: Cumulative volume of input and output tokens. (Source: `v_aaa_session_summary`)
     - **Total Estimated Cost (Stat)**: Aggregated USD consumption. (Source: `v_aaa_session_summary`)
+    - **User Questions (Intent) (Table)**: Captured human prompts with full-width layout and zero-scroll visibility (v1.3.30). (Source: `v_aaa_user_intent`)
     - **Usage Trends (Mixed Time Series)**: Daily token volume (Logarithmic). (Source: `v_aaa_session_summary`)
     - **Cost by User (Bar Chart)**: Top 10 most active users. (Source: `v_aaa_session_summary`)
 
@@ -51,11 +53,11 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
 **Goal**: Latency attribution and error tracking.
 - **Panel Breakdown**:
     - **Total Errors (Stat)**: count of failing interactions. (Source: `v_aaa_turn_summary`)
-    - **Max TTFT (Stat)**: Identifying peak inference lag. (Source: `v_aaa_turn_summary`)
-    - **Success Rate (Stat)**: Fleet performance health. (Source: `v_aaa_turn_summary`)
-    - **Turn Latency Breakdown (Stacked Area)**: Visualizing time spent in LLM vs. Tools vs. Overhead. (Source: `v_aaa_turn_summary`)
+    - **Max TTFT (Stat)**: Identifying peak inference lag. Note: A high TTFT relative to Total Duration suggests streaming optimization is working; identical values suggest blocking `run()` calls. (Source: `v_aaa_turn_summary`)
+    - **Turn Latency Breakdown (Scatter + Bar)**: 
+        - **Scatter Plot**: TTFT trends for outlier spikes.
+        - **Bar Chart**: Latency attribution (LLM vs Tools vs Overhead).
     - **Orchestrator Handoffs (Bar Chart)**: Routing volume to sub-agents. (Source: `v_aaa_agent_routing`)
-    - **User Questions (Intent) (Table)**: Captured human prompts. (Source: `v_aaa_user_intent`)
     - **Error Details (Table)**: Granular log for technical debugging. (Source: `v_aaa_turn_summary`)
 
 ### 4. 💬 Chat Transcripts
