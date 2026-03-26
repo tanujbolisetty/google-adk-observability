@@ -5,7 +5,8 @@
 > **Keywords**: BigQuery Agent Analytics Plugin, Grafana Dashboards, Google Agent Development Kit, ADK, LLM Observability, Generative AI Metrics, Conversational Agent Monitoring, AI Telemetry.
 
 **Minimum ADK Version:** 1.19.0  
-**Tested With:** 1.26.0
+**Tested With:** 1.26.0  
+**Suite Version:** v1.3
 
 > [!IMPORTANT]
 > These **8 custom master views** are specific to this observability suite and its data layering strategy. They are distinct from the standard views functionality introduced in ADK version 1.27.0+.
@@ -147,12 +148,12 @@ A centralized documentation hub for metric glossaries and system architecture us
 
 ## 🏗️ Documentation Structure
 
-| Document | Focus | Contents |
-| :--- | :--- | :--- |
-| README.md | **Setup** | Fast deployment & manual prep. |
-| bq_dashboard_views.md | **Understanding Views** | [SQL logic & field mappings](./docs/bq_dashboard_views.md). |
-| dashboard_spec.md | **Understanding Dashboards** | [Business metrics & panel definitions](./docs/dashboard_spec.md). |
-| grafana_architecture_guide.md | **Architecture** | [Drill-down logic & navigation](./docs/grafana_architecture_guide.md). |
+| Document | Focus | Version | Contents |
+| :--- | :--- | :--- | :--- |
+| README.md | **Setup** | v1.3 | Fast deployment & manual prep. |
+| bq_dashboard_views.md | **Understanding Views** | v1.3 | [SQL logic & field mappings](./docs/bq_dashboard_views.md). |
+| dashboard_spec.md | **Understanding Dashboards** | v1.3 | [Business metrics & panel definitions](./docs/dashboard_spec.md). |
+| grafana_architecture_guide.md | **Architecture** | v1.3 | [Drill-down logic & navigation](./docs/grafana_architecture_guide.md). |
 
 ---
 
