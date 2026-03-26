@@ -33,7 +33,7 @@
     },
     {
       "type": "text",
-      "title": "\ud83d\udcd9 Technical Metric: TTFT Understanding",
+      "title": "",
       "gridPos": {
         "h": 13,
         "w": 24,
@@ -62,7 +62,7 @@
     },
     {
       "type": "text",
-      "title": "\ud83e\udde0 Latency Attribution & Turn Logic",
+      "title": "",
       "gridPos": {
         "h": 15,
         "w": 24,
@@ -91,7 +91,7 @@
     },
     {
       "type": "text",
-      "title": "\ud83d\ude80 Latency Optimization Guide",
+      "title": "",
       "gridPos": {
         "h": 17,
         "w": 24,
