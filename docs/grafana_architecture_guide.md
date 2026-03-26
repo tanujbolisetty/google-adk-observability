@@ -69,7 +69,7 @@ The suite maintains a clear distinction between **Financial Consumption** and **
 The project is architected for **Generic Agent Observability**:
 - **Naming Standard**: Use **"Agent Analytics"** for all folder names, documentation headers, and skill definitions.
 - **Project Isolation**: All dashboard templates use the `var-datasource` and `var-gcp_project` variables to ensure they can be deployed to any environment without hardcoded strings (Setup script performs literal injection for V2 stability).
-- **Metadata Visibility (v1.3.25)**: Infrastructure-level labels (Project ID, Dataset ID, Table, Datasource) are **Visible** (`hide: 0`) by default across all dashboards to allow for rapid environment and data-path verification.
+- **Metadata Visibility (v1.3)**: Infrastructure-level labels (Project ID, Dataset ID, Table, Datasource) are **Visible** (`hide: 0`) by default across all dashboards to allow for rapid environment and data-path verification.
 - **Purple Theme (Help Guide)**: The **Agent Intelligence Guide** uses a specialized **Purple Theme (`#B08CF5`)** to distinguish technical documentation from operational charts. This color is also used for "Agent Overhead" metrics to provide visual continuity for system diagnostics.
 
 ---
@@ -90,7 +90,7 @@ Organized into three distinct visual categories to separate contexts:
 - **🔍 FORENSICS**: `💬 Transcripts` | `📜 Traces` | `🧠 LLM Audit`
 - **📚 RESOURCES**: `📖 Guide`
 
-### Line 2: Infrastructure Status Bar (v1.3.25)
+### Line 2: Infrastructure Status Bar (v1.3)
 A non-intrusive metadata block providing persistent environment awareness:
 - **🌐 Project** | **📂 Dataset** | **📄 Table** | **🔌 Source**
 

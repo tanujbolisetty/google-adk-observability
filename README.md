@@ -34,7 +34,7 @@ To update pricing or add new models:
 2.  **Re-Run Setup**: Execute `python3 setup/setup_bq_views.py` with your environment parameters.
 
 > [!TIP]
-> **Pricing Resilience**: As of v1.3.25, the views use `COALESCE(..., 0)`. If a model is missing from the pricing table, the dashboard will display a **$0** cost instead of `NULL` (which would hide the session from some charts).
+> **Pricing Resilience**: As of v1.3, the views use `COALESCE(..., 0)`. If a model is missing from the pricing table, the dashboard will display a **$0** cost instead of `NULL` (which would hide the session from some charts).
 
 ### Manual Setup Steps
 If you prefer not to use the automated scripts, follow these steps:
@@ -95,7 +95,7 @@ Use these commands to manage the background service:
 > [!NOTE]
 > Once started, access your local dashboard at [http://localhost:3000](http://localhost:3000).
 
-The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency (v1.3.0).
+The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency (v1.3).
 
 ---
 
@@ -105,8 +105,8 @@ The Agent Analytics Suite is now 100% production-ready, interactive, and calibra
 
 ### 🏠 Agent Home (Landing)
 Executive overview of fleet performance (Sessions, User Questions, Tokens, Cost).
-- **NEW (v1.3.29)**: Integrated **User Intent** (What people are asking) directly onto the homepage with a full-width, zero-scroll layout.
-- **NEW (v1.3.28)**: Global **Column Filtering** enabled across all major tables.
+- **NEW (v1.3)**: Integrated **User Intent** (What people are asking) directly onto the homepage with a full-width, zero-scroll layout.
+- **NEW (v1.3)**: Global **Column Filtering** enabled across all major tables.
 
 ![Home 1](assets/Home_v2.jpg)
 ![Home 2](assets/Home_2_v2.jpg)

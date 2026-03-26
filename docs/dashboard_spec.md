@@ -37,7 +37,7 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
     - **Total User Questions (Stat)**: Total count of human-initiated prompts. Sourced from `v_aaa_user_intent` to prioritize "What did the human ask?" over internal technical reprocessing. (Source: `v_aaa_user_intent`)
     - **Total Tokens (Stat)**: Cumulative volume of input and output tokens. (Source: `v_aaa_session_summary`)
     - **Total Estimated Cost (Stat)**: Aggregated USD consumption. (Source: `v_aaa_session_summary`)
-    - **User Questions (Intent) (Table)**: Captured human prompts with full-width layout and zero-scroll visibility (v1.3.30). (Source: `v_aaa_user_intent`)
+    - **User Questions (Intent) (Table)**: Captured human prompts with full-width layout and zero-scroll visibility (v1.3). (Source: `v_aaa_user_intent`)
     - **Usage Trends (Mixed Time Series)**: Daily token volume (Logarithmic). (Source: `v_aaa_session_summary`)
     - **Cost by User (Bar Chart)**: Top 10 most active users. (Source: `v_aaa_session_summary`)
 

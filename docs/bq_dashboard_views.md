@@ -62,7 +62,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 
 ### 🧠 Analytical Logic:
 - **Granular Costing**: Unlike the Session Summary (which globals costs), this view calculates the price of **every single inference**, allowing researchers to find specific expensive prompts.
-- **Pricing Resilience (v1.3.25)**: All cost calculations (`v_aaa_session_summary`, `v_aaa_turn_summary`, `v_aaa_llm_calls`) use `COALESCE(..., 0)` logic. If a model version is missing from the `model_pricing` table, the system will display a `$0.00` cost instead of returning `NULL`. This ensures sessions are always visible in visualizations even if pricing data is briefly out of sync.
+- **Pricing Resilience (v1.3)**: All cost calculations (`v_aaa_session_summary`, `v_aaa_turn_summary`, `v_aaa_llm_calls`) use `COALESCE(..., 0)` logic. If a model version is missing from the `model_pricing` table, the system will display a `$0.00` cost instead of returning `NULL`. This ensures sessions are always visible in visualizations even if pricing data is briefly out of sync.
 
 > [!CAUTION]
 > If using `JSON_VALUE` for prompts, the displayed text length will often not match the `prompt_token_count` because hidden orchestrator context (system instructions) is filtered out. Always use the "Inspect" icon in Grafana to view the full `JSON_QUERY` payload.
