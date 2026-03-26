@@ -108,30 +108,37 @@ Executive overview of fleet performance (Sessions, User Questions, Tokens, Cost)
 - **NEW (v1.3)**: Integrated **User Intent** (What people are asking) directly onto the homepage with a full-width, zero-scroll layout.
 - **NEW (v1.3)**: Global **Column Filtering** enabled across all major tables.
 
-![Home 1](assets/Home_v2.jpg)
-![Home 2](assets/Home_2_v2.jpg)
-![Home 3](assets/Home_3_v2.jpg)
+![Home 1](./assets/Home_v2.jpg)
+
+![Home 2](./assets/Home_2_v2.jpg)
+
+![Home 3](./assets/Home_3_v2.jpg)
 
 
 ### 💰 FinOps & 🛠️ Diagnostics
 Deep dives into token costs and system latency/errors.
 
-![FinOps 1](assets/Finops_v2.jpg)
-![FinOps 2](assets/Finops2_v2.jpg)
-![Diagnostics 1](assets/Diagnostics1_v2.jpg)
-![Diagnostics 2](assets/Diagnostics2_v2.jpg)
-![Diagnostics 3](assets/Diagnostics3_v2.jpg)
+![FinOps 1](./assets/Finops_v2.jpg)
+
+![FinOps 2](./assets/Finops2_v2.jpg)
+
+![Diagnostics 1](./assets/Diagnostics1_v2.jpg)
+
+![Diagnostics 2](./assets/Diagnostics2_v2.jpg)
+
+![Diagnostics 3](./assets/Diagnostics3_v2.jpg)
 
 ### 💬 Transcripts & 📜 Technical Traces
 Turn-by-turn chat logs and trace-level tool payload auditing with **Full Content Expansion (Inspect Mode)**.
 
-![Transcripts](assets/Transcripts_v2.jpg)
-![Technical Traces](assets/Traces_v2.jpg)
+![Transcripts](./assets/Transcripts_v2.jpg)
+
+![Technical Traces](./assets/Traces_v2.jpg)
 
 ### 🧠 LLM & Prompt Audit
 Context inflation tracking and raw prompt-response evaluation.
 
-![LLM Audit](assets/LLM_Audit.jpg)
+![LLM Audit](./assets/LLM_Audit.jpg)
 
 ### 📖 Agent Intelligence Guide
 A centralized documentation hub for metric glossaries and system architecture usage.
