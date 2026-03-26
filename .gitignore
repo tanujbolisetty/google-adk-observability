@@ -1,5 +1,5 @@
 # Local configured dashboards (contain real IDs)
-configured/
+setup/configured/
 
 # Agentic skill configuration
 .agents/

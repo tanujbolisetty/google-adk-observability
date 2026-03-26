@@ -1,4 +1,4 @@
-# 📊 Agent Analytics for Google ADK (BigQuery Agent Analytics Plugin)
+# 📊 Agent Analytics for Google ADK (Designed for BigQuery Agent Analytics Plugin data)
 
 **Agent Analytics** is a comprehensive **LLM observability suite** designed for conversational agents built with the **Google Agent Development Kit (ADK)**. It transforms raw **BigQuery** agent logs configured from **BigQuery Agent Analytics Plugin** into actionable intelligence, providing powerful **Grafana dashboards** for tracking LLM token costs, system latency, precision metrics, and full-text session transcripts.
 
@@ -12,6 +12,28 @@
 
 ---
 
+---
+
+## 🛠️ Requirements & Manual Setup
+
+### Requirements
+- **Google ADK Configured with BigQuery Agent Analytics Plugin**: Follow the [official integration guide](https://google.github.io/adk-docs/integrations/bigquery-agent-analytics/#use-with-agent) to ensure your agent is emitting logs to BigQuery.
+
+       from google.adk.plugins.bigquery_agent_analytics_plugin import ( BigQueryAgentAnalyticsPlugin, BigQueryLoggerConfig)
+  
+- **Google Cloud SDK** (authenticated)
+- **BigQuery** (with ADK logs)
+- **Grafana** (with BigQuery Data Source plugin)
+
+### Manual Setup Steps
+If you prefer not to use the scripts, follow these steps:
+1.  **Service Account**: Create a GCP Service Account with `BigQuery Data Viewer` and `BigQuery Job User` roles. Download the JSON key.
+2.  **SQL Views**: Manually execute the queries found in [docs/bq_dashboard_views.md](docs/bq_dashboard_views.md).
+3.  **Grafana Datasource**: Add the BigQuery datasource in Grafana using your Service Account key.
+4.  **Import Dashboard JSONs**: Manually import the `.template.json` files from this directory into Grafana (requires manual search/replace for placeholders).
+
+---
+
 ## 🚀 Quick Start (2-Command Deployment)
 
 Deploy the entire analytics stack using our automated scripts:
@@ -19,13 +41,13 @@ Deploy the entire analytics stack using our automated scripts:
 ### 1. Setup the BigQuery Data Layer
 Creates the **8 custom master analytical views** (flattened JSON, costs, latencies).
 ```bash
-python3 setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
+python3 setup/setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
 ```
 
 ### 2. Setup the Grafana Visual Layer (Optional)
 Configures and imports 7 interconnected dashboards into your target Grafana folder. **Parameters like `--datasource-uid` can be auto-detected if omitted.**
 ```bash
-python3 setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME> --url <GRAFANA_URL>
+python3 setup/setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME> --url <GRAFANA_URL>
 ```
 > [!TIP]
 > Both scripts are interactive. If you omit any required flags, the script will prompt you for them during execution.
@@ -103,29 +125,9 @@ A centralized documentation hub for metric glossaries and system architecture us
 | Document | Focus | Contents |
 | :--- | :--- | :--- |
 | README.md | **Setup** | Fast deployment & manual prep. |
-| bq_dashboard_views.md | **Understanding Views** | SQL logic & field mappings. |
-| dashboard_spec.md | **Understanding Dashboards** | Business metrics & panel definitions. |
-| grafana_architecture_guide.md | **Architecture** | Drill-down logic & navigation. |
-
----
-
-## 🛠️ Requirements & Manual Setup
-
-### Requirements
-- **Google ADK Configured with BigQuery Agent Analytics Plugin**: Follow the [official integration guide](https://google.github.io/adk-docs/integrations/bigquery-agent-analytics/#use-with-agent) to ensure your agent is emitting logs to BigQuery.
-
-       from google.adk.plugins.bigquery_agent_analytics_plugin import ( BigQueryAgentAnalyticsPlugin, BigQueryLoggerConfig)
-  
-- **Google Cloud SDK** (authenticated)
-- **BigQuery** (with ADK logs)
-- **Grafana** (with BigQuery Data Source plugin)
-
-### Manual Setup Steps
-If you prefer not to use the scripts, follow these steps:
-1.  **Service Account**: Create a GCP Service Account with `BigQuery Data Viewer` and `BigQuery Job User` roles. Download the JSON key.
-2.  **SQL Views**: Manually execute the queries found in bq_dashboard_views.md.
-3.  **Grafana Datasource**: Add the BigQuery datasource in Grafana using your Service Account key.
-4.  **Import Dashboard JSONs**: Manually import the `.template.json` files from this directory into Grafana (requires manual search/replace for placeholders).
+| bq_dashboard_views.md | **Understanding Views** | [SQL logic & field mappings](docs/bq_dashboard_views.md). |
+| dashboard_spec.md | **Understanding Dashboards** | [Business metrics & panel definitions](docs/dashboard_spec.md). |
+| grafana_architecture_guide.md | **Architecture** | [Drill-down logic & navigation](docs/grafana_architecture_guide.md). |
 
 ---
 

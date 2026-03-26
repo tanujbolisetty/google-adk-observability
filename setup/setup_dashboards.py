@@ -19,8 +19,9 @@ import getpass
 import argparse
 import urllib.request
 
-DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_DIR = os.path.join(DASHBOARD_DIR, "configured")
+SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
+DASHBOARD_DIR = os.path.join(os.path.dirname(SETUP_DIR), "dashboard_templates")
+OUTPUT_DIR = os.path.join(SETUP_DIR, "configured")
 
 DASHBOARD_FILES = [
     "grafana_landing_page.template.json",
