@@ -21,8 +21,8 @@
 - **LLM Logs**: Your agent must be emitting logs to BQ via the BigQuery Agent Analytics Plugin.
 - **Google Cloud SDK**: Must be installed and authenticated locally.
 
-### Local Grafana Installation
-If you don't have Grafana installed yet, expand the section for your operating system to set it up locally in seconds. Grafana runs on `http://localhost:3000` by default.
+### Grafana Installation
+If you don't have Grafana installed yet, expand the section for your operating system to set it up in seconds. Grafana runs on `http://localhost:3000` by default.
 
 <details>
 <summary><b>🍎 macOS (Homebrew)</b></summary>
