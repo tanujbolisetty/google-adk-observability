@@ -15,88 +15,111 @@
 
 ---
 
-## 🛠️ Requirements & Manual Setup
+## 🛠️ Step 1: Requirements & Local Setup
 
-### Requirements
-- **Google ADK Configured with BigQuery Agent Analytics Plugin**: Follow the [official integration guide](https://google.github.io/adk-docs/integrations/bigquery-agent-analytics/#use-with-agent) to ensure your agent is emitting logs to BigQuery.
+### System Requirements
+- **LLM Logs**: Your agent must be emitting logs to BQ via the BigQuery Agent Analytics Plugin.
+- **Google Cloud SDK**: Must be installed and authenticated locally.
 
-       from google.adk.plugins.bigquery_agent_analytics_plugin import ( BigQueryAgentAnalyticsPlugin, BigQueryLoggerConfig)
-  
-- **Google Cloud SDK** (authenticated)
-- **BigQuery** (with ADK logs)
-- **Grafana** (with BigQuery Data Source plugin)
+### Local Grafana Installation
+If you don't have Grafana installed yet, expand the section for your operating system to set it up locally in seconds. Grafana runs on `http://localhost:3000` by default.
 
-## 📈 Maintaining Model Pricing
+<details>
+<summary><b>🍎 macOS (Homebrew)</b></summary>
+<br>
 
-The FinOps and LLM Audit dashboards calculate costs based on the `model_pricing` table created in `setup/setup_bq_views.py`. 
-
-To update pricing or add new models:
-1.  **Modify SQL**: Update rows in the `pricing_sql` block of [./setup/setup_bq_views.py](./setup/setup_bq_views.py) (lines 10-20).
-2.  **Re-Run Setup**: Execute `python3 ./setup/setup_bq_views.py` with your environment parameters.
-
-> [!TIP]
-> **Pricing Resilience**: As of v1.3, the views use `COALESCE(..., 0)`. If a model is missing from the pricing table, the dashboard will display a **$0** cost instead of `NULL` (which would hide the session from some charts).
-
-### Manual Setup Steps
-If you prefer not to use the automated scripts, follow these steps:
-1.  **Service Account**: Create a GCP Service Account with `BigQuery Data Viewer` and `BigQuery Job User` roles. Download the JSON key.
-2.  **SQL Views**: Manually execute the queries found in [./docs/bq_dashboard_views.md](./docs/bq_dashboard_views.md).
-3.  **Grafana Datasource**: Add the BigQuery datasource in Grafana using your Service Account key.
-4.  **Import Dashboard JSONs**: Manually import the `.template.json` files from `./dashboard_templates/`.
-    *   **⚠️ CRITICAL**: You must manually Search & Replace these 4 placeholders in the JSON files before importing:
-        *   `${gcp_project}` -> Your Google Cloud Project ID
-        *   `${bq_dataset}` -> Your BigQuery Dataset ID
-        *   `${bq_table}` -> Your Base BigQuery Table ID
-        *   `${datasource}` -> Your Grafana BigQuery Datasource UID
-
----
-
-## 🚀 Quick Start (2-Command Deployment)
-
-Deploy the entire analytics stack using our automated scripts:
-
-### 1. Setup the BigQuery Data Layer
-Creates the **8 custom master analytical views** (flattened JSON, costs, latencies).
-```bash
-python3 ./setup/setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
-```
-
-### 2. Setup the Grafana Visual Layer (Optional)
-Configures and imports 7 interconnected dashboards into your target Grafana folder. **Parameters like `--datasource-uid` can be auto-detected if omitted.**
-```bash
-python3 ./setup/setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME> --url <GRAFANA_URL>
-```
-> [!TIP]
-> Both scripts are interactive. If you omit any required flags, the script will prompt you for them during execution.
-
----
-
-## ⚙️ Installation & Managing Grafana (macOS/Homebrew)
-
-### 1. Installation
-If you don't have Grafana installed, use Homebrew:
 ```bash
 # 1. Install Grafana
 brew install grafana
 
-# 2. Add BigQuery Plugin (Required)
+# 2. Add the Google BigQuery Plugin (Required)
 grafana-cli plugins install grafana-google-bigquery-datasource
+
+# 3. Start Grafana
+brew services start grafana
+```
+</details>
+
+<details>
+<summary><b>🪟 Windows (Winget)</b></summary>
+<br>
+
+*Run these commands in an Administrator PowerShell:*
+```powershell
+# 1. Install Grafana
+winget install GrafanaLabs.Grafana
+
+# 2. Add the Google BigQuery Plugin (Required)
+cd "C:\Program Files\GrafanaLabs\grafana\bin"
+.\grafana-cli.exe plugins install grafana-google-bigquery-datasource
+
+# 3. Start Grafana
+Start-Service Grafana
+```
+</details>
+
+<details>
+<summary><b>🐧 Linux (Ubuntu/Debian APT)</b></summary>
+<br>
+
+```bash
+# 1. Install Grafana
+sudo apt-get install -y apt-transport-https software-properties-common wget
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+sudo apt-get update && sudo apt-get install grafana
+
+# 2. Add the Google BigQuery Plugin (Required)
+sudo grafana-cli plugins install grafana-google-bigquery-datasource
+
+# 3. Start Grafana
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+```
+</details>
+
+### Authentication Options
+The BigQuery plugin requires authentication to query your logs. Depending on where Grafana is deployed, you have three choices:
+
+1. **Local Development (No Keys Needed)**: If running on your laptop, simply run `gcloud auth application-default login` in your terminal. Grafana will securely inherit these credentials via Application Default Credentials (ADC).
+2. **Google Cloud Infrastructure (No Keys Needed)**: If Grafana is hosted on a GCE VM, GKE cluster, or Cloud Run, it will automatically use the permissions of the attached Service Account via ADC. Ensure the attached service account has `BigQuery Data Viewer` and `BigQuery Job User` roles.
+3. **Service Account JSON Key**: If hosted outside GCP or if you prefer explicit key management, you can create a GCP Service Account with the required roles, download the JSON key, and securely upload it via the Grafana UI.
+
+---
+
+## 🚀 Step 2: Quick Start (Automated Deployment)
+
+Deploy the entire analytics stack using our automated scripts. The scripts are interactive and will prompt you for any missing information!
+
+### 1. Setup the BigQuery Data Layer
+Creates the **8 custom master analytical views** (flattened JSON, costs, latencies) directly in your BigQuery project.
+```bash
+python3 ./setup/setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
 ```
 
-### 2. Service Management
-Use these commands to manage the background service:
+### 2. Setup the Grafana Visual Layer
+Configures and imports all **7 interconnected dashboards** into Grafana. 
+*✨ Note: If a BigQuery Data Source doesn't exist yet, this script will ask if you want to automatically create one using your Application Default Credentials (ADC)! This seamlessly handles options #1 and #2 above.*
+```bash
+python3 ./setup/setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME> --url http://localhost:3000
+```
 
-| Action | Command |
-| :--- | :--- |
-| **Start** | `brew services start grafana` |
-| **Stop** | `brew services stop grafana` |
-| **Restart** | `brew services restart grafana` |
-| **Status** | `brew services list` |
+---
 
-> [!NOTE]
-> Once started, access your local dashboard at [http://localhost:3000](http://localhost:3000).
+## ⚙️ Advanced Configuration (Optional)
 
-The Agent Analytics Suite is now 100% production-ready, interactive, and calibrated for forensic recency (v1.3).
+### Maintaining Model Pricing
+The FinOps and LLM Audit dashboards calculate costs based on the `model_pricing` table created in `setup/setup_bq_views.py`. 
+To update pricing or add new models:
+1.  **Modify SQL**: Update rows in the `pricing_sql` block of [./setup/setup_bq_views.py](./setup/setup_bq_views.py) (lines 10-20).
+2.  **Re-Run Setup**: Execute `python3 ./setup/setup_bq_views.py` with your environment parameters.
+
+### Manual Setup Steps
+If you prefer not to use the automated python scripts, follow these steps:
+1.  **Service Account**: Create a GCP Service Account with `BigQuery Data Viewer` and `BigQuery Job User` roles and download the JSON key.
+2.  **SQL Views**: Manually execute the queries found in [./docs/bq_dashboard_views.md](./docs/bq_dashboard_views.md).
+3.  **Grafana Datasource**: Add a BigQuery datasource in Grafana Settings -> Connections, and upload your Service Account JSON key.
+4.  **Import Dashboard JSONs**: Manually replace all occurrences of `${gcp_project}`, `${bq_dataset}`, `${bq_table}`, and `${datasource}` in the `.template.json` files, then import them manually into Grafana.
 
 ---
 

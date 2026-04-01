@@ -46,6 +46,27 @@ def connect_grafana(args):
 
     credentials = base64.b64encode(f"{grafana_user}:{grafana_pass}".encode()).decode()
     auth_header = f"Basic {credentials}"
+
+    # Test the connection to immediately catch bad passwords or unreachable servers
+    try:
+        req = urllib.request.Request(f"{grafana_url}/api/user")
+        req.add_header("Authorization", auth_header)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            pass # Login successful
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            print(f"\n❌ Login Failed: Invalid username or password for {grafana_url}.")
+        else:
+            print(f"\n❌ Login Failed: HTTP Error {e.code} - {e.reason}")
+        sys.exit(1)
+    except urllib.error.URLError as e:
+        print(f"\n❌ Connection Failed: Could not reach Grafana at {grafana_url}. Is it running?")
+        print(f"Error details: {e.reason}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Unexpected error connecting to Grafana: {e}")
+        sys.exit(1)
+
     return grafana_url, auth_header
 
 
@@ -57,11 +78,36 @@ def get_datasource_uid(grafana_url, auth_header):
         with urllib.request.urlopen(req, timeout=5) as resp:
             datasources = json.loads(resp.read())
             for ds in datasources:
-                if ds.get("type") == "grafana-bigquery-datasource":
+                if ds.get("type") == "grafana-bigquery-datasource" or ds.get("type") == "grafana-google-bigquery-datasource":
                     return ds["uid"], ds["name"]
     except Exception as e:
-        print(f"   ⚠️  Could not connect to Grafana: {e}")
+        print(f"   ⚠️  Could not fetch datasources from Grafana: {e}")
     return None, None
+
+def create_adc_datasource(grafana_url, auth_header, project_id):
+    """Create a BigQuery Datasource using Application Default Credentials (ADC)."""
+    payload = json.dumps({
+        "name": "BigQuery (ADC Auto-Created)",
+        "type": "grafana-bigquery-datasource",
+        "access": "proxy",
+        "isDefault": True,
+        "jsonData": {
+            "authenticationType": "gce",
+            "defaultProject": project_id
+        }
+    }).encode("utf-8")
+
+    req = urllib.request.Request(f"{grafana_url}/api/datasources", data=payload, method="POST")
+    req.add_header("Authorization", auth_header)
+    req.add_header("Content-Type", "application/json")
+
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            result = json.loads(resp.read())
+            return result["datasource"]["uid"], result["datasource"]["name"]
+    except Exception as e:
+        print(f"   ❌ Failed to auto-create BigQuery datasource: {e}")
+        return None, None
 
 
 def get_or_create_folder(grafana_url, auth_header, folder_name):
@@ -186,8 +232,23 @@ def main():
             else:
                 ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
         else:
-            print("\n⚠️  Could not auto-detect datasource.")
-            ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
+            print("\n⚠️  No BigQuery data source was found in your Grafana instance.")
+            print("We can automatically create one using Google Application Default Credentials (ADC) without needing a JSON key upload.")
+            create_new = input("Would you like to automatically create the datasource using ADC now? [Y/n]: ").strip().lower()
+            
+            if create_new != "n":
+                print("\n⚙️  Attempting to create BigQuery datasource with ADC...")
+                created_uid, created_name = create_adc_datasource(grafana_url, auth_header, gcp_project)
+                if created_uid:
+                    ds_uid = created_uid
+                    auto_name = created_name
+                    print(f"✅ Successfully created datasource: '{auto_name}' (uid: {ds_uid})")
+                else:
+                    print("Could not create datasource. Please create it manually.")
+                    ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
+            else:
+                print("\n🚨 If you skip this, you must add the datasource manually via Grafana UI before these dashboards will work.")
+                ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
 
     if not ds_uid:
         print("❌ Datasource UID is required. Exiting.")
