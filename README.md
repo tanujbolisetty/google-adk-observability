@@ -1,6 +1,6 @@
-# 📊 Agent Analytics for Google ADK (Designed for BigQuery Agent Analytics Plugin data)
+# 📊 Agent Analytics: Multi-Framework LLM Observability (Designed for BigQuery Agent Analytics Plugin data)
 
-**Agent Analytics** is a comprehensive **LLM observability suite** designed for conversational agents built with the **Google Agent Development Kit (ADK)**. It transforms raw **BigQuery** agent logs configured from **BigQuery Agent Analytics Plugin** into actionable intelligence, providing powerful **Grafana dashboards** for tracking LLM token costs, system latency, precision metrics, and full-text session transcripts.
+**Agent Analytics** is a framework-agnostic **LLM observability suite** designed for modern conversational agents. Whether built with the **Google Agent Development Kit (ADK)**, **LangChain**, or other popular frameworks, it transforms raw **BigQuery** agent logs (configured via the **BigQuery Agent Analytics Plugin**) into actionable intelligence through powerful **Grafana dashboards** for tracking LLM token costs, system latency, precision metrics, and full-text session transcripts.
 
 > **Keywords**: BigQuery Agent Analytics Plugin, Grafana Dashboards, Google Agent Development Kit, ADK, LLM Observability, Generative AI Metrics, Conversational Agent Monitoring, AI Telemetry.
 
@@ -19,7 +19,27 @@
 
 ### System Requirements
 - **LLM Logs**: Your agent must be emitting logs to BQ via the BigQuery Agent Analytics Plugin.
-- **Google Cloud SDK**: Must be installed and authenticated locally.
+  <details>
+  <summary><b>🔍 How to emit logs from your agent? (Google ADK)</b></summary>
+  <br>
+
+  ```python
+  from google.adk.apps import App
+  from google.adk.plugins.bigquery_agent_analytics_plugin import BigQueryAgentAnalyticsPlugin
+
+  bq_plugin = BigQueryAgentAnalyticsPlugin(
+      project_id=PROJECT_ID,
+      dataset_id=DATASET_ID,
+      table_id=TABLE_ID,
+  )
+  app = App(
+      name="my_bq_agent",
+      root_agent=root_agent,
+      plugins=[bq_plugin],  # That's it - automatic logging enabled!
+  )
+  ```
+  </details>
+- **Google Cloud SDK**: Must be installed and authenticated.
 
 ### Grafana Installation
 If you don't have Grafana installed yet, expand the section for your operating system to set it up in seconds. Grafana runs on `http://localhost:3000` by default.
@@ -178,6 +198,9 @@ A centralized documentation hub for metric glossaries and system architecture us
 | dashboard_spec.md | **Understanding Dashboards** | v1.3 | [Business metrics & panel definitions](./docs/dashboard_spec.md). |
 | grafana_architecture_guide.md | **Architecture** | v1.3 | [Drill-down logic & navigation](./docs/grafana_architecture_guide.md). |
 
+## 📚 References
+- [Building Observable AI Agents: Real-time Analytics for LangGraph with BigQuery Agent Analytics](https://medium.com/google-cloud/building-observable-ai-agents-real-time-analytics-for-langgraph-with-bigquery-agent-analytics-9a1ac20837ec)
+
 ---
 
 ## 👤 Author
@@ -186,4 +209,4 @@ Developed and maintained by **Tanuj Bolisetty**.
 
 ---
 
-*Empowering Transparent AI - Built for Google ADK Developers.*
+*Empowering Transparent AI - Built for Modern AI Developers.*
