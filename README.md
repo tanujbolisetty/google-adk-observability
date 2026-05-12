@@ -5,8 +5,8 @@
 > **Keywords**: BigQuery Agent Analytics Plugin, Grafana Dashboards, Google Agent Development Kit, ADK, LLM Observability, Generative AI Metrics, Conversational Agent Monitoring, AI Telemetry.
 
 **Minimum ADK Version:** 1.19.0  
-**Tested With:** 1.26.0  
-**Suite Version:** v1.3
+**Tested With:** 1.33.0  
+**Suite Version:** v1.4 (Application List & Symmetric Selection)
 
 > [!IMPORTANT]
 > These **8 custom master views** are specific to this observability suite and its data layering strategy. They are distinct from the standard views functionality introduced in ADK version 1.27.0+.
@@ -149,7 +149,8 @@ If you prefer not to use the automated python scripts, follow these steps:
 
 ### 🏠 Agent Home (Landing)
 Executive overview of fleet performance (Sessions, User Questions, Tokens, Cost).
-- **NEW (v1.3)**: Integrated **User Intent** (What people are asking) directly onto the homepage with a full-width, zero-scroll layout.
+- **NEW (v1.4)**: **Application List & Symmetric Selection**. All summary dashboards (Home, FinOps, Diagnostics) now include the Application dropdown and strictly respect `User ID` and `Session ID` filters passed from Forensic views.
+- **NEW (v1.3)**: Integrated **User Intent** (What people are asking) directly onto the homepage.
 - **NEW (v1.3)**: Global **Column Filtering** enabled across all major tables.
 
 ![Home 1](./assets/Home_v2.jpg)
@@ -200,6 +201,21 @@ A centralized documentation hub for metric glossaries and system architecture us
 
 ## 📚 References
 - [Building Observable AI Agents: Real-time Analytics for LangGraph with BigQuery Agent Analytics](https://medium.com/google-cloud/building-observable-ai-agents-real-time-analytics-for-langgraph-with-bigquery-agent-analytics-9a1ac20837ec) — by [Haiyuan Cao](https://medium.com/@haiyuan-cao)
+
+---
+
+## 🕒 Versioning & Older Releases
+
+This repository follows a standard Git-based versioning strategy. 
+- **Current Version (v1.4)**: Includes "Symmetric Selection" where summary dashboards respect forensic filters for deep-dive continuity.
+- **Older Versions**: If you require the previous architecture (e.g., v1.3 where Summary pages always showed the global fleet overview regardless of forensic filters), you can use Git to revert or checkout specific tags:
+  ```bash
+  # List all available tags
+  git tag -l
+  
+  # Checkout a specific version
+  git checkout tags/v1.3.0
+  ```
 
 ---
 

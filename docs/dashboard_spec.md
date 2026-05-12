@@ -18,7 +18,7 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
 ### 2. Standardized Logic & UX
 - **Infrastructure Visibility (v1.3.25)**: Technical variables (`gcp_project`, `bq_dataset`, `bq_table`, `datasource`) are preset with **`hide: 0` (Visible)**. This allows for manual verification of the target environment and easy switching between multi-tenant datasets directly from the dashboard header.
 - **2-Line Infrastructure Status Bar**: Standardized Navigation Panel (**ID 999**) across all templates. Includes a dedicated 2nd line displaying the active Project, Dataset, Table, and Datasource UID for persistent environmental awareness.
-- **Symmetric Selection**: Summary dashboards use `allValue: "Select_User"` to ensure that "All" selections propagate correctly to forensic dashboards without passing empty strings.
+- **Symmetric Selection (v1.4)**: Every dashboard now supports an **Application** dropdown. Selections for Application, User, and Session are preserved across the entire suite. Summary dashboards use `allValue` placeholders (e.g., `Select_Application`, `Select_User`) to ensure that "All" states propagate correctly to forensic dashboards without passing empty strings.
 - **Recency-First Sorting**: All dropdowns (Users, Sessions) are sorted by `timestamp DESC` to ensure the most relevant data appears first.
 - **Forensic Table Aesthetics (Transcripts)**: Implements the **"Wide Open Display"** standard:
     - `cellHeight: auto` (Panel level).
@@ -92,7 +92,7 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
 
 ## 🔗 Data Link Ecosystem
 Dashboards are connected via context-aware **URL Data Links**. Preserved variables:
-- `var-user_id`, `var-session_id`, `var-datasource`, `var-gcp_project`, `var-bq_dataset`, `var-bq_table`.
+- `var-application`, `var-user_id`, `var-session_id`, `var-datasource`, `var-gcp_project`, `var-bq_dataset`, `var-bq_table`.
 
 ---
 

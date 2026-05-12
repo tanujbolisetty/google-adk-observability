@@ -53,10 +53,11 @@ def create_views(project_id, dataset_id, table_name):
       MAX(c.prompt_tokens) AS session_prompt_tokens,
       MAX(c.output_tokens) AS session_completion_tokens,
       MAX(c.total_usd_cost) AS session_total_cost_usd,
-      MAX(CAST(JSON_VALUE(e.latency_ms, '$.time_to_first_token_ms') AS INT64)) AS max_ttft_ms
+      MAX(CAST(JSON_VALUE(e.latency_ms, '$.time_to_first_token_ms') AS INT64)) AS max_ttft_ms,
+      JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name
     FROM `{dataset_ref}.{table_name}` e
     LEFT JOIN session_costs c ON e.session_id = c.session_id
-    GROUP BY e.session_id, e.user_id;
+    GROUP BY e.session_id, e.user_id, app_name;
     """
 
     # 3. Master Turn Summary
@@ -104,11 +105,12 @@ def create_views(project_id, dataset_id, table_name):
       TIMESTAMP_DIFF(MAX(e.timestamp), MIN(e.timestamp), MILLISECOND) AS turn_duration_ms,
       GREATEST(0, TIMESTAMP_DIFF(MAX(e.timestamp), MIN(e.timestamp), MILLISECOND) - 
         SUM(IF(e.event_type = 'LLM_RESPONSE', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0)) - 
-        SUM(IF(e.event_type = 'TOOL_COMPLETED', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0))) AS turn_overhead_ms
+        SUM(IF(e.event_type = 'TOOL_COMPLETED', CAST(JSON_VALUE(e.latency_ms, '$.total_ms') AS INT64), 0))) AS turn_overhead_ms,
+      JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name
     FROM `{dataset_ref}.{table_name}` e
     LEFT JOIN turn_costs c ON e.session_id = c.session_id AND e.invocation_id = c.invocation_id
     LEFT JOIN turn_intents i ON e.session_id = i.session_id AND e.invocation_id = i.invocation_id
-    GROUP BY e.session_id, e.invocation_id, e.user_id, i.user_query;
+    GROUP BY e.session_id, e.invocation_id, e.user_id, i.user_query, app_name;
     """
 
     # 4. Master LLM & Prompt Tracing
@@ -135,6 +137,7 @@ def create_views(project_id, dataset_id, table_name):
       e.invocation_id,
       e.user_id,
       e.agent,
+      JSON_VALUE(e.attributes, '$.session_metadata.app_name') AS app_name,
       JSON_VALUE(e.attributes, '$.model_version') AS model,
       CAST(JSON_VALUE(e.attributes, '$.usage_metadata.prompt_token_count') AS INT64) AS prompt_tokens,
       CAST(JSON_VALUE(e.attributes, '$.usage_metadata.candidates_token_count') AS INT64) AS completion_tokens,
@@ -171,7 +174,8 @@ def create_views(project_id, dataset_id, table_name):
           TO_JSON_STRING(JSON_QUERY(content, '$.arguments')), JSON_VALUE(content, '$.arguments'),
           TO_JSON_STRING(JSON_QUERY(content, '$.parameters')), JSON_VALUE(content, '$.parameters'),
           TO_JSON_STRING(JSON_QUERY(content, '$.input')), JSON_VALUE(content, '$.input')
-        ) AS input_args
+        ) AS input_args,
+        JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name
       FROM `{dataset_ref}.{table_name}`
       WHERE event_type = 'TOOL_STARTING'
     ),
@@ -189,7 +193,7 @@ def create_views(project_id, dataset_id, table_name):
       WHERE event_type = 'TOOL_COMPLETED'
     )
     SELECT
-      tc.timestamp, ts.session_id, ts.invocation_id, ts.user_id, ts.agent, ts.tool_name,
+      tc.timestamp, ts.session_id, ts.invocation_id, ts.user_id, ts.agent, ts.app_name, ts.tool_name,
       tc.status, tc.error_message, tc.latency_ms, ts.input_args, tc.output_result
     FROM tool_starts ts
     JOIN tool_completes tc 
@@ -205,6 +209,7 @@ def create_views(project_id, dataset_id, table_name):
       session_id,
       user_id,
       invocation_id,
+      JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name,
       JSON_VALUE(attributes, '$.root_agent_name') AS orchestrator,
       agent as assigned_specialist,
       event_type
@@ -221,6 +226,7 @@ def create_views(project_id, dataset_id, table_name):
       session_id,
       user_id,
       JSON_VALUE(content, '$.text_summary') AS raw_user_prompt,
+      JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name,
       JSON_VALUE(attributes, '$.session_metadata.state.state."user:timezone"') AS user_timezone
     FROM `{dataset_ref}.{table_name}`
     WHERE event_type = 'USER_MESSAGE_RECEIVED'
@@ -234,6 +240,7 @@ def create_views(project_id, dataset_id, table_name):
       timestamp, 
       session_id, 
       user_id,
+      JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name,
       'Human' as speaker, 
       COALESCE(JSON_VALUE(content, '$.text'), JSON_VALUE(content, '$.text_summary')) as message
     FROM `{dataset_ref}.{table_name}`
@@ -243,12 +250,13 @@ def create_views(project_id, dataset_id, table_name):
       timestamp, 
       session_id, 
       user_id,
+      JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name,
       'Agent' as speaker, 
-      COALESCE(JSON_VALUE(content, '$.response.text'), JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.text')) as message
+      COALESCE(JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.text'), JSON_VALUE(content, '$.response.text')) as message
     FROM (
-      SELECT *, ROW_NUMBER() OVER(PARTITION BY session_id, invocation_id ORDER BY timestamp DESC) as rn
+      SELECT *, ROW_NUMBER() OVER(PARTITION BY session_id, invocation_id ORDER BY (CASE WHEN event_type = 'AGENT_RESPONSE' THEN 1 ELSE 2 END), timestamp DESC) as rn
       FROM `{dataset_ref}.{table_name}`
-      WHERE event_type = 'LLM_RESPONSE'
+      WHERE event_type IN ('LLM_RESPONSE', 'AGENT_RESPONSE')
     )
     WHERE rn = 1;
     """
@@ -268,6 +276,7 @@ def create_views(project_id, dataset_id, table_name):
         error_message,
         content,
         agent,
+        JSON_VALUE(attributes, '$.session_metadata.app_name') AS app_name,
         attributes,
         latency_ms
       FROM `{dataset_ref}.{table_name}`
@@ -291,9 +300,13 @@ def create_views(project_id, dataset_id, table_name):
           WHEN r.event_type = 'TOOL_STARTING' THEN '🔧 Tool Starting'
           WHEN r.event_type = 'TOOL_COMPLETED' THEN '✅ Tool Execution Result'
           WHEN r.event_type = 'LLM_REQUEST' THEN '🧠 Agent Reasoning (Start)'
-          WHEN r.event_type = 'LLM_RESPONSE' THEN '🗣️ Agent Output'
+          WHEN r.event_type = 'LLM_RESPONSE' THEN '🗣️ LLM Output'
           WHEN r.event_type = 'AGENT_STARTING' THEN '🔀 Sub-Agent Routing'
           WHEN r.event_type = 'AGENT_COMPLETED' THEN '🏁 Sub-Agent Completed'
+          WHEN r.event_type = 'AGENT_RESPONSE' THEN '💬 Final Agent Response'
+          WHEN r.event_type = 'LLM_ERROR' THEN '❌ LLM Error'
+          WHEN r.event_type = 'INVOCATION_STARTING' THEN '▶️ Turn Started'
+          WHEN r.event_type = 'INVOCATION_COMPLETED' THEN '⏹️ Turn Finished'
           ELSE r.event_type
         END as step_type,
         COALESCE(
@@ -313,17 +326,22 @@ def create_views(project_id, dataset_id, table_name):
         'TOOL_STARTING', 
         'TOOL_COMPLETED', 
         'AGENT_STARTING', 
-        'AGENT_COMPLETED'
+        'AGENT_COMPLETED',
+        'AGENT_RESPONSE',
+        'LLM_ERROR',
+        'INVOCATION_STARTING',
+        'INVOCATION_COMPLETED'
       )
     )
     SELECT
-      time, session_id, user_id, invocation_id, event_type, step_type, actor, duration_ms, status, error_message,
+      time, session_id, user_id, app_name, invocation_id, event_type, step_type, actor, duration_ms, status, error_message,
       -- 1. Conversation Message (Expanded UI - Identical to Transcripts)
       CASE
         WHEN event_type = 'USER_MESSAGE_RECEIVED' THEN 
           COALESCE(JSON_VALUE(content, '$.text'), JSON_VALUE(content, '$.text_summary'))
-        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED') THEN 
-          COALESCE(JSON_VALUE(content, '$.response.text'), JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.text'))
+        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED', 'AGENT_RESPONSE') THEN 
+          COALESCE(JSON_VALUE(content, '$.response'), JSON_VALUE(content, '$.text'), JSON_VALUE(content, '$.response.text'))
+        WHEN event_type = 'LLM_ERROR' THEN error_message
         ELSE NULL
       END as message,
       -- 2. Technical Details (Collapsed UI with Eye Icon)
@@ -334,7 +352,9 @@ def create_views(project_id, dataset_id, table_name):
           TO_JSON_STRING(COALESCE(JSON_QUERY(content, '$.result'), JSON_QUERY(content, '$.response'), JSON_QUERY(content, '$.output'), content))
         WHEN event_type = 'LLM_REQUEST' THEN 
           CONCAT('🧠 Inference started (', actor, ')')
-        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED') AND NOT (actor = JSON_VALUE(attributes, '$.root_agent_name') OR agent = JSON_VALUE(attributes, '$.root_agent_name')) THEN 
+        WHEN event_type = 'LLM_ERROR' THEN 
+          TO_JSON_STRING(content)
+        WHEN event_type IN ('LLM_RESPONSE', 'AGENT_COMPLETED', 'AGENT_RESPONSE') AND NOT (actor = JSON_VALUE(attributes, '$.root_agent_name') OR agent = JSON_VALUE(attributes, '$.root_agent_name')) THEN 
           TO_JSON_STRING(content)
         ELSE NULL
       END as technical_details,

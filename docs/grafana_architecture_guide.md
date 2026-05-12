@@ -37,15 +37,15 @@ Every dashboard shares a common set of variables. Here is how they apply across 
 
 ### 2. Variable Logic & Cascading
 - **Cascading Filters**: Filters are "aware" of each other. For example, selecting a **User ID** automatically limits the **Session ID** list to only that user's sessions.
-- **Global Context Tracking**: If you select a specific User/Session on the FinOps page, those selections follow you when you click to Transcripts or Diagnostics. (The "Home" page is the exception, defaulting cleanly to fleet-overview).
-- **Symmetric Defaults**: Summary dashboards default to "All" (overview) while forensic dashboards default to explicitly requiring a "Select_User" selection. By propagating variable context seamlessly, users no longer face empty "Blank Box" filter regressions when moving between layers.
+- **Full Symmetric Selection (v1.4)**: The system now preserves your selected User and Session context across the **entire suite**. If you are investigating a specific session in the Transcripts or Traces dashboard and click back to "Home", "FinOps", or "Diagnostics", the panels will automatically restrict their view to that specific session/user. This allows for localized "Summary Autopsies" where you can see the cost and performance impact of a single conversation within the context of the summary views.
+- **Symmetric Defaults**: Summary dashboards default to "All" (fleet-wide overview) while forensic dashboards default to explicitly requiring a "Select_User" selection.
 - **Diagnostics Multi-Filter**: The Diagnostics page is the only one that uses the **Agent** and **Tool** filters, allowing you to narrow down system-wide bottlenecks.
 
 ### 3. URL Data Links
-We use custom **Data Links** on tables and charts to preserve full environment context. For example, clicking on a "Session ID" will route you to:
-`/d/agent-transcript?${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-user_id=${user_id}&var-session_id=${__value.raw}`
+We use custom **Data Links** on tables and charts to preserve full environment context. Every navigation link in the top header and every "Drill Down" link in tables propagates the following variables:
+`${__url_time_range}&var-datasource=${datasource}&var-gcp_project=${gcp_project}&var-bq_dataset=${bq_dataset}&var-bq_table=${bq_table}&var-application=${application}&var-user_id=${user_id}&var-session_id=${session_id}`
 
-This ensures that when you land on the Transcripts page, it is **already filtered** to the exact session you were investigating.
+This ensures that your "investigative state" remains perfectly intact as you jump between layers.
 
 ### 4. Recency-First Variable Sorting
 To ensure forensic usability, all `user_id` and `session_id` dropdowns are configured with a mandatory **Recency-First** pattern:

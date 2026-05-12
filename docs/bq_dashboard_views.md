@@ -18,6 +18,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 
 ### 📋 Captured Fields:
 - `session_id` / `user_id`: Identifiers for the conversation and human participant.
+- `app_name`: Identifier for the originating application (v1.4).
 - `session_duration_ms`: Total wall-clock time from the first user message to the final agent response.
 - `total_turns`: Count of individual request/response interactions within the session.
 - `session_total_tokens`: Aggregated token volume across all turns.
@@ -35,6 +36,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 **Primary Usage**: **System Diagnostics** (Latency Attribution), **FinOps** (Cost Over Time), **Technical Traces** (Performance Profile).
 
 ### 📋 Captured Fields:
+- `app_name`: Identifier for the originating application (v1.4).
 - `total_llm_latency_ms`: Combined reasoning time of all model calls in a single turn.
 - `total_tool_latency_ms`: Combined execution time of all external dependencies in a single turn.
 - `turn_overhead_ms`: The "System Tax"—orchestration and transit time.
@@ -51,6 +53,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 **Primary Usage**: **LLM Audit** (Inference Log), **FinOps** (Usage by Model Version).
 
 ### 📋 Captured Fields:
+- `app_name`: Identifier for the originating application (v1.4).
 - `model`: The specific model version used (e.g., Gemini 1.5 Pro).
 - `prompt` / `response`: The raw input provided to the model and the raw result returned.
 - `calculated_usd_cost`: Precision cost tracking at the individual call level.
@@ -74,6 +77,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 **Primary Usage**: **System Diagnostics** (Slowest Tools), **Technical Traces** (Drill-down).
 
 ### 📋 Captured Fields:
+- `app_name`: Identifier for the originating application (v1.4).
 - `tool_name` / `status`: Identification of the tool and whether it succeeded/errored.
 - `latency_ms`: Duration of the external execution.
 - `input_args` / `output_result`: The value returned by the tool to the agent.
@@ -89,6 +93,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 **Primary Usage**: **System Diagnostics** (Orchestrator Handoffs).
 
 ### 📋 Captured Fields:
+- `app_name`: Identifier for the originating application (v1.4).
 - `orchestrator`: The root agent that received the user's initial request.
 - `assigned_specialist`: The sub-agent or tool-specialist delegated to handle the logic.
 
@@ -103,6 +108,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 **Primary Usage**: **Agent Home** (User Questions), **System Diagnostics**.
 
 ### 📋 Captured Fields:
+- `app_name`: Identifier for the originating application (v1.4).
 - `raw_user_prompt`: The summary text of the user's initial message.
 - `user_timezone`: The detected timezone from the session metadata.
 
@@ -116,13 +122,17 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 **Primary Usage**: **Chat Transcripts**.
 
 ### 📋 Captured Fields:
+- `app_name`: Identifier for the originating application (v1.4).
 - `timestamp`: Chronological event time enabling interactive interval calculations like Turn Duration (`LAG`).
 - `speaker`: Identifies the message source as either "Human" or "Agent".
 - `message`: The clean, high-level text content of the interaction.
 
 ### 🧩 Source Events:
 - `USER_MESSAGE_RECEIVED` (Human Speech)
-- `LLM_RESPONSE` (Agent Speech)
+- `LLM_RESPONSE` / `AGENT_RESPONSE` (Agent Speech)
+
+### 🗣️ Speaker Prioritization (v1.4)
+To ensure the most human-readable chat replay, this view prioritizes `AGENT_RESPONSE` events over `LLM_RESPONSE`. If an orchestrator summarizes its specialist's thoughts into a final response, only that final consolidated message is shown in the transcript, preventing "Internal Thought Leakage" in the main chat view.
 
 ---
 
@@ -131,6 +141,7 @@ Agent Analytics uses a **View-on-Table** pattern. Instead of modifying raw event
 **Primary Usage**: **Technical Traces** (Unified Turn Flow).
 
 ### 📋 Captured Fields:
+- `app_name`: Identifier for the originating application (v1.4).
 - `step_type`: Human-readable event classification (e.g., `👤 Human Input`).
 - `actor`: The entity performing the action (Orchestrator or Specialist).
 - `message`: The primary conversation content (Includes all agent responses).
