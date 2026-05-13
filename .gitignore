@@ -21,6 +21,7 @@ __pycache__/
 
 # Local documentation (not synced)
 git_guide.md
+upcoming_changes.md
 
 # Docker local artifacts
 docker/

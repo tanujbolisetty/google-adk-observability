@@ -18,6 +18,7 @@ import base64
 import getpass
 import argparse
 import urllib.request
+import urllib.error
 
 SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
 DASHBOARD_DIR = os.path.join(os.path.dirname(SETUP_DIR), "dashboard_templates")
@@ -41,13 +42,13 @@ def connect_grafana(args):
     grafana_pass = args.password or getpass.getpass("Enter Grafana password: ")
 
     if not grafana_user or not grafana_pass:
-        print("❌ Grafana credentials are required.")
-        sys.exit(1)
+        print("❌ Grafana credentials are required for direct upload.")
+        return None, None
 
     credentials = base64.b64encode(f"{grafana_user}:{grafana_pass}".encode()).decode()
     auth_header = f"Basic {credentials}"
 
-    # Test the connection to immediately catch bad passwords or unreachable servers
+    # Test the connection
     try:
         req = urllib.request.Request(f"{grafana_url}/api/user")
         req.add_header("Authorization", auth_header)
@@ -58,27 +59,28 @@ def connect_grafana(args):
             print(f"\n❌ Login Failed: Invalid username or password for {grafana_url}.")
         else:
             print(f"\n❌ Login Failed: HTTP Error {e.code} - {e.reason}")
-        sys.exit(1)
+        return None, None
     except urllib.error.URLError as e:
         print(f"\n❌ Connection Failed: Could not reach Grafana at {grafana_url}. Is it running?")
-        print(f"Error details: {e.reason}")
-        sys.exit(1)
+        return None, None
     except Exception as e:
         print(f"\n❌ Unexpected error connecting to Grafana: {e}")
-        sys.exit(1)
+        return None, None
 
     return grafana_url, auth_header
 
 
 def get_datasource_uid(grafana_url, auth_header):
     """Auto-detect the BigQuery datasource UID."""
+    if not grafana_url or not auth_header:
+        return None, None
     try:
         req = urllib.request.Request(f"{grafana_url}/api/datasources")
         req.add_header("Authorization", auth_header)
         with urllib.request.urlopen(req, timeout=5) as resp:
             datasources = json.loads(resp.read())
             for ds in datasources:
-                if ds.get("type") == "grafana-bigquery-datasource" or ds.get("type") == "grafana-google-bigquery-datasource":
+                if ds.get("type") in ["grafana-bigquery-datasource", "grafana-google-bigquery-datasource"]:
                     return ds["uid"], ds["name"]
     except Exception as e:
         print(f"   ⚠️  Could not fetch datasources from Grafana: {e}")
@@ -86,6 +88,8 @@ def get_datasource_uid(grafana_url, auth_header):
 
 def create_adc_datasource(grafana_url, auth_header, project_id):
     """Create a BigQuery Datasource using Application Default Credentials (ADC)."""
+    if not grafana_url or not auth_header:
+        return None, None
     payload = json.dumps({
         "name": "BigQuery (ADC Auto-Created)",
         "type": "grafana-bigquery-datasource",
@@ -112,6 +116,8 @@ def create_adc_datasource(grafana_url, auth_header, project_id):
 
 def get_or_create_folder(grafana_url, auth_header, folder_name):
     """Get the folder ID for a folder name, creating it if it doesn't exist."""
+    if not grafana_url or not auth_header:
+        return 0, "Local-Only"
     if not folder_name:
         return 0, "General"
 
@@ -144,6 +150,9 @@ def get_or_create_folder(grafana_url, auth_header, folder_name):
 
 def import_dashboard(grafana_url, auth_header, dashboard_data, folder_id=0):
     """Import a dashboard JSON into Grafana via the API."""
+    if not grafana_url or not auth_header:
+        return {"status": "skipped", "message": "Local generation only"}
+    
     # Ensure the dashboard has a UID but NO internal ID to allow folder reassignment
     dashboard_data.pop("id", None)
     
@@ -179,7 +188,7 @@ def main():
     parser.add_argument("--user", help="Grafana Username")
     parser.add_argument("--password", help="Grafana Password")
     parser.add_argument("--folder", help="Target Grafana Folder")
-    parser.add_argument("--datasource-uid", help="Manual Grafana Datasource UID")
+    parser.add_argument("--datasource", help="Manual Grafana Datasource UID")
     args = parser.parse_args()
 
     print("=" * 60)
@@ -205,23 +214,22 @@ def main():
         print("❌ BigQuery Table is required. Exiting.")
         sys.exit(1)
 
-    # Step 4: Connect to Grafana
-    print("\n🔌 Connecting to Grafana...")
-    grafana_url, auth_header = connect_grafana(args)
-
-    # Step 5: Folder Selection
-    folder_name = args.folder or input(f"Enter destination Folder Name: ").strip()
-    if not folder_name:
-        folder_name = "General"
+    # Step 4: Optional Direct Upload
+    do_upload = (args.url and args.user) or input("\n📤 Would you like to upload directly to Grafana? (y/n) [n]: ").strip().lower() == 'y'
+    grafana_url, auth_header = None, None
+    if do_upload:
+        if args.url and args.user:
+            # If provided via CLI, use those
+            print("\n🔌 Connecting to Grafana (using CLI credentials)...")
+        else:
+            print("\n🔌 Connecting to Grafana...")
+        grafana_url, auth_header = connect_grafana(args)
     
-    folder_id, folder_title = get_or_create_folder(grafana_url, auth_header, folder_name)
-    print(f"✅ Target Folder: '{folder_title}' (id: {folder_id})")
-
-    # Step 6: Datasource detection
-    ds_uid = args.datasource_uid
+    # Step 5: Datasource detection or placeholder
+    ds_uid = args.datasource
     auto_name = "BigQuery"
     
-    if not ds_uid:
+    if do_upload and not ds_uid:
         auto_uid, detected_name = get_datasource_uid(grafana_url, auth_header)
         if auto_uid:
             auto_name = detected_name
@@ -229,34 +237,26 @@ def main():
             use_auto = input("Use this datasource? [Y/n]: ").strip().lower()
             if use_auto != "n":
                 ds_uid = auto_uid
-            else:
-                ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
-        else:
-            print("\n⚠️  No BigQuery data source was found in your Grafana instance.")
-            print("We can automatically create one using Google Application Default Credentials (ADC) without needing a JSON key upload.")
-            create_new = input("Would you like to automatically create the datasource using ADC now? [Y/n]: ").strip().lower()
-            
-            if create_new != "n":
-                print("\n⚙️  Attempting to create BigQuery datasource with ADC...")
-                created_uid, created_name = create_adc_datasource(grafana_url, auth_header, gcp_project)
-                if created_uid:
-                    ds_uid = created_uid
-                    auto_name = created_name
-                    print(f"✅ Successfully created datasource: '{auto_name}' (uid: {ds_uid})")
-                else:
-                    print("Could not create datasource. Please create it manually.")
-                    ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
-            else:
-                print("\n🚨 If you skip this, you must add the datasource manually via Grafana UI before these dashboards will work.")
-                ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
-
+    
     if not ds_uid:
-        print("❌ Datasource UID is required. Exiting.")
-        sys.exit(1)
+        if do_upload:
+             ds_uid = input("Enter your Grafana BigQuery datasource UID: ").strip()
+        else:
+             ds_uid = "bigquery-default"
+             print(f"\nℹ️  Using placeholder datasource UID: {ds_uid}")
+
+    # Step 6: Folder Selection
+    folder_id = 0
+    folder_title = "General"
+    if do_upload:
+        folder_name = args.folder or input(f"Enter destination Folder Name: ").strip()
+        if not folder_name:
+            folder_name = "General"
+        folder_id, folder_title = get_or_create_folder(grafana_url, auth_header, folder_name)
+        print(f"✅ Target Folder: '{folder_title}' (id: {folder_id})")
 
     # Step 7: Configure and import dashboards
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    fqdn = f"{gcp_project}.{bq_dataset}"
 
     print(f"\n📝 Configuring dashboards...")
     print(f"   Project:    {gcp_project}")
@@ -276,30 +276,19 @@ def main():
         with open(src_path, "r") as f:
             template_str = f.read()
 
-        # Aggressive string replacement for everything
+        # Aggressive string replacement
         template_str = template_str.replace("${gcp_project}", gcp_project)
         template_str = template_str.replace("${bq_dataset}", bq_dataset)
         template_str = template_str.replace("${bq_table}", bq_table)
         template_str = template_str.replace("${datasource}", ds_uid)
         
-        data = json.loads(template_str)
+        try:
+            data = json.loads(template_str)
+        except json.JSONDecodeError as e:
+            print(f"   ❌ Failed to parse {filename}: {e}")
+            continue
 
-        # Still update current/options for variable UI cleanliness
-        for var in data.get("templating", {}).get("list", []):
-            if var.get("name") == "gcp_project":
-                var["current"] = {"text": gcp_project, "value": gcp_project}
-                var["options"] = [{"text": gcp_project, "value": gcp_project}]
-            elif var.get("name") == "bq_dataset":
-                var["current"] = {"text": bq_dataset, "value": bq_dataset}
-                var["options"] = [{"text": bq_dataset, "value": bq_dataset}]
-            elif var.get("name") == "bq_table":
-                var["current"] = {"text": bq_table, "value": bq_table}
-                var["options"] = [{"text": bq_table, "value": bq_table}]
-            elif var.get("name") == "datasource":
-                var["current"] = {"text": auto_name, "value": ds_uid}
-                var["options"] = [{"text": auto_name, "value": ds_uid}]
-
-        # Save configured copy - strip '.template' from filename for the output
+        # Save configured copy
         clean_filename = filename.replace(".template.json", ".json")
         out_path = os.path.join(OUTPUT_DIR, clean_filename)
         with open(out_path, "w") as f:
@@ -309,16 +298,17 @@ def main():
         print(f"   ✅ Configured: {clean_filename}")
 
     # Step 8: Import into Grafana
-    print(f"\n🚀 Importing dashboards into Grafana...")
-    for filename, data in configured_dashboards:
-        try:
-            result = import_dashboard(grafana_url, auth_header, data, folder_id)
-            url = result.get("url", "")
-            print(f"   ✅ Imported: {filename} → {grafana_url}{url} (Status: {result.get('status')})")
-        except Exception as e:
-            print(f"   ❌ Failed: {filename} — {e}")
+    if do_upload and grafana_url and auth_header:
+        print(f"\n🚀 Importing dashboards into Grafana...")
+        for filename, data in configured_dashboards:
+            try:
+                result = import_dashboard(grafana_url, auth_header, data, folder_id)
+                url = result.get("url", "")
+                print(f"   ✅ Imported: {filename} → {grafana_url}{url}")
+            except Exception as e:
+                print(f"   ❌ Failed: {filename} — {e}")
 
-    print(f"\n🎉 All done! Open Grafana to see your dashboards in the '{folder_title}' folder.")
+    print(f"\n🎉 Setup complete! Configured JSON files are in: {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

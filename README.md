@@ -32,13 +32,24 @@
       dataset_id=DATASET_ID,
       table_id=TABLE_ID,
   )
+
+  root_agent = Agent(
+    model=Gemini(model="gemini-flash-latest"),
+    name='my_agent',
+    instruction="You are a helpful assistant.",
+  )
+
+
   app = App(
-      name="my_bq_agent",
+      name="my_agent",
       root_agent=root_agent,
       plugins=[bq_plugin],  # That's it - automatic logging enabled!
   )
   ```
   </details>
+## Prerequisites
+
+- **Google ADK (v1.28.0+)**: Mandatory for automatic metadata propagation and forensic tracing.
 - **Google Cloud SDK**: Must be installed and authenticated.
 
 ### Grafana Installation

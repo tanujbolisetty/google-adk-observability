@@ -2,6 +2,9 @@
 
 This document defines the **technical architecture and visual requirements** for the Agent Analytics Suite.
 
+> [!IMPORTANT]
+> **Minimum Requirement**: Google ADK **v1.28.0+** is required to ensure consistent metadata propagation across all forensic views.
+
 ---
 
 ## 🏗️ Design Philosophy: "Forensic Symmetricity"
@@ -31,13 +34,15 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
 ## 🔍 The 7-Dashboard Analytical Flow
 
 ### 1. 🏠 Agent Home (Landing Page)
-**Goal**: Fleet KPIs (Total Sessions, User Questions, Token Volume, Total Cost).
+**Goal**: Fleet KPIs (Total Sessions, User Questions, Token Volume, Total Cost) and multi-app distribution.
 - **Panel Breakdown**:
     - **Total Sessions (Stat)**: Unique conversation count. (Source: `v_aaa_session_summary`)
     - **Total User Questions (Stat)**: Total count of human-initiated prompts. Sourced from `v_aaa_user_intent` to prioritize "What did the human ask?" over internal technical reprocessing. (Source: `v_aaa_user_intent`)
     - **Total Tokens (Stat)**: Cumulative volume of input and output tokens. (Source: `v_aaa_session_summary`)
     - **Total Estimated Cost (Stat)**: Aggregated USD consumption. (Source: `v_aaa_session_summary`)
-    - **User Questions (Intent) (Table)**: Captured human prompts with full-width layout and zero-scroll visibility (v1.3). (Source: `v_aaa_user_intent`)
+    - **Token Distribution by App (Donut Chart)**: Visualizing proportional usage across the fleet (v1.5). (Source: `v_aaa_session_summary`)
+    - **Cost Distribution by App (Donut Chart)**: Identifying budget-heavy applications (v1.5). (Source: `v_aaa_session_summary`)
+    - **User Questions (Intent) (Table)**: Captured human prompts with full-width layout and zero-scroll visibility. (Source: `v_aaa_user_intent`)
     - **Usage Trends (Mixed Time Series)**: Daily token volume (Logarithmic). (Source: `v_aaa_session_summary`)
     - **Cost by User (Bar Chart)**: Top 10 most active users. (Source: `v_aaa_session_summary`)
 
@@ -85,8 +90,8 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
 ### 7. 📖 Agent Intelligence Guide
 **Goal**: Onboarding and technical reference.
 - **Panel Breakdown**:
-    - **Metrics Glossary**: Definitions of all suite KPIs (TTFT, Overhead).
-    - **Forensic Workflow**: Guided instructions for drill-down analysis.
+    - **Metrics Glossary**: Definitions of all suite KPIs (TTFT, Overhead). (Source: Static/Markdown)
+    - **Forensic Workflow**: Guided instructions for drill-down analysis. (Source: Static/Markdown)
 
 ---
 
