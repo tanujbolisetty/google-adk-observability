@@ -374,6 +374,7 @@
       },
       "options": {
         "orientation": "vertical",
+        "xTickLabelRotation": -45,
         "showValue": "always",
         "barWidth": 0.7
       },
@@ -409,12 +410,13 @@
       },
       "options": {
         "orientation": "vertical",
+        "xTickLabelRotation": -45,
         "showValue": "always",
         "barWidth": 0.7
       },
       "targets": [
         {
-          "rawSql": "SELECT user_id, SUM(session_total_cost_usd) as total_cost_usd FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All', '$__all')) GROUP BY user_id ORDER BY total_cost_usd DESC LIMIT 10",
+          "rawSql": "SELECT SUBSTR(user_id, 1, 15) as user_id, SUM(session_total_cost_usd) as total_cost_usd FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('Select_User', '--', '', 'All', '$__all')) GROUP BY 1 ORDER BY total_cost_usd DESC LIMIT 10",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
