@@ -141,9 +141,14 @@ python3 ./setup/setup_dashboards.py --project <PROJECT_ID> --dataset <DATASET_ID
 
 ### Maintaining Model Pricing
 The FinOps and LLM Audit dashboards calculate costs based on the `model_pricing` table created in `setup/setup_bq_views.py`. 
-To update pricing or add new models:
-1.  **Modify SQL**: Update rows in the `pricing_sql` block of [./setup/setup_bq_views.py](./setup/setup_bq_views.py) (lines 10-20).
-2.  **Re-Run Setup**: Execute `python3 ./setup/setup_bq_views.py` with your environment parameters.
+
+To verify or update the pricing rates against the official Google Cloud rates:
+1. **Check Official Pricing**: Consult the official [Google Cloud Vertex AI Pricing Page](https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing) for the latest per-million-tokens input/output costs.
+2. **Modify SQL**: Update the matching row(s) or add new rows in the `pricing_sql` block of [setup_bq_views.py](./setup/setup_bq_views.py). Keep the token rate calculated as `cost_per_million_tokens / 1000000`.
+3. **Re-Run Setup**: Re-run the setup script using your virtual environment to apply changes to BigQuery:
+   ```bash
+   python3 ./setup/setup_bq_views.py --project <PROJECT_ID> --dataset <DATASET_ID> --table <TABLE_NAME>
+   ```
 
 ### Manual Setup Steps
 If you prefer not to use the automated python scripts, follow these steps:

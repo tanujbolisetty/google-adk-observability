@@ -282,6 +282,11 @@ def main():
         template_str = template_str.replace("${bq_table}", bq_table)
         template_str = template_str.replace("${datasource}", ds_uid)
         
+        # Also replace default textbox values for immediate startup loading
+        template_str = template_str.replace("your-project-id", gcp_project)
+        template_str = template_str.replace("your-dataset-id", bq_dataset)
+        template_str = template_str.replace("your-table-name", bq_table)
+        
         try:
             data = json.loads(template_str)
         except json.JSONDecodeError as e:

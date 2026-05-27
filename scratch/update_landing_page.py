@@ -33,12 +33,21 @@ if target_index != -1:
         "overrides": []
     }
     panel_15['options'] = {
-        "reduceOptions": { "values": False, "calcs": ["sum"], "fields": "" },
+        "reduceOptions": { "values": True, "calcs": ["sum"], "fields": "" },
         "pieType": "donut",
         "displayLabels": ["name", "percent"],
         "legend": { "showLegend": True, "displayMode": "list", "placement": "right" },
         "tooltip": { "mode": "single", "sort": "none" }
     }
+    panel_15['transformations'] = [
+        {
+            "id": "rowsToFields",
+            "options": {
+                "lookupField": "app_name",
+                "valueField": "total_tokens"
+            }
+        }
+    ]
     # SQL query for panel 15 remains the same (already groups by app_name)
 
     # 2. Create Panel 16 for Cost Pie Chart
@@ -60,7 +69,7 @@ if target_index != -1:
             "overrides": []
         },
         "options": {
-            "reduceOptions": { "values": False, "calcs": ["sum"], "fields": "" },
+            "reduceOptions": { "values": True, "calcs": ["sum"], "fields": "" },
             "pieType": "donut",
             "displayLabels": ["name", "percent"],
             "legend": { "showLegend": True, "displayMode": "list", "placement": "right" },
@@ -76,7 +85,16 @@ if target_index != -1:
                 }
             }
         ],
-        "id": 16
+        "id": 16,
+        "transformations": [
+            {
+                "id": "rowsToFields",
+                "options": {
+                    "lookupField": "app_name",
+                    "valueField": "total_cost"
+                }
+            }
+        ]
     }
 
     # Insert Panel 16 after Panel 15

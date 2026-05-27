@@ -2,21 +2,172 @@ import os
 import argparse
 from google.cloud import bigquery
 
+COLUMN_DESCRIPTIONS = {
+    "model_pricing": {
+        "model_version": "The name/version of the LLM model (e.g., gemini-1.5-flash)",
+        "input_cost_per_token": "The pricing cost in USD for 1 input/prompt token",
+        "output_cost_per_token": "The pricing cost in USD for 1 output/candidate token",
+    },
+    "v_aaa_session_summary": {
+        "session_id": "Unique identifier for the agent session",
+        "user_id": "Unique identifier for the user",
+        "session_start": "Timestamp when the session started (first event timestamp)",
+        "session_end": "Timestamp when the session ended (last event timestamp)",
+        "session_duration_ms": "Total wall-clock duration of the session in milliseconds",
+        "total_turns": "Total number of request-response turns in this session",
+        "human_messages": "Count of messages sent by the user in this session",
+        "total_llm_calls": "Total count of LLM requests made during this session",
+        "total_tools_executed": "Total count of tools executed during this session",
+        "total_errors": "Total count of errors encountered during this session",
+        "session_total_tokens": "Aggregated input and output token count for the session",
+        "session_prompt_tokens": "Aggregated input/prompt token count for the session",
+        "session_completion_tokens": "Aggregated output/completion token count for the session",
+        "session_total_cost_usd": "Estimated total cost of the session in USD based on token counts and model pricing",
+        "max_ttft_ms": "Maximum Time To First Token (TTFT) latency recorded in this session",
+        "app_name": "Name of the application emitting the events",
+    },
+    "v_aaa_turn_summary": {
+        "session_id": "Unique identifier for the agent session",
+        "invocation_id": "Unique identifier for the specific conversation turn",
+        "user_id": "Unique identifier for the user",
+        "user_query": "The text of the user query for this turn",
+        "turn_index": "Chronological 1-based index of the turn within the session",
+        "turn_start": "Timestamp when the turn began",
+        "turn_end": "Timestamp when the turn ended",
+        "llm_calls_in_turn": "Number of LLM calls made during this turn",
+        "tools_in_turn": "Number of tool executions during this turn",
+        "errors_in_turn": "Number of errors encountered during this turn",
+        "tokens": "Total tokens consumed during this turn",
+        "cost": "Total estimated cost in USD for this turn",
+        "total_llm_latency_ms": "Total duration in milliseconds spent on LLM inference in this turn",
+        "total_tool_latency_ms": "Total duration in milliseconds spent executing tools in this turn",
+        "turn_duration_ms": "Total duration in milliseconds for this turn",
+        "turn_overhead_ms": "System and routing overhead in milliseconds (turn duration minus LLM and tool latencies)",
+        "app_name": "Name of the application emitting the events",
+    },
+    "v_aaa_llm_calls": {
+        "timestamp": "Timestamp of the LLM response event",
+        "session_id": "Unique identifier for the agent session",
+        "invocation_id": "Unique identifier for the specific conversation turn",
+        "user_id": "Unique identifier for the user",
+        "agent": "Name of the agent or specialist that made the LLM call",
+        "app_name": "Name of the application emitting the events",
+        "model": "The LLM model version used for the call",
+        "prompt_tokens": "Number of input/prompt tokens consumed by this call",
+        "completion_tokens": "Number of output/candidate tokens consumed by this call",
+        "total_tokens": "Total tokens consumed by this call",
+        "calculated_usd_cost": "Calculated cost in USD for this individual LLM call",
+        "prompt": "The prompt/input content sent to the model",
+        "response": "The text response returned by the model",
+    },
+    "v_aaa_tool_usage": {
+        "timestamp": "Timestamp of the tool completion event",
+        "session_id": "Unique identifier for the agent session",
+        "invocation_id": "Unique identifier for the specific conversation turn",
+        "user_id": "Unique identifier for the user",
+        "agent": "Name of the agent or specialist that executed the tool",
+        "app_name": "Name of the application emitting the events",
+        "tool_name": "Name of the tool executed",
+        "status": "Completion status of the tool execution (e.g., OK, ERROR)",
+        "error_message": "Error message if the tool execution failed",
+        "latency_ms": "Duration of the tool execution in milliseconds",
+        "input_args": "Input arguments passed to the tool",
+        "output_result": "Output result returned by the tool",
+    },
+    "v_aaa_agent_routing": {
+        "timestamp": "Timestamp of the routing event",
+        "session_id": "Unique identifier for the agent session",
+        "user_id": "Unique identifier for the user",
+        "invocation_id": "Unique identifier for the specific conversation turn",
+        "app_name": "Name of the application emitting the events",
+        "orchestrator": "Name of the root/orchestrator agent",
+        "assigned_specialist": "Name of the specialist agent or tool assigned to the task",
+        "event_type": "The event type recorded (e.g., AGENT_COMPLETED, LLM_REQUEST)",
+    },
+    "v_aaa_user_intent": {
+        "timestamp": "Timestamp of the user message event",
+        "session_id": "Unique identifier for the agent session",
+        "user_id": "Unique identifier for the user",
+        "raw_user_prompt": "The text summary of the user prompt",
+        "app_name": "Name of the application emitting the events",
+        "user_timezone": "The timezone of the user if present in session metadata",
+    },
+    "v_aaa_session_transcript": {
+        "timestamp": "Timestamp of the message event",
+        "session_id": "Unique identifier for the agent session",
+        "user_id": "Unique identifier for the user",
+        "app_name": "Name of the application emitting the events",
+        "speaker": "The message sender, either 'Human' or 'Agent'",
+        "message": "The clean, formatted text of the message",
+    },
+    "v_aaa_session_chronology": {
+        "time": "Timestamp of the step event",
+        "session_id": "Unique identifier for the agent session",
+        "user_id": "Unique identifier for the user",
+        "app_name": "Name of the application emitting the events",
+        "invocation_id": "Unique identifier for the specific conversation turn",
+        "event_type": "Raw event type from logs",
+        "step_type": "Human-readable event classification (e.g., Human Input, Tool Execution Result)",
+        "actor": "The entity performing the action (Orchestrator, Specialist, Tool, System)",
+        "duration_ms": "Duration of the step in milliseconds",
+        "status": "Completion status of the step",
+        "error_message": "Error message if the step failed",
+        "message": "The primary message content for the chat replay",
+        "technical_details": "Collapsed JSON payload containing internal execution details",
+        "_full_details": "Full JSON payload for detail inspection",
+    }
+}
+
+def apply_column_descriptions(client, dataset_ref, view_or_table_name):
+    """Fetches the view/table, sets the column descriptions, and updates the schema."""
+    descriptions = COLUMN_DESCRIPTIONS.get(view_or_table_name, {})
+    if not descriptions:
+        return
+        
+    try:
+        table_ref = f"{dataset_ref}.{view_or_table_name}"
+        table = client.get_table(table_ref)
+        new_schema = []
+        updated = False
+        
+        for field in table.schema:
+            desc = descriptions.get(field.name)
+            if desc and field.description != desc:
+                new_schema.append(bigquery.SchemaField(
+                    name=field.name,
+                    field_type=field.field_type,
+                    mode=field.mode,
+                    description=desc,
+                    fields=field.fields
+                ))
+                updated = True
+            else:
+                new_schema.append(field)
+                
+        if updated:
+            table.schema = new_schema
+            client.update_table(table, ["schema"])
+            print(f"   └─ Applied column descriptions to {view_or_table_name}")
+    except Exception as e:
+        print(f"   ⚠️  Failed to apply column descriptions to {view_or_table_name}: {e}")
+
 def create_views(project_id, dataset_id, table_name):
     client = bigquery.Client(project=project_id)
     dataset_ref = f"{project_id}.{dataset_id}"
 
-    # 1. Model Pricing Table
     pricing_sql = f"""
     CREATE OR REPLACE TABLE `{dataset_ref}.model_pricing` AS
     SELECT "gemini-1.5-flash" AS model_version, 0.075 / 1000000 AS input_cost_per_token, 0.30 / 1000000 AS output_cost_per_token UNION ALL
     SELECT "gemini-1.5-pro", 1.25 / 1000000, 5.00 / 1000000 UNION ALL
     SELECT "gemini-2.0-flash", 0.10 / 1000000, 0.40 / 1000000 UNION ALL
     SELECT "gemini-2.0-pro", 1.50 / 1000000, 6.00 / 1000000 UNION ALL
+    SELECT "gemini-2.5-flash-lite", 0.10 / 1000000, 0.40 / 1000000 UNION ALL
     SELECT "gemini-2.5-flash", 0.30 / 1000000, 2.50 / 1000000 UNION ALL
     SELECT "gemini-2.5-pro", 1.25 / 1000000, 10.00 / 1000000 UNION ALL
     SELECT "gemini-3.0-flash", 0.50 / 1000000, 3.00 / 1000000 UNION ALL
-    SELECT "gemini-3.0-pro", 2.00 / 1000000, 12.00 / 1000000;
+    SELECT "gemini-3.0-pro", 2.00 / 1000000, 12.00 / 1000000 UNION ALL
+    SELECT "gemini-3.1-flash-lite", 0.25 / 1000000, 1.50 / 1000000 UNION ALL
+    SELECT "gemini-3.5-flash", 1.50 / 1000000, 9.00 / 1000000;
     """
     
     # 2. Master Session Summary
@@ -380,6 +531,18 @@ def create_views(project_id, dataset_id, table_name):
     view_success = 0
     fail_count = 0
 
+    query_to_view_name = {
+        "Pricing Table": "model_pricing",
+        "Session Summary View": "v_aaa_session_summary",
+        "Turn Summary View": "v_aaa_turn_summary",
+        "LLM Calls View": "v_aaa_llm_calls",
+        "Tool Usage View": "v_aaa_tool_usage",
+        "Agent Routing View": "v_aaa_agent_routing",
+        "User Intent View": "v_aaa_user_intent",
+        "Session Transcript View": "v_aaa_session_transcript",
+        "Unified Session Chronology": "v_aaa_session_chronology"
+    }
+
     for name, sql in queries:
         try:
             query_job = client.query(sql)
@@ -389,11 +552,16 @@ def create_views(project_id, dataset_id, table_name):
                 table_success += 1
             else:
                 view_success += 1
+            
+            # Apply column-level descriptions
+            view_name = query_to_view_name.get(name)
+            if view_name:
+                apply_column_descriptions(client, dataset_ref, view_name)
         except Exception as e:
             print(f"❌ Failed to create {name}: {e}")
             fail_count += 1
 
-    print(f"\n📊 Summary: {table_success} Tables and {view_success} Views created successfully. ({fail_count} failed)")
+    print(f"\n📊 Summary: {table_success} Tables and {view_success} Views created/updated successfully. ({fail_count} failed)")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Setup BigQuery Views for Agent Analytics Dashboard")

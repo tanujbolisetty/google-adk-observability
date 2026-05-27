@@ -26,3 +26,6 @@ upcoming_changes.md
 # Docker local artifacts
 docker/
 
+# Scratch files
+scratch/
+

@@ -159,7 +159,7 @@
       "id": 6
     },
     {
-      "type": "timeseries",
+      "type": "barchart",
       "title": "📈 Sessions Per Day",
       "gridPos": {
         "h": 8,
@@ -180,36 +180,39 @@
       "fieldConfig": {
         "defaults": {
           "custom": {
-            "drawStyle": "bars",
-            "fillOpacity": 20,
-            "barAlignment": 0,
-            "lineWidth": 1,
-            "showPoints": "never",
+            "fillOpacity": 80,
+            "barWidth": 0.8,
+            "gradientMode": "hue",
+            "axisBorderShow": false,
             "stacking": {
               "group": "A",
               "mode": "normal"
             }
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "time"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "time:MM/DD"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "orientation": "auto",
+        "xField": "time",
+        "barWidth": 0.8,
+        "groupWidth": 0.7,
+        "showValue": "auto",
+        "stacking": "normal",
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "id": 7
     },
     {
-      "type": "timeseries",
+      "type": "barchart",
       "title": "📊 Questions Per Day",
       "gridPos": {
         "h": 8,
@@ -230,33 +233,34 @@
       "fieldConfig": {
         "defaults": {
           "custom": {
-            "drawStyle": "bars",
-            "fillOpacity": 20,
-            "barAlignment": 0,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "lineInterpolation": "smooth",
-            "gradientMode": "opacity",
+            "fillOpacity": 80,
+            "barWidth": 0.8,
+            "gradientMode": "hue",
+            "axisBorderShow": false,
             "stacking": {
               "group": "A",
               "mode": "normal"
             }
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "time"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "time:MM/DD"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "orientation": "auto",
+        "xField": "time",
+        "barWidth": 0.8,
+        "groupWidth": 0.7,
+        "showValue": "auto",
+        "stacking": "normal",
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "description": "Daily volume of human-initiated prompts processed by the agent.",
       "id": 10
@@ -288,7 +292,7 @@
       },
       "options": {
         "reduceOptions": {
-          "values": false,
+          "values": true,
           "calcs": [
             "sum"
           ],
@@ -319,7 +323,16 @@
           }
         }
       ],
-      "id": 15
+      "id": 15,
+      "transformations": [
+        {
+          "id": "rowsToFields",
+          "options": {
+            "lookupField": "app_name",
+            "valueField": "total_tokens"
+          }
+        }
+      ]
     },
     {
       "type": "piechart",
@@ -348,7 +361,7 @@
       },
       "options": {
         "reduceOptions": {
-          "values": false,
+          "values": true,
           "calcs": [
             "sum"
           ],
@@ -379,7 +392,16 @@
           }
         }
       ],
-      "id": 16
+      "id": 16,
+      "transformations": [
+        {
+          "id": "rowsToFields",
+          "options": {
+            "lookupField": "app_name",
+            "valueField": "total_cost"
+          }
+        }
+      ]
     },
     {
       "type": "timeseries",
