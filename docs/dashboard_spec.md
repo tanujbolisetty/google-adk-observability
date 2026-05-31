@@ -40,30 +40,39 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
     - **Total User Questions (Stat)**: Total count of human-initiated prompts. Sourced from `v_aaa_user_intent` to prioritize "What did the human ask?" over internal technical reprocessing. (Source: `v_aaa_user_intent`)
     - **Total Tokens (Stat)**: Cumulative volume of input and output tokens. (Source: `v_aaa_session_summary`)
     - **Total Estimated Cost (Stat)**: Aggregated USD consumption. (Source: `v_aaa_session_summary`)
+    - **Sessions Per Day (Bar Chart)**: Daily volume of active sessions grouped by application. (Source: `v_aaa_session_summary`)
+    - **Questions Per Day (Bar Chart)**: Daily volume of human queries. (Source: `v_aaa_user_intent`)
     - **Token Distribution by App (Donut Chart)**: Visualizing proportional usage across the fleet (v1.5). (Source: `v_aaa_session_summary`)
     - **Cost Distribution by App (Donut Chart)**: Identifying budget-heavy applications (v1.5). (Source: `v_aaa_session_summary`)
+    - **Daily Token Consumption (Time Series)**: Daily input/output tokens trends. (Source: `v_aaa_session_summary`)
     - **User Questions (Intent) (Table)**: Captured human prompts with full-width layout and zero-scroll visibility. (Source: `v_aaa_user_intent`)
-    - **Usage Trends (Mixed Time Series)**: Daily token volume (Logarithmic). (Source: `v_aaa_session_summary`)
-    - **Cost by User (Bar Chart)**: Top 10 most active users. (Source: `v_aaa_session_summary`)
+    - **Recent Sessions by User (Table)**: Latest 20 user sessions with activity and cost summaries. (Source: `v_aaa_session_summary`)
 
 ### 2. 💰 Token FinOps
 **Goal**: Cost drivers and budget tracking.
 - **Panel Breakdown**:
-    - **Cost Over Time (Time Series)**: Per-session cost trending. (Source: `v_aaa_turn_summary`)
-    - **Tokens Per Turn (Time Series)**: Average context payload per interaction. (Source: `v_aaa_turn_summary`)
-    - **Usage by Model (Bar Chart)**: Token split (Gemini 1.0 vs 1.5 Pro/Flash). (Source: `v_aaa_llm_calls`)
-    - **Usage by Agent (Bar Chart)**: Tracking specialist assistant resource consumption. (Source: `v_aaa_turn_summary`)
+    - **Session Cost Over Time (Time Series)**: Per-session cost trending over time. (Source: `v_aaa_session_summary`)
+    - **Tokens Consumed Per Turn (Time Series)**: Average context payload per turn. (Source: `v_aaa_turn_summary`)
+    - **Token Usage by Model Version (Bar Chart)**: Token and cost split across model versions. (Source: `v_aaa_llm_calls`)
+    - **Cost Breakdown Per Session (Table)**: Table detailing token and cost breakdown per session. (Source: `v_aaa_llm_calls`)
+    - **Token Usage by Specialist (Bar Chart)**: Tracking specialist assistant resource consumption. (Source: `v_aaa_llm_calls`)
+    - **Top 10 Spenders (USD) (Bar Chart)**: Top 10 users generating the highest operational costs. (Source: `v_aaa_session_summary`)
 
 ### 3. ⚙️ System Diagnostics
 **Goal**: Latency attribution and error tracking.
 - **Panel Breakdown**:
-    - **Total Errors (Stat)**: count of failing interactions. (Source: `v_aaa_turn_summary`)
-    - **Max TTFT (Stat)**: Identifying peak inference lag. Note: A high TTFT relative to Total Duration suggests streaming optimization is working; identical values suggest blocking `run()` calls. (Source: `v_aaa_turn_summary`)
-    - **Turn Latency Breakdown (Scatter + Bar)**: 
-        - **Scatter Plot**: TTFT trends for outlier spikes.
-        - **Bar Chart**: Latency attribution (LLM vs Tools vs Overhead).
+    - **Total Errors (Stat)**: Count of failing interactions. (Source: base table)
+    - **Max TTFT (Stat)**: Identifying peak inference lag. Note: A high TTFT relative to Total Duration suggests streaming optimization is working; identical values suggest blocking `run()` calls. (Source: base table)
+    - **Turning Cost (USD) (Stat)**: Total estimated cost of LLM calls in the current session/period. (Source: `v_aaa_llm_calls`)
+    - **Success Rate (Stat)**: Percentage of agent turns that finished without an error. (Source: `v_aaa_turn_summary`)
+    - **Turn Latency Attribution (Avg vs P95) (Table)**: Average and P95 latency breakdown for LLM reasoning, Tool execution, and Overhead. (Source: `v_aaa_turn_summary`)
+    - **Turn Latency Distribution (Histogram)**: Bucketized distribution of turn durations. (Source: `v_aaa_turn_summary`)
+    - **Turn Latency Attribution Trend (Time Series)**: Stacked bar chart showing LLM reasoning, Tool execution, and Overhead trend over time. (Source: `v_aaa_turn_summary`)
+    - **System Latency Trend (TTFT) (Scatter Plot)**: TTFT trends for outlier spikes over time. (Source: base table)
+    - **Slowest Tools (Bar Chart)**: Tool names ranked by average execution latency. (Source: `v_aaa_tool_usage`)
     - **Orchestrator Handoffs (Bar Chart)**: Routing volume to sub-agents. (Source: `v_aaa_agent_routing`)
-    - **Error Details (Table)**: Granular log for technical debugging. (Source: `v_aaa_turn_summary`)
+    - **Agent & Tool Distribution (Table)**: Frequency and performance of specific tool calls mapped to agents. (Source: `v_aaa_tool_usage`)
+    - **Error Rate by Specialist (Table)**: Granular log of all system errors. (Source: base table)
 
 ### 4. 💬 Chat Transcripts
 **Goal**: Qualitative audit of human-agent conversations.
