@@ -813,7 +813,7 @@
         "name": "session_id",
         "label": "Session",
         "type": "query",
-        "hide": 2,
+        "hide": 0,
         "query": {
           "rawSql": "SELECT DISTINCT session_id FROM (SELECT session_id, MAX(timestamp) as last_seen FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (JSON_VALUE(attributes, '$.session_metadata.app_name') = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND $__timeFilter(timestamp) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000)",
           "rawQuery": true,
