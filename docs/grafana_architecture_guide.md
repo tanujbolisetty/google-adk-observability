@@ -54,7 +54,7 @@ To ensure forensic usability, all `user_id` and `session_id` dropdowns are confi
 
 ### 5. Interactive Traceability (Hover Metadata)
 To bridge the gap between visual charts and raw technical logs, we use **Hidden Metadata Overrides**:
-- **Implementation**: Charts (like "Session Performance Profile" and "Context Inflation") include the full `invocation_id` in their SQL results.
+- **Implementation**: Charts (like "Context Inflation") include the full `invocation_id` in their SQL results.
 - **Visual Hygiene**: A Grafana field override is applied to set `custom.hidden: true` for the `invocation_id` field.
 - **Result**: The ID is invisible in the graph bars/legend but appears in the **hover tooltip**, allowing developers to copy-paste the exact ID into the "Traces" or "LLM Audit" table filters for a surgical autopsy of a specific turn.
 

@@ -74,7 +74,7 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
 ### 5. 🔎 Agent Technical Traces
 **Goal**: Deep technical autopsy of tool payloads and orchestrator logic.
 - **Panel Breakdown**:
-    - **Session Performance Profile (Bar Gauge)**: Per-turn latency breakdown. (Source: `v_aaa_turn_summary`)
+    - **Session Performance Profile (Bar Gauge)**: Session-level aggregated latency breakdown (LLM time, Tool time, Overhead). (Source: `v_aaa_turn_summary`)
     - **Session Duration (Stat)**: Total interaction time health check. (Source: `v_aaa_session_summary`)
     - **Total LLM Calls (Stat)**: Volume of inference triggers. (Source: `v_aaa_session_summary`)
     - **Total Tool Calls (Stat)**: Volume of external API triggers. (Source: `v_aaa_session_summary`)
