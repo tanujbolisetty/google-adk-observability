@@ -81,6 +81,12 @@ The project is architected for **Generic Agent Observability**:
 
 ---
 
+### 9. X-Axis Label Hygiene (Long Names)
+To prevent text truncation and ensure clear visual hierarchy on charts containing long identifiers:
+- **Angle Rotation**: Bar charts displaying long specialist agent names or user IDs (such as "Token Usage by Specialist" and "Top 10 Spenders" on the FinOps dashboard) are configured with a **`-45°` slant (`"xTickLabelRotation": -45`)**. This allows long alphanumeric names to fit comfortably along the X-axis without overlapping.
+
+---
+
 ## 🔗 Global Navigation Header
 Every dashboard features a persistent, **2-line HTML navigation bar** at the top.
 

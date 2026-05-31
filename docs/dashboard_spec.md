@@ -55,8 +55,8 @@ To balance global monitoring with surgical forensic isolation, the suite impleme
     - **Tokens Consumed Per Turn (Time Series)**: Average context payload per turn. (Source: `v_aaa_turn_summary`)
     - **Token Usage by Model Version (Bar Chart)**: Token and cost split across model versions. (Source: `v_aaa_llm_calls`)
     - **Cost Breakdown Per Session (Table)**: Table detailing token and cost breakdown per session. (Source: `v_aaa_llm_calls`)
-    - **Token Usage by Specialist (Bar Chart)**: Tracking specialist assistant resource consumption. (Source: `v_aaa_llm_calls`)
-    - **Top 10 Spenders (USD) (Bar Chart)**: Top 10 users generating the highest operational costs. (Source: `v_aaa_session_summary`)
+    - **Token Usage by Specialist (Bar Chart)**: Tracking specialist assistant resource consumption. Configured with a `-45°` x-axis label rotation to support long specialist name formatting. (Source: `v_aaa_llm_calls`)
+    - **Top 10 Spenders (USD) (Bar Chart)**: Top 10 users generating the highest operational costs. Configured with a `-45°` x-axis label rotation to support long User ID formatting. (Source: `v_aaa_session_summary`)
 
 ### 3. ⚙️ System Diagnostics
 **Goal**: Latency attribution and error tracking.
