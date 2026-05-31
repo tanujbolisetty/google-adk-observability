@@ -61,7 +61,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT count(DISTINCT session_id) as total_sessions FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session'))",
+          "rawSql": "SELECT count(DISTINCT session_id) as total_sessions FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User'))",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -87,7 +87,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT count(*) as total_questions FROM `${gcp_project}.${bq_dataset}.v_aaa_user_intent` WHERE $__timeFilter(timestamp) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session'))",
+          "rawSql": "SELECT count(*) as total_questions FROM `${gcp_project}.${bq_dataset}.v_aaa_user_intent` WHERE $__timeFilter(timestamp) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User'))",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -113,7 +113,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT sum(session_total_tokens) as tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session'))",
+          "rawSql": "SELECT sum(session_total_tokens) as tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User'))",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -147,7 +147,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT sum(session_total_cost_usd) as cost FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session'))",
+          "rawSql": "SELECT sum(session_total_cost_usd) as cost FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User'))",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -169,7 +169,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, COUNT(DISTINCT session_id) AS value, app_name FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session')) GROUP BY 1, 3 ORDER BY 1",
+          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, COUNT(DISTINCT session_id) AS value, app_name FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) GROUP BY 1, 3 ORDER BY 1",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -222,7 +222,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT TIMESTAMP(DATE(timestamp)) AS time, COUNT(*) AS value, app_name FROM `${gcp_project}.${bq_dataset}.v_aaa_user_intent` WHERE $__timeFilter(timestamp) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session')) GROUP BY 1, 3 ORDER BY 1",
+          "rawSql": "SELECT TIMESTAMP(DATE(timestamp)) AS time, COUNT(*) AS value, app_name FROM `${gcp_project}.${bq_dataset}.v_aaa_user_intent` WHERE $__timeFilter(timestamp) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) GROUP BY 1, 3 ORDER BY 1",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -315,7 +315,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT app_name, SUM(session_total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session')) GROUP BY app_name ORDER BY total_tokens DESC",
+          "rawSql": "SELECT app_name, SUM(session_total_tokens) as total_tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) GROUP BY app_name ORDER BY total_tokens DESC",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -384,7 +384,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT app_name, SUM(session_total_cost_usd) as total_cost FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session')) GROUP BY app_name ORDER BY total_cost DESC",
+          "rawSql": "SELECT app_name, SUM(session_total_cost_usd) as total_cost FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) GROUP BY app_name ORDER BY total_cost DESC",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -414,7 +414,7 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, SUM(session_total_tokens) AS value, app_name FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session')) GROUP BY 1, 3 ORDER BY 1",
+          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, SUM(session_total_tokens) AS value, app_name FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) GROUP BY 1, 3 ORDER BY 1",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -422,7 +422,7 @@
           }
         },
         {
-          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, SUM(session_prompt_tokens) AS input_tokens, SUM(session_completion_tokens) AS output_tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (session_id = '${session_id:raw}' OR '${session_id:raw}' IN ('All', 'Select_Session')) GROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT TIMESTAMP(DATE(session_start)) AS time, SUM(session_prompt_tokens) AS input_tokens, SUM(session_completion_tokens) AS output_tokens FROM `${gcp_project}.${bq_dataset}.v_aaa_session_summary` WHERE $__timeFilter(session_start) AND (app_name = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) GROUP BY 1 ORDER BY 1",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -813,7 +813,7 @@
         "name": "session_id",
         "label": "Session",
         "type": "query",
-        "hide": 0,
+        "hide": 2,
         "query": {
           "rawSql": "SELECT DISTINCT session_id FROM (SELECT session_id, MAX(timestamp) as last_seen FROM `${gcp_project}.${bq_dataset}.${bq_table}` WHERE (user_id = '${user_id:raw}' OR '${user_id:raw}' IN ('All', 'Select_User')) AND (JSON_VALUE(attributes, '$.session_metadata.app_name') = '${application:raw}' OR '${application:raw}' IN ('All', 'Select_Application', '$__all')) AND $__timeFilter(timestamp) GROUP BY 1 ORDER BY last_seen DESC LIMIT 1000)",
           "rawQuery": true,

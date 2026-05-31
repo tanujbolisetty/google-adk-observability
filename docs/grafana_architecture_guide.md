@@ -37,7 +37,7 @@ Every dashboard shares a common set of variables. Here is how they apply across 
 
 ### 2. Variable Logic & Cascading
 - **Cascading Filters**: Filters are "aware" of each other. For example, selecting a **User ID** automatically limits the **Session ID** list to only that user's sessions.
-- **Full Symmetric Selection (v1.4)**: The system now preserves your selected User and Session context across the **entire suite**. If you are investigating a specific session in the Transcripts or Traces dashboard and click back to "Home", "FinOps", or "Diagnostics", the panels will automatically restrict their view to that specific session/user. This allows for localized "Summary Autopsies" where you can see the cost and performance impact of a single conversation within the context of the summary views.
+- **Full Symmetric Selection (v1.4)**: The system preserves your selected User and Session context across the **entire suite** (excluding the **Agent Home** dashboard, which always displays fleet-wide statistics). If you are investigating a specific session in the Transcripts or Traces dashboard and click back to "FinOps" or "Diagnostics", the panels will restrict their view to that specific session/user. This allows for localized "Summary Autopsies" where you can see the cost and performance impact of a single conversation within the context of the summary views.
 - **Symmetric Defaults**: Summary dashboards default to "All" (fleet-wide overview) while forensic dashboards default to explicitly requiring a "Select_User" selection.
 - **Diagnostics Multi-Filter**: The Diagnostics page is the only one that uses the **Agent** and **Tool** filters, allowing you to narrow down system-wide bottlenecks.
 
