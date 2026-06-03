@@ -381,7 +381,7 @@
       "description": "A complete step-by-step audit of the entire session containing human inputs, orchestrator routes, tool executions, and their payloads.",
       "targets": [
         {
-          "rawSql": "SELECT time, app_name, actor, step_type, message, duration_ms, status, error_message FROM `${gcp_project}.${bq_dataset}.v_aaa_session_chronology` WHERE (session_id = '${session_id:raw}') AND '${session_id:raw}' NOT IN ('Select_Session', '--', 'All') AND (app_name = '${application:raw}') AND '${application:raw}' NOT IN ('Select_Application', 'All', '--') ORDER BY time ASC",
+          "rawSql": "SELECT time, app_name, actor, step_type, message, technical_details, _full_details, duration_ms, status, error_message FROM `${gcp_project}.${bq_dataset}.v_aaa_session_chronology` WHERE (session_id = '${session_id:raw}') AND '${session_id:raw}' NOT IN ('Select_Session', '--', 'All') AND (app_name = '${application:raw}') AND '${application:raw}' NOT IN ('Select_Application', 'All', '--') ORDER BY time ASC",
           "format": "table",
           "datasource": {
             "type": "grafana-bigquery-datasource",
@@ -393,6 +393,7 @@
         "defaults": {
           "custom": {
             "wrapText": false,
+            "inspect": true,
             "filterable": true
           }
         },
@@ -403,6 +404,10 @@
               "options": "time"
             },
             "properties": [
+              {
+                "id": "displayName",
+                "value": "Time"
+              },
               {
                 "id": "custom.width",
                 "value": 160
@@ -432,6 +437,10 @@
             },
             "properties": [
               {
+                "id": "displayName",
+                "value": "Step Type"
+              },
+              {
                 "id": "custom.width",
                 "value": 150
               }
@@ -443,6 +452,10 @@
               "options": "actor"
             },
             "properties": [
+              {
+                "id": "displayName",
+                "value": "Actor"
+              },
               {
                 "id": "custom.width",
                 "value": 100
@@ -456,8 +469,16 @@
             },
             "properties": [
               {
+                "id": "displayName",
+                "value": "Duration"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
                 "id": "custom.width",
-                "value": 80
+                "value": 100
               }
             ]
           },
@@ -467,6 +488,10 @@
               "options": "status"
             },
             "properties": [
+              {
+                "id": "displayName",
+                "value": "Status"
+              },
               {
                 "id": "custom.width",
                 "value": 80
@@ -480,6 +505,10 @@
             },
             "properties": [
               {
+                "id": "displayName",
+                "value": "Error Message"
+              },
+              {
                 "id": "custom.width",
                 "value": 150
               }
@@ -492,6 +521,10 @@
             },
             "properties": [
               {
+                "id": "displayName",
+                "value": "Message"
+              },
+              {
                 "id": "custom.inspect",
                 "value": true
               }
@@ -503,6 +536,10 @@
               "options": "technical_details"
             },
             "properties": [
+              {
+                "id": "displayName",
+                "value": "Technical Details"
+              },
               {
                 "id": "custom.displayMode",
                 "value": "auto"
