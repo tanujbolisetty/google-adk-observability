@@ -197,6 +197,7 @@ A centralized documentation hub for metric glossaries and system architecture us
 | bq_dashboard_views.md | **Understanding Views** | v1.3 | [SQL logic & field mappings](./docs/bq_dashboard_views.md). |
 | dashboard_spec.md | **Understanding Dashboards** | v1.3 | [Business metrics & panel definitions](./docs/dashboard_spec.md). |
 | grafana_architecture_guide.md | **Architecture** | v1.3 | [Drill-down logic & navigation](./docs/grafana_architecture_guide.md). |
+| production_readiness_guide.md | **Production Readiness** | v1.3 | [Telemetry validation, dashboard checks, access review, alerting guidance & rollout sign-off](./docs/production_readiness_guide.md). |
 
 ## 📚 References
 - [Building Observable AI Agents: Real-time Analytics for LangGraph with BigQuery Agent Analytics](https://medium.com/google-cloud/building-observable-ai-agents-real-time-analytics-for-langgraph-with-bigquery-agent-analytics-9a1ac20837ec) — by [Haiyuan Cao](https://medium.com/@haiyuan-cao)
